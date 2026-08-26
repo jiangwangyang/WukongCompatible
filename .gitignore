@@ -1,0 +1,33 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+mcmodsrepo
+
+# other
+eclipse
+run
+run-data
+releases
+
+# Local test mods. Keep only the two jars required by build.gradle.
+libs/*
+!libs/EpicFight-20.14.17.jar
+!libs/geckolib-4.8.3.jar
+
+# Files from Forge MDK
+forge*changelog.txt

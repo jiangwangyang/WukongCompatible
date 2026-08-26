@@ -1,0 +1,196 @@
+{
+  "haomao_swsf_end": {
+    "subtitle": "sounds.wukong.haomao_swsf_end",
+    "sounds": [
+      "wukong:haomao_swsf_end"
+    ]
+  },
+  "haomao_swsf": {
+    "subtitle": "sounds.wukong.haomao_swsf",
+    "sounds": [
+      "wukong:haomao_swsf"
+    ]
+  },
+  "fashu_ass": {
+    "subtitle": "sounds.wukong.fashu_ass",
+    "sounds": [
+      "wukong:fashu_ass"
+    ]
+  },
+  "fashu_dss": {
+    "subtitle": "sounds.wukong.fashu_dss",
+    "sounds": [
+      "wukong:fashu_dss"
+    ]
+  },
+  "shenfa_tttb": {
+    "subtitle": "sounds.wukong.shenfa_tttb",
+    "sounds": [
+      "wukong:shenfa_tttb"
+    ]
+  },
+  "shenfa_jxsq_cast": {
+    "subtitle": "sounds.wukong.shenfa_jxsq_cast",
+    "sounds": [
+      "wukong:shenfa_jxsq_cast"
+    ]
+  },
+  "shenfa_jxsq_end": {
+    "subtitle": "sounds.wukong.shenfa_jxsq_end",
+    "sounds": [
+      "wukong:shenfa_jxsq_end"
+    ]
+  },
+  "xuli_attack_4": {
+    "subtitle": "sounds.wukong.xuli_attack_4",
+    "sounds": [
+      "wukong:xuli_attack_4"
+    ]
+  },
+  "xuli_ding_sou": {
+    "subtitle": "sounds.wukong.xuli_ding_sou",
+    "sounds": [
+      "wukong:xuli_ding_sou"
+    ]
+  },
+  "xuli_level_done01": {
+    "subtitle": "sounds.wukong.xuli_level_done01",
+    "sounds": [
+      "wukong:xuli_level_done01"
+    ]
+  },
+  "xuli_level_done02": {
+    "subtitle": "sounds.wukong.xuli_level_done02",
+    "sounds": [
+      "wukong:xuli_level_done02"
+    ]
+  },
+  "xuli_level_done03": {
+    "subtitle": "sounds.wukong.xuli_level_done03",
+    "sounds": [
+      "wukong:xuli_level_done03"
+    ]
+  },
+  "xuli_level_done04": {
+    "subtitle": "sounds.wukong.xuli_level_done04",
+    "sounds": [
+      "wukong:xuli_level_done04"
+    ]
+  },
+  "xuli_level_rise03": {
+    "subtitle": "sounds.wukong.xuli_level_rise03",
+    "sounds": [
+      "wukong:xuli_level_rise03"
+    ]
+  },
+"fashu_anshenfa": {
+    "subtitle": "sounds.wukong.fashu_anshenfa",
+    "sounds": [
+      "wukong:fashu_anshenfa"
+    ]
+  },
+  "fashu_ding1": {
+    "subtitle": "sounds.wukong.fashu_ding1",
+    "sounds": [
+      "wukong:fashu_ding1"
+    ]
+  },
+  "fashu_ding2": {
+    "subtitle": "sounds.wukong.fashu_ding2",
+    "sounds": [
+      "wukong:fashu_ding2"
+    ]
+  },
+  "tttbyx": {
+    "subtitle": "sounds.wukong.tttbyx",
+    "sounds": [
+      "wukong:tttbyx"
+    ]
+  },
+  "wave5": {
+    "subtitle": "sounds.wukong.wave5",
+    "sounds": [
+      "wukong:wave5"
+    ]
+  },
+  "staff_auto1": {
+    "subtitle": "sounds.wukong.staff_auto1",
+    "sounds": [
+      "wukong:staff_auto1"
+    ]
+  },
+  "staff_auto2": {
+    "subtitle": "sounds.wukong.staff_auto2",
+    "sounds": [
+      "wukong:staff_auto2"
+    ]
+  },
+  "staff_auto4": {
+    "subtitle": "sounds.wukong.staff_auto4",
+    "sounds": [
+      "wukong:staff_auto4"
+    ]
+  },
+  "staff_auto5": {
+    "subtitle": "sounds.wukong.staff_auto5",
+    "sounds": [
+      "wukong:staff_auto5"
+    ]
+  },
+  "fengchuanhua": {
+    "subtitle": "sounds.wukong.fengchuanhua",
+    "sounds": [
+      "wukong:fengchuanhua"
+    ]
+  },
+  "lgfyz": {
+    "subtitle": "sounds.wukong.lgfyz",
+    "sounds": [
+      "wukong:lgfyz"
+    ]
+  },
+  "perfect_dodge": {
+    "subtitle": "sounds.wukong.perfect_dodge",
+    "sounds": [
+      "wukong:perfect_dodge1",
+      "wukong:perfect_dodge2",
+      "wukong:perfect_dodge3"
+    ]
+  },
+  "stack1": {
+    "subtitle": "sounds.wukong.stack1",
+    "sounds": [
+      "wukong:stack1"
+    ]
+  },
+  "stack2": {
+    "subtitle": "sounds.wukong.stack2",
+    "sounds": [
+      "wukong:stack2"
+    ]
+  },
+  "stack3": {
+    "subtitle": "sounds.wukong.stack3",
+    "sounds": [
+      "wukong:stack3"
+    ]
+  },
+  "stack4": {
+    "subtitle": "sounds.wukong.stack4",
+    "sounds": [
+      "wukong:stack4"
+    ]
+  },
+  "hit_ground": {
+    "subtitle": "sounds.wukong.hit_ground",
+    "sounds": [
+      "wukong:hit_ground"
+    ]
+  },
+  "start_charge": {
+    "subtitle": "sounds.wukong.start_charge",
+    "sounds": [
+      "wukong:start_charge"
+    ]
+  }
+}
