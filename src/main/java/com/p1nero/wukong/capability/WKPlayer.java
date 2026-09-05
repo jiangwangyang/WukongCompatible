@@ -30,7 +30,7 @@ public class WKPlayer {
 
 
     public boolean isPerfectDodge() {
-        return !perfectDodge;
+        return perfectDodge;
     }
     public float getDamageReduce() {
         return damageReduce;

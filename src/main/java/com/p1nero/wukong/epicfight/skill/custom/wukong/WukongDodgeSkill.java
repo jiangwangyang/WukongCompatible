@@ -3,6 +3,7 @@ package com.p1nero.wukong.epicfight.skill.custom.wukong;
 import yesman.epicfight.skill.SkillBuilder;
 
 import com.p1nero.wukong.Config;
+import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.network.PacketHandler;
@@ -62,6 +63,8 @@ public class WukongDodgeSkill extends Skill {
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DODGE_SUCCESS_EVENT, EVENT_UUID, (event -> {
             Player player = event.getPlayerPatch().getOriginal();
             if(!container.getDataManager().getDataValue(WukongSkillDataKeys.DODGE_PLAYED.get())){
+                // 标记完美闪避, 供蓄力保留棍势判定使用
+                player.getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> wkPlayer.setPerfectDodge(true));
                 event.getPlayerPatch().playSound(WuKongSounds.PERFECT_DODGE.get(), 1, 1);
                 if(player.level() instanceof ServerLevel){
                     PacketRelay.sendToAll(PacketHandler.INSTANCE, new AddEntityAfterImageParticle(player.getId()));//涓嬮潰閭ｈ鏃犳晥锛屾墜鍔ㄥ彂鍖呰В鍐?//                serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);

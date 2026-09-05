@@ -32,7 +32,8 @@ public class WukongDodgeAnimation extends DodgeAnimation {
                             && dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get());
                     boolean isThrustCharging = dataManager.hasData(WukongSkillDataKeys.Thrust_IS_CHARGING.get())
                             && dataManager.getDataValue(WukongSkillDataKeys.Thrust_IS_CHARGING.get());
-                    if ((isCommonCharging || isThrustCharging) && wkPlayer.isPerfectDodge() && !isPerfect) {
+                    // 非完美闪避才清空棍势, 完美闪避保留棍势
+                    if ((isCommonCharging || isThrustCharging) && !wkPlayer.isPerfectDodge() && !isPerfect) {
                         weaponInnate.getSkill().setConsumptionSynchronize(weaponInnate, 1);
                         weaponInnate.getSkill().setStackSynchronize(weaponInnate, 0);
                     }
