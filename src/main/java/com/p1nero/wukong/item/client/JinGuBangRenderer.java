@@ -61,7 +61,8 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
         } else {
             MAX_CZLT = 0;
         }
-        SkillContainer containe = lpp.getSkill(WukongSkillSlots.STAFF_STYLE);
+        // GUI 渲染时玩家 patch 可能不存在, 需要判空
+        SkillContainer containe = lpp == null ? null : lpp.getSkill(WukongSkillSlots.STAFF_STYLE);
         if (containe != null && containe.getSkill() instanceof StaffStance style) {
             if ( style.getStyle(containe) ==  WukongStyles.GREATSAGE){
                 return  new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang6.png");
@@ -86,7 +87,8 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
 
         final Minecraft mc = Minecraft.getInstance();
         LocalPlayerPatch lpp = EpicFightCapabilities.getEntityPatch(mc.player, LocalPlayerPatch.class);
-        SkillContainer containe = EpicFightCapabilities.getEntityPatch(mc.player, LocalPlayerPatch.class).getSkill(WukongSkillSlots.STAFF_STYLE);
+        // GUI 渲染时玩家 patch 可能不存在, 需要判空
+        SkillContainer containe = lpp == null ? null : lpp.getSkill(WukongSkillSlots.STAFF_STYLE);
         if (containe != null && containe.getSkill() instanceof StaffStance style) {
             if ( style.getStyle(containe) ==  WukongStyles.GREATSAGE){
                 red = 1.0f;green = 70f / 255f;blue = 30f / 255f;alpha = 0.5f;packedLight = 0xf000ff;
