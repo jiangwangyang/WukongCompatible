@@ -233,14 +233,14 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                     SkillDataManager data = container.getDataManager();
                     if (data.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())
                             && !event.getAnimation().equals(chargePre.get())
-                            && !(event.getAnimation() instanceof WukongDodgeAnimation)) {
+                            && !(event.getAnimation().get() instanceof WukongDodgeAnimation)) {
                         cancelCharge(container, playerPatch);
                     }
 
                     CapabilityItem capability = EpicFightCapabilities.getItemStackCapability(player.getMainHandItem());
                     var autoAnimations = capability.getAutoAttackMotion(playerPatch);
                     for (int i = 0; i < Math.min(autoAnimations.size(), 4); i++) {
-                        if (autoAnimations.get(i).get().equals(event.getAnimation())) {
+                        if (autoAnimations.get(i).equals(event.getAnimation())) {
                             data.setDataSync(WukongSkillDataKeys.CAN_FIRST_TIMER.get(), 25, player);
                             data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0, player);
                             data.setDataSync(WukongSkillDataKeys.GREATSAGE_NUMBER.get(), i, player);

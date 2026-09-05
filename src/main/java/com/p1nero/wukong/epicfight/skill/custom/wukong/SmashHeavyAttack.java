@@ -226,7 +226,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                     }
 
                     //钃勫姏鐨勬椂鍊欏仛鍔ㄤ綔鏄潪娉曠殑锛屽簲璇ユ竻绌烘鍔?
-                    if(container.getDataManager().getDataValue(WukongSkillDataKeys.IS_CHARGING.get()) && !event.getAnimation().equals(chargePre.get()) && !(event.getAnimation() instanceof WukongDodgeAnimation)){
+                    if(container.getDataManager().getDataValue(WukongSkillDataKeys.IS_CHARGING.get()) && !event.getAnimation().equals(chargePre.get()) && !(event.getAnimation().get() instanceof WukongDodgeAnimation)){
                         this.setConsumptionSynchronize(container, 1);
                         this.setStackSynchronize(container, 0);
                         container.getDataManager().setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false, player);
@@ -235,7 +235,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                     //鏅敾鍚庣珛鍗冲彸閿彲浠ヨ鐢?                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     for(int i = 0; i < autoAnimations.size(); i++){
-                        if(autoAnimations.get(i).get().equals(event.getAnimation()) && i < 4){
+                        if(autoAnimations.get(i).equals(event.getAnimation()) && i < 4){
                             container.getDataManager().setDataSync(WukongSkillDataKeys.CAN_FIRST_DERIVE.get(), true, player);
                             container.getDataManager().setDataSync(WukongSkillDataKeys.DERIVE_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), player);
                             return;

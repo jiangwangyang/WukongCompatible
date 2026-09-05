@@ -255,7 +255,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     //鏅敾鍚庣珛鍗冲彸閿彲浠ヨ鐢?                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     for(int i = 0; i < autoAnimations.size(); i++){
-                        if(autoAnimations.get(i).get().equals(event.getAnimation()) && i < 4){
+                        if(autoAnimations.get(i).equals(event.getAnimation()) && i < 4){
                             container.getDataManager().setDataSync(WukongSkillDataKeys.DERIVE_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), player);
                             return;
                         }

@@ -208,7 +208,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     }
                     var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     for(int i = 0; i < autoAnimations.size(); i++){
-                        if(autoAnimations.get(i).get().equals(event.getAnimation()) && i < 6){
+                        if(autoAnimations.get(i).equals(event.getAnimation()) && i < 6){
 
                             container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 30, player);
                             container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_CAN_SECOND_DERIVE.get(), false, player);
