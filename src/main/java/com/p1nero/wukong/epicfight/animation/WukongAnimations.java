@@ -313,8 +313,8 @@ public class WukongAnimations {
                 .addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.setter(1))
                 .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_ON_LINK, false)
                 .addProperty(AnimationProperty.ActionAnimationProperty.COORD_UPDATE_TIME, TimePairList.create(0.0F, 0.6F))
-                .addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
-                .addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION)
+                .addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, WukongMoveCoordFunctions.TRACE_TARGET_DASH)
+                .addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, WukongMoveCoordFunctions.TRACE_TARGET_DASH)
                 .addProperty(AnimationProperty.ActionAnimationProperty.COORD_GET, MoveCoordFunctions.WORLD_COORD)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1.5F))
                 .addEvents(AnimationEvent.InTimeEvent.create(0.083F, ((livingEntityPatch, staticAnimation, objects) -> {

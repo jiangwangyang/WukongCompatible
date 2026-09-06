@@ -3,6 +3,7 @@ package com.p1nero.wukong.epicfight.skill.custom;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.capability.WKPlayer;
+import com.p1nero.wukong.entity.CloudStepLeftEntity;
 import com.p1nero.wukong.client.particle.WuKongEffect;
 import com.p1nero.wukong.entity.FakeWukongEntity;
 import com.p1nero.wukong.entity.client.DingAfterImageParticle;
@@ -92,7 +93,7 @@ public class BattleUnit {
                 Vec3 position = player.position(); // 获取玩家位置
                 LivingEntity closestMonster = null;
                 double closestDistance = Double.MAX_VALUE;
-                 List<LivingEntity> nearbyEntities = player.level().getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(50), entity -> entity != player && entity.isAlive() && !isFakeWukong(entity));
+                 List<LivingEntity> nearbyEntities = player.level().getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(50), entity -> entity != player && entity.isAlive() && !isFakeWukong(entity) && !(entity instanceof CloudStepLeftEntity));
                 for (LivingEntity entity : nearbyEntities) {
                     double distance = calculateDistance(position, entity.position());
                     if (distance < closestDistance) {
