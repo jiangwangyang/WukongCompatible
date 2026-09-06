@@ -63,7 +63,21 @@ Epic Fight 渲染网格时把渲染模式改为 TRIANGLES(EpicFightRenderTypes.m
 
 此前的网格按"每 4 顶点一个四边形"输出,渲染器按 3 个一组切割,从第 4 个顶点起全部错位,网格被撕成错乱的三角形——这就是第二版"混乱"的直接形态。
 
-### 3.5 之前的修复尝试为什么失败
+### 3.5 根因五("整体外型正确但细节错乱"的原因):顶点角表 blf/brf 写反
+
+BakedModelFactory$VertexSet 构造器(逐字节)给出的角点定义:
+
+- bottomLeftFront = (x_max, y_min, z_min)
+- bottomRightFront = (x_max, y_min, z_max)
+
+旧转换脚本把它们写反(blf=(x_max,y_min,z_max)、brf=(x_max,y_min,z_min)),导致 EAST/NORTH/SOUTH/DOWN 四个面的顶点环为"蝶形"(对角交叉),UV 角落被分配到错误的物理角,纹理细节错乱(WEST/UP 不涉及这两个角故幸免)。同时核实:
+
+- UV 分配模式(逐顶点对照 GeoQuad.build 字节码): 非镜像时 GeckoLib 先交换 u/u1,再按 v0=(u右,v上), v1=(u左,v上), v2=(u左,v下), v3=(u右,v下) 分配,与脚本一致;
+- rotateUvs 无旋转时为直通;
+- 本模型无 mirror 方块,镜像路径不参与;
+- 修正后全网格自检: 0 个真实蝶形面(其余为零厚度饰板的退化面,不可见无害)。
+
+### 3.6 之前的修复尝试为什么失败
 
 | 尝试 | 失败原因 |
 |---|---|
@@ -92,7 +106,7 @@ Epic Fight 渲染网格时把渲染模式改为 TRIANGLES(EpicFightRenderTypes.m
 | 功能点 | 是什么 | 为什么 | 作用 |
 |---|---|---|---|
 | geo 模型恢复 | 用原版 jar 的 dasheng.geo.json 覆盖当前文件 | 当前文件 UV 基准(64)与 256x256 贴图失配,骨骼结构也与发布版不一致 | 原版模式恢复发布版贴图与造型;为转换脚本提供自洽 UV 输入 |
-| 转换脚本 v4 | scripts/convert_dasheng_armor.py(Blender 坐标存储 + 无平移 + parts 预三角化 + 官方混合曲线) | 旧脚本 Z 轴未取负、UV 基准错误;-0.5 平移属错误锚定;parts 未按 TRIANGLES 模式预三角化 | 生成坐标/蒙皮/UV/拓扑都正确的 Epic Fight 网格 |
+| 转换脚本 v5 | scripts/convert_dasheng_armor.py(Blender 坐标存储 + 无平移 + parts 预三角化 + 角表修正 + 官方混合曲线) | 历次问题: Z 轴未取负、错误平移、未预三角化、blf/brf 角表写反 | 生成几何/蒙皮/UV/拓扑都正确的 Epic Fight 网格 |
 | 4 个 EF 网格 JSON | animmodels/armor/dasheng_{h,c,l,f}.json(重新生成) | 该资源优先级最高,可完全绕开会碾碎造型的烘焙管线 | Epic Fight 战斗模式显示完整盔甲 |
 
 ## 6. 修改前后对比
@@ -121,6 +135,7 @@ Epic Fight 渲染网格时把渲染模式改为 TRIANGLES(EpicFightRenderTypes.m
 - 旋转方块处理:geckolib-4.8.3 `RenderUtils`(translateToPivotPoint/rotateMatrixAroundCube/translateAwayFromPivotPoint)与 `BakedModelFactory$Builtin` 字节码;
 - JSON 坐标系(Blender 风格,Z 取负):同 jar `yesman/epicfight/api/asset/JsonAssetLoader.class` 静态初始化(BLENDER_TO_MINECRAFT_COORD = Rx(-90))与 loadSkinnedMesh 对 positions/normals 的矩阵变换;
 - parts 预三角化:同 jar `Mesh$DrawingFunction`(NEW_ENTITY 逐顶点写缓冲)、`EpicFightRenderTypes.makeTriangulated`(渲染模式改为 TRIANGLES)、官方网格各部件顶点数均可被 3 整除;
+- 角点表与 UV 分配:geckolib-4.8.3 `BakedModelFactory$VertexSet`(ctor 与 quadXxx/verticesForQuad)与 `GeoQuad.build`(非镜像交换 u/u1 后按 (uR,vT)/(uL,vT)/(uL,vB)/(uR,vB) 分配)、`FaceUV$Rotation.rotateUvs`(NONE 直通);
 - EF 空间 = 原版模型空间(px/16):官方网格头盔顶 2.067 约等于 33px/16、头盔底 1.49 约等于 24px/16;烘焙路径(GeoModelTransformer + prepMatrixForBone,零旋转零位移时矩阵为恒等)输出原始 glb 坐标亦可佐证。
 
 ## 9. 遗留情况

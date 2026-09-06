@@ -50,10 +50,12 @@ LEG_THIGH_Y = 0.735   # 官方 leggins/boots Knee/Thigh 分界
 TORSO_LO = 0.85       # 官方 chestplate torso Torso 满权下限
 TORSO_HI = 1.40       # 官方 chestplate torso Chest 满权上限
 
-# geckolib 顶点表 (VertexSet): 键为角点 (x 取原点侧?, y 取上?, z 取原点侧?)
+# geckolib 顶点表 (VertexSet): 键为角点, 元组 = (是否取 x 最大侧, 是否取 y 最大侧, 是否取 z 最大侧)
+# 依据 BakedModelFactory$VertexSet 构造器: bottomLeftFront=(x_max,y_min,z_min), bottomRightFront=(x_max,y_min,z_max)
+# (旧表 blf/brf 两角写反, 导致 east/north/south/down 四个面为蝶形扭曲四边形, UV 角落错配)
 V = {
     "blb": (0, 0, 0), "brb": (0, 0, 1), "tlb": (0, 1, 0), "trb": (0, 1, 1),
-    "tlf": (1, 1, 0), "trf": (1, 1, 1), "blf": (1, 0, 1), "brf": (1, 0, 0),
+    "tlf": (1, 1, 0), "trf": (1, 1, 1), "blf": (1, 0, 0), "brf": (1, 0, 1),
 }
 QUADS = {
     "west":  (["trb", "tlb", "blb", "brb"], (-1.0, 0.0, 0.0)),
