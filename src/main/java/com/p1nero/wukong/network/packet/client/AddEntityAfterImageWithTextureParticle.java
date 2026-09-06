@@ -1,8 +1,8 @@
 package com.p1nero.wukong.network.packet.client;
 
 
+import com.p1nero.wukong.client.particle.WuKongParticles;
 import com.p1nero.wukong.network.packet.BasePacket;
-import yesman.epicfight.particle.EpicFightParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +27,7 @@ public record AddEntityAfterImageWithTextureParticle(int id) implements BasePack
         if(Minecraft.getInstance().player != null && Minecraft.getInstance().level != null){
             Entity entity = Minecraft.getInstance().level.getEntity(id);
             if(entity != null){
-                Minecraft.getInstance().level.addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0, 0.0);
+                Minecraft.getInstance().level.addParticle(WuKongParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0, 0.0);
 
                 //  Minecraft.getInstance().level.addParticle(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0, 0.0);
 

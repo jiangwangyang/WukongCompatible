@@ -67,11 +67,16 @@ BattleUnit.ding() 中, 当玩家没有锁定攻击目标时, 会把"定"加到 5
 
 SHENFA_MAGICARTS_JQSQ_END 的 COORD_SET_BEGIN / COORD_SET_TICK 由 MoveCoordFunctions.TRACE_TARGET_LOCATION_ROTATION 改为 WukongMoveCoordFunctions.TRACE_TARGET_DASH; COORD_GET 保持 WORLD_COORD 不变(两者语义现已配套)。
 
-### 4.3 施法残影粒子改回白色残影
+### 4.3 施法残影维持原状(沿用"定"字粒子)
 
 文件: src/main/java/com/p1nero/wukong/network/packet/client/AddEntityAfterImageWithTextureParticle.java
 
-execute 中的粒子由 WuKongParticles.ENTITY_AFTER_IMAGE("定"字贴图)改为 Epic Fight 20.14.17 的 EpicFightParticles.WHITE_AFTERIMAGE(白色剪影残影, 与本项目闪避残影包 AddEntityAfterImageParticle 的现役写法一致, 参数格式已核实相同: 实体 id 经 Double.longBitsToDouble 放入 xSpeed)。定身法的 DingAfterImageParticle 包仍使用"定"字粒子, 不受影响。
+本项经历两轮替代方案后按实测反馈还原:
+1. 第一版改用粒子注册表的 EpicFightParticles.WHITE_AFTERIMAGE。实测发现: 该粒子在 Epic Fight 内部被写死 20 tick(1 秒)寿命(设计用途是冲刺时连续生成拖尾残影), 且生成时与玩家模型完全重叠, 玩家还没走远残影就消失了, 视觉上像"贴在身上";
+2. 第二版改为客户端直接 new EntityAfterimageParticle.WhiteAfterimageParticle(寿命 100 tick + setAlpha 渐淡)。实测观感仍不理想(白色剪影贴图式残影辨识度不如"定"字);
+3. 最终决策: 还原为项目最初的实现 —— 继续使用 WuKongParticles.ENTITY_AFTER_IMAGE(注册名 ding1, "定"字贴图, 100 tick, 2.85 倍大小)。该粒子显示清晰醒目, 施法后原地驻留 5 秒, 用户认可此表现。代码已与修复前完全一致(git 还原)。
+
+即: "原地出现一个'定'字"从此是有意保留的表现, 不再视为缺陷; 真正修复的只有问题一(瞬移)与 4.4(定身法兜底不再选中假身)。
 
 ### 4.4 定身法兜底排除假身
 
@@ -85,7 +90,7 @@ ding() 的 50 格兜底搜索增加条件 !(entity instanceof CloudStepLeftEntit
 |---|---|---|
 | 聚形散气破隐踢击(10 格内有怪) | 玩家瞬移到世界原点附近, 踢空 | 玩家滑步到怪物身前(最多 6 格), 完成踢击并转向怪物 |
 | 聚形散气破隐踢击(无目标兜底失败) | 同样瞬移 | 播放动画自带的小突刺, 不移动, 不会瞬移 |
-| 施放聚形散气 | 原地出现持续 5 秒的"定"字 | 原地出现 1 秒白色人物剪影残影(Epic Fight 标准残影) |
+| 施放聚形散气 | 原地出现持续 5 秒的"定"字 | 不变(有意保留"定"字残影, 显示清晰、驻留 5 秒) |
 | 隐身中施放定身法且未锁定目标 | "定"可能落在原地假身上 | "定"只会落在真实怪物/生物上 |
 | 其它使用 WukongMoveCoordFunctions.TRACE_LOCROT_TARGETO 的蓄力攻击 | 不变 | 不变(未触碰) |
 | 定身法正常命中显示"定" | 不变 | 不变 |
