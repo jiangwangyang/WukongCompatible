@@ -167,9 +167,10 @@ def main():
         skinned = {}  # 顶点位置索引 -> [(关节, 权重索引), ...]
 
         def add_skinned_vertex(p_glb, bone_name):
-            # 垂直标定后输出: EpicFight JSON 坐标 = (x, z, y), y 轴向上
+            # EpicFight JSON 为 Blender 风格坐标系, 加载时施加 Rx(-90):
+            # 存储 (a,b,c) -> MC (a, c, -b), 故正确存储 = (mc_x, -mc_z, mc_y)
             y_cal = p_glb[1] + DELTA_Y[bone_name]
-            idx = add_position((p_glb[0], p_glb[2], y_cal))
+            idx = add_position((p_glb[0], -p_glb[2], y_cal))
             if idx not in skinned:
                 skinned[idx] = [(j, add_weight(w)) for j, w in joints_for(bone_name, y_cal)]
             return idx
@@ -222,7 +223,7 @@ def main():
                     v0, v1 = fv / tex_h, (fv + fsv) / tex_h
                     quad_uv = [(u0, v0), (u1, v0), (u1, v1), (u0, v1)]
                     n_glb = apply(rot, face_normal)
-                    ni = add_normal((n_glb[0], n_glb[2], n_glb[1]))
+                    ni = add_normal((n_glb[0], -n_glb[2], n_glb[1]))
                     for i, vn in enumerate(vert_names):
                         p_glb = transform(corners[vn])
                         pi = add_skinned_vertex(p_glb, bone_name)

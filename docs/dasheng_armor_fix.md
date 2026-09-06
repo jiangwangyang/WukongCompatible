@@ -47,7 +47,15 @@ GeoModelTransformer 的烘焙规则(反编译其静态初始化证实):按**原�
 
 因此即使烘焙成功,贴图也会错乱,加剧"碎片"观感。
 
-### 3.3 之前的两次修复为什么失败
+### 3.3 根因三(第一版标定网格失败的原因):JSON 坐标系是 Blender 风格,Z 轴需取负
+
+反编译 JsonAssetLoader.loadSkinnedMesh 证实:加载网格时会对 positions 和 normals 统一施加固定矩阵 `BLENDER_TO_MINECRAFT_COORD = Rx(-90度)`。即 JSON 里存储的三元组 (a, b, c) 在游戏中会变成 MC 坐标 (a, c, -b):
+
+- 正确存储格式 = (mc_x, -mc_z, mc_y),第二个分量必须取负;
+- 第一版标定网格存储了 (mc_x, mc_z, mc_y),导致整个网格前后镜像、法线全部反向,表现为战斗模式下模型"混乱";
+- 该问题无法通过坐标区间校验发现(镜像不改变 min/max),是通过反编译加载器矩阵才定位的。
+
+### 3.4 之前的两次修复为什么失败
 
 | 尝试 | 失败原因 |
 |---|---|
@@ -100,7 +108,8 @@ GeoModelTransformer 的烘焙规则(反编译其静态初始化证实):按**原�
 - 原版资产:`libs/wukong-forge1.20.1-20.2.0.jar`(geo 87048 字节/128 基准;贴图 16988 字节/256x256;无 animmodels;mods.toml 依赖 `epicfight [20.8.0,)`);
 - UV 采样统计与部件区间标定:本地面渲染器/分析脚本逐面采样与逐顶点统计;
 - GeckoLib 版本无关性:geckolib-4.8.3(项目依赖)与 geckolib-forge-1.20.1-4.8.4(实例运行)的 GeoArmorRenderer.class 字节码完全一致;
-- 旋转方块处理:geckolib-4.8.3 `RenderUtils`(translateToPivotPoint/rotateMatrixAroundCube/translateAwayFromPivotPoint)与 `BakedModelFactory$Builtin` 字节码。
+- 旋转方块处理:geckolib-4.8.3 `RenderUtils`(translateToPivotPoint/rotateMatrixAroundCube/translateAwayFromPivotPoint)与 `BakedModelFactory$Builtin` 字节码;
+- JSON 坐标系(Blender 风格,Z 取负):同 jar `yesman/epicfight/api/asset/JsonAssetLoader.class` 静态初始化(BLENDER_TO_MINECRAFT_COORD = Rx(-90))与 loadSkinnedMesh 对 positions/normals 的矩阵变换。
 
 ## 9. 遗留情况
 
