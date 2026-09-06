@@ -55,7 +55,15 @@ GeoModelTransformer 的烘焙规则(反编译其静态初始化证实):按**原�
 - 第一版标定网格存储了 (mc_x, mc_z, mc_y),导致整个网格前后镜像、法线全部反向,表现为战斗模式下模型"混乱";
 - 该问题无法通过坐标区间校验发现(镜像不改变 min/max),是通过反编译加载器矩阵才定位的。
 
-### 3.4 之前的两次修复为什么失败
+### 3.4 根因四(第二版网格仍混乱的原因):parts 数组必须预三角化
+
+Epic Fight 渲染网格时把渲染模式改为 TRIANGLES(EpicFightRenderTypes.makeTriangulated),DrawingFunction(NEW_ENTITY)只是逐顶点写缓冲——即 parts 数组中**每 3 个连续顶点构成一个三角形**,网格文件必须预先三角化。
+
+佐证:官方网格头盔的 head/hat 部件各 30 顶点 = 10 个三角形(原版头盔 12 个面去掉 2 个不可见的底面);官方 chestplate torso 240 顶点 = 80 个三角形,全部可被 3 整除。
+
+此前的网格按"每 4 顶点一个四边形"输出,渲染器按 3 个一组切割,从第 4 个顶点起全部错位,网格被撕成错乱的三角形——这就是第二版"混乱"的直接形态。
+
+### 3.5 之前的修复尝试为什么失败
 
 | 尝试 | 失败原因 |
 |---|---|
@@ -84,7 +92,7 @@ GeoModelTransformer 的烘焙规则(反编译其静态初始化证实):按**原�
 | 功能点 | 是什么 | 为什么 | 作用 |
 |---|---|---|---|
 | geo 模型恢复 | 用原版 jar 的 dasheng.geo.json 覆盖当前文件 | 当前文件 UV 基准(64)与 256x256 贴图失配,骨骼结构也与发布版不一致 | 原版模式恢复发布版贴图与造型;为转换脚本提供自洽 UV 输入 |
-| 转换脚本 v3 | scripts/convert_dasheng_armor.py 重写(Blender 坐标存储 + 官方混合曲线,无平移) | 旧脚本 Z 轴未取负、UV 基准错误;中间版本的 -0.5 平移属错误锚定 | 生成坐标/蒙皮/UV 都正确的 Epic Fight 网格 |
+| 转换脚本 v4 | scripts/convert_dasheng_armor.py(Blender 坐标存储 + 无平移 + parts 预三角化 + 官方混合曲线) | 旧脚本 Z 轴未取负、UV 基准错误;-0.5 平移属错误锚定;parts 未按 TRIANGLES 模式预三角化 | 生成坐标/蒙皮/UV/拓扑都正确的 Epic Fight 网格 |
 | 4 个 EF 网格 JSON | animmodels/armor/dasheng_{h,c,l,f}.json(重新生成) | 该资源优先级最高,可完全绕开会碾碎造型的烘焙管线 | Epic Fight 战斗模式显示完整盔甲 |
 
 ## 6. 修改前后对比
@@ -111,7 +119,9 @@ GeoModelTransformer 的烘焙规则(反编译其静态初始化证实):按**原�
 - UV 采样统计与部件区间标定:本地面渲染器/分析脚本逐面采样与逐顶点统计;
 - GeckoLib 版本无关性:geckolib-4.8.3(项目依赖)与 geckolib-forge-1.20.1-4.8.4(实例运行)的 GeoArmorRenderer.class 字节码完全一致;
 - 旋转方块处理:geckolib-4.8.3 `RenderUtils`(translateToPivotPoint/rotateMatrixAroundCube/translateAwayFromPivotPoint)与 `BakedModelFactory$Builtin` 字节码;
-- JSON 坐标系(Blender 风格,Z 取负):同 jar `yesman/epicfight/api/asset/JsonAssetLoader.class` 静态初始化(BLENDER_TO_MINECRAFT_COORD = Rx(-90))与 loadSkinnedMesh 对 positions/normals 的矩阵变换。
+- JSON 坐标系(Blender 风格,Z 取负):同 jar `yesman/epicfight/api/asset/JsonAssetLoader.class` 静态初始化(BLENDER_TO_MINECRAFT_COORD = Rx(-90))与 loadSkinnedMesh 对 positions/normals 的矩阵变换;
+- parts 预三角化:同 jar `Mesh$DrawingFunction`(NEW_ENTITY 逐顶点写缓冲)、`EpicFightRenderTypes.makeTriangulated`(渲染模式改为 TRIANGLES)、官方网格各部件顶点数均可被 3 整除;
+- EF 空间 = 原版模型空间(px/16):官方网格头盔顶 2.067 约等于 33px/16、头盔底 1.49 约等于 24px/16;烘焙路径(GeoModelTransformer + prepMatrixForBone,零旋转零位移时矩阵为恒等)输出原始 glb 坐标亦可佐证。
 
 ## 9. 遗留情况
 

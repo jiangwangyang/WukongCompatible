@@ -224,11 +224,21 @@ def main():
                     quad_uv = [(u0, v0), (u1, v0), (u1, v1), (u0, v1)]
                     n_glb = apply(rot, face_normal)
                     ni = add_normal((n_glb[0], -n_glb[2], n_glb[1]))
+                    quad = []
                     for i, vn in enumerate(vert_names):
                         p_glb = transform(corners[vn])
                         pi = add_skinned_vertex(p_glb, bone_name)
                         ui = add_uv(quad_uv[i])
-                        part_arr.extend([pi, ui, ni])
+                        quad.append([pi, ui, ni])
+                    # 渲染模式为 TRIANGLES, parts 数组必须预三角化: 每个四边形输出 (0,1,2) 与 (0,2,3) 两个三角形
+                    # 依据: Mesh$DrawingFunction.NEW_ENTITY 逐顶点写缓冲 + makeTriangulated 将模式改为 TRIANGLES;
+                    # 官方网格 head/hat 部件 30 顶点 = 10 三角形 (原版头盔 12 面去掉 2 个底面) 佐证。
+                    part_arr.extend(quad[0])
+                    part_arr.extend(quad[1])
+                    part_arr.extend(quad[2])
+                    part_arr.extend(quad[0])
+                    part_arr.extend(quad[2])
+                    part_arr.extend(quad[3])
 
         for idx in range(len(positions)):
             influences = skinned[idx]
