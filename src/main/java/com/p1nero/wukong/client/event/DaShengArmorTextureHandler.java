@@ -35,8 +35,15 @@ public class DaShengArmorTextureHandler {
                 if (mesh == null) {
                     WukongMoveset.LOGGER.info("[DaShengDiag] {} jsonVisible={}, mesh=null", itemId, jsonVisible);
                 } else {
-                    WukongMoveset.LOGGER.info("[DaShengDiag] {} jsonVisible={}, positions={}, maxJointCount={}, weights={}",
-                            itemId, jsonVisible, mesh.positions().length / 3, mesh.getMaxJointCount(), mesh.weights().length);
+                    float[] pos = mesh.positions();
+                    float minY = Float.MAX_VALUE;
+                    float maxY = -Float.MAX_VALUE;
+                    for (int i = 2; i < pos.length; i += 3) {
+                        minY = Math.min(minY, pos[i]);
+                        maxY = Math.max(maxY, pos[i]);
+                    }
+                    WukongMoveset.LOGGER.info("[DaShengDiag] {} jsonVisible={}, positions={}, yRange=[{}, {}], maxJointCount={}, weights={}",
+                            itemId, jsonVisible, pos.length / 3, minY, maxY, mesh.getMaxJointCount(), mesh.weights().length);
                 }
             }
         }

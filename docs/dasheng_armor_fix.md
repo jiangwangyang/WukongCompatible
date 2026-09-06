@@ -70,19 +70,21 @@ GeoModelTransformer 的烘焙规则(反编译其静态初始化证实):按**原�
 - Epic Fight 模式:提供"标定版"自定义网格 JSON(优先级高于烘焙),由重写的转换脚本从原版 geo 生成:
 
 1. **恢复原版 geo 模型**(从原版 jar 提取覆盖),修复 UV 与贴图的自洽关系;
-2. **重写 scripts/convert_dasheng_armor.py(标定版)**,生成 4 个 `animmodels/armor/dasheng_{h,c,l,f}.json`:
+2. **重写 scripts/convert_dasheng_armor.py**,生成 4 个 `animmodels/armor/dasheng_{h,c,l,f}.json`:
    - 几何换算:逐字节移植 GeckoLib 4.8.3 BakedModelFactory/VertexSet/RenderUtils 的坐标与旋转规则(含 153 个带旋转方块的枢轴旋转);
-   - 垂直标定:armorHead 整体下移 0.5 块(与官方头盔区间对齐),其余部件 0;
+   - 存储:`(x, -z, y)`(见 3.3),不做任何平移/缩放——EF 空间即原版模型空间(px/16, 脚底 0),glb 坐标天然对齐。依据:官方头盔顶 2.067 = 33px/16(原版头顶 32px + 1px 膨胀),官方头盔底 1.49 约等于 24px/16;本模型头盔冠底 glb 1.99 恰好落在 EF 头顶 2.0 上,腿部 0.18~0.71、靴 -0.09~0.18 也与 EF 对应区域吻合;
    - 骨骼绑定:照抄 Epic Fight 官方混合曲线(头盔纯 Head;躯干 Torso 到 Chest 在 0.85~1.40 线性过渡;手臂 y=1.125 处 Arm/Hand 切换;腿/靴按 Leg(0.365 以下) / Knee(0.365~0.735) / Thigh(以上) 分段);
    - UV:按原版 geo 的 128 基准归一化;
 3. **重新打包**。资源存在后 Epic Fight 直接加载,烘焙路径不再触发。
+
+> 历史备注:中间版本曾给 armorHead 加 -0.5 块平移,那是把"冠底"错锚到官方网格的"头盔底"所致——本模型是"戴在头顶的冠"设计,冠底应锚定 EF 头顶(2.0)而非头盔底(1.49),故最终版本平移量为 0。
 
 ## 5. 变动清单
 
 | 功能点 | 是什么 | 为什么 | 作用 |
 |---|---|---|---|
 | geo 模型恢复 | 用原版 jar 的 dasheng.geo.json 覆盖当前文件 | 当前文件 UV 基准(64)与 256x256 贴图失配,骨骼结构也与发布版不一致 | 原版模式恢复发布版贴图与造型;为转换脚本提供自洽 UV 输入 |
-| 转换脚本 v2 | scripts/convert_dasheng_armor.py 重写(标定+官方混合曲线) | 旧脚本无垂直标定、UV 基准错误 | 生成坐标/蒙皮/UV 都正确的 Epic Fight 网格 |
+| 转换脚本 v3 | scripts/convert_dasheng_armor.py 重写(Blender 坐标存储 + 官方混合曲线,无平移) | 旧脚本 Z 轴未取负、UV 基准错误;中间版本的 -0.5 平移属错误锚定 | 生成坐标/蒙皮/UV 都正确的 Epic Fight 网格 |
 | 4 个 EF 网格 JSON | animmodels/armor/dasheng_{h,c,l,f}.json(重新生成) | 该资源优先级最高,可完全绕开会碾碎造型的烘焙管线 | Epic Fight 战斗模式显示完整盔甲 |
 
 ## 6. 修改前后对比

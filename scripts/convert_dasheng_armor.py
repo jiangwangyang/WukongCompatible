@@ -3,9 +3,7 @@
 # 输出: src/main/resources/assets/wukong/animmodels/armor/dasheng_{h,c,l,f}.json
 #
 # 与旧版的区别 (标定):
-# 1. 坐标以 EpicFight 官方盔甲网格 (assets/epicfight/animmodels/armor/*.json) 为基准做垂直标定:
-#    官方头盔区间 1.49~2.07 块, 本模型头盔位于 1.99~2.69 块, 整体高出 0.5 块, 故 armorHead 平移 -0.5 块;
-#    身体/手臂/腿/靴与官方区间已对齐, 平移 0。
+# 1. 坐标不做平移: EF 空间即原版模型空间 (px/16, 脚底 0), glb 坐标天然对齐 (详见 DELTA_Y 注释)。
 # 2. 关节绑定照抄官方混合曲线 (逐顶点验证自官方 JSON):
 #    头盔 -> Head(9);
 #    躯干 -> Torso(7)/Chest(8) 在 y=0.85~1.40 线性过渡 (官方 chestplate torso);
@@ -24,9 +22,11 @@ import os
 GEO_PATH = "src/main/resources/assets/wukong/geo/item/armor/dasheng.geo.json"
 OUT_DIR = "src/main/resources/assets/wukong/animmodels/armor"
 
-# 每骨骼垂直标定 (块), 出处见文件头注释
+# 每骨骼垂直标定 (块)。EF 空间 = 原版模型空间 (px/16, 脚底 0), glb 坐标天然对齐, 全部为 0。
+# 依据: 官方头盔顶 2.067 约等于 33px/16 (原版头顶 32px + 1px 膨胀); 本模型头盔冠底 glb 1.99 正好落在 EF 头顶 2.0 上。
+# 若游戏内需要微调, 每 0.0625 约合 1 像素。
 DELTA_Y = {
-    "armorHead": -0.5,
+    "armorHead": 0.0,
     "armorBody": 0.0,
     "armorRightArm": 0.0,
     "armorLeftArm": 0.0,
