@@ -18,7 +18,6 @@ import com.p1nero.wukong.epicfight.skill.custom.avatar.HeavyAttack;
 import com.p1nero.wukong.epicfight.skill.custom.wukong.SmashHeavyAttack;
 import com.p1nero.wukong.epicfight.skill.custom.wukong.ThrustHeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
-import com.p1nero.wukong.mixin.BattleModeGuiMixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.particles.ParticleTypes;

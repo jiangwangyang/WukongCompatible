@@ -14,7 +14,6 @@ import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 
 import com.p1nero.wukong.epicfight.skill.custom.wukong.ThrustHeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
-import com.p1nero.wukong.mixin.BattleModeGuiMixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.particles.ParticleTypes;
@@ -216,7 +215,8 @@ public class FashuAnshenfaSkill extends Skill {
         return this;
     }
     /**
-     * 鏍规嵁妫嶅紡鍜屾槦绾х敾鍥?     * 鍙栨秷鍘熸湰鐨勭粯鍒跺湪 {@link BattleModeGuiMixin}
+     * 根据技能状态绘制自定义技能图标与冷却显示
+     * 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面
      */
     @OnlyIn(Dist.CLIENT)
     @Override
