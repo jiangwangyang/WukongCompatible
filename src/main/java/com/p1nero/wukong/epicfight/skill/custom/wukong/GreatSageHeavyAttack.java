@@ -5,6 +5,7 @@ import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.WukongStyles;
+import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.animation.custom.WukongDodgeAnimation;
 import com.p1nero.wukong.epicfight.compat.EpicFightDamageType;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
@@ -25,6 +26,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
@@ -231,8 +234,10 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                     }
 
                     SkillDataManager data = container.getDataManager();
+                    //PILLAR_LOOP0等立棍衔接动画由立棍起手在服务端自动播放 不属于玩家主动动作 不应取消蓄力 否则蓄力状态被清空后玩家会被永久困在立棍循环里
                     if (data.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())
                             && !event.getAnimation().equals(chargePre.get())
+                            && !isPillarFlowAnimation(event.getAnimation())
                             && !(event.getAnimation().get() instanceof WukongDodgeAnimation)) {
                         cancelCharge(container, playerPatch);
                     }
@@ -285,6 +290,18 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             }
         }
         return false;
+    }
+
+    private boolean isPillarFlowAnimation(AnimationManager.AnimationAccessor<? extends MainFrameAnimation> animation) {
+        for (StaticAnimationProvider pillarStart : pillarStartAttacks) {
+            if (pillarStart.get().equals(animation)) {
+                return true;
+            }
+        }
+        //PILLAR_LOOP0与PILLAR_CHARGED_LOOP4字段本身就是accessor 不能调用get 否则取到动画实例导致比较永远失败
+        return pillarUp.get().equals(animation)
+                || WukongAnimations.PILLAR_LOOP0.equals(animation)
+                || WukongAnimations.PILLAR_CHARGED_LOOP4.equals(animation);
     }
 
     private void processDamage(
