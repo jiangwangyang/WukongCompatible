@@ -4,12 +4,12 @@
   "compatibilityLevel": "JAVA_17",
   "package": "com.p1nero.wukong.mixin",
   "client": [
-    "ItemRendererMixin"
+    "ItemRendererMixin",
+    "PatchedLivingEntityRendererMixin"
   ],
   "mixins": [
     "BasicAttackMixin",
     "EntityStateMixin",
-    "PatchedLivingEntityRendererMixin",
     "TechnicianSkillMixin",
     "animation_types_mixin.AnimationPlayerMixin",
     "animation_types_mixin.AttackAnimation",
