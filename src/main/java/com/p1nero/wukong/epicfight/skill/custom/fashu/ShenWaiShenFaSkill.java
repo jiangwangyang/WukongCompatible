@@ -134,8 +134,8 @@ public class ShenWaiShenFaSkill extends Skill {
         ServerPlayer player = executor.getOriginal();
         if( dataManager.getDataValue(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get()) ){
             executor.playAnimationSynchronized(deriveAnimation1.get(), 0F);
-            dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get(),false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_TIMER.get(),2400, player);//800
+            dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get(),false);
+            dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_TIMER.get(),2400);//800
            // PILLAR_CHARGED_HEAVY4(player,executor);
         }else{
             player.sendSystemMessage(Component.literal("Shenwaishenfa is cooling down."));
@@ -180,9 +180,9 @@ public class ShenWaiShenFaSkill extends Skill {
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
 
             if(!dataManager.getDataValue(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get())){
-                dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.SWSF_COOLING_TIMER.get()) - 1, 0), serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.SWSF_COOLING_TIMER.get()) - 1, 0));
                 if (dataManager.getDataValue(WukongSkillDataKeys.SWSF_COOLING_TIMER.get()) == 0)
-                    dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get(), true, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get(), true);
             }
 
         }
@@ -196,7 +196,7 @@ public class ShenWaiShenFaSkill extends Skill {
         int height = sr.getGuiScaledHeight();
         int alpha = 128; // 50% 閫忔槑搴?
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation styleTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/skills/spell_swsf.png");
+        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_swsf.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get())) {
             alpha = 255;
         }

@@ -133,38 +133,38 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         int combo = Math.max(0, Math.min(data.getDataValue(WukongSkillDataKeys.GREATSAGE_NUMBER.get()), 3));
 
         if (stack >= 4) {
-            data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), 4, player);
+            data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), 4);
             executor.playAnimationSynchronized(chargedAttacks[4].get(), 0.0F);
             resetConsumption(container, executor);
             return;
         }
 
         if (data.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0 && stack > 0) {
-            data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0, player);
-            data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), 1, player);
-            data.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), player);
+            data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
+            data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), 1);
+            data.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue());
             executor.playAnimationSynchronized(derivedAttacks2[combo].get(), 0.0F);
             setStackSynchronize(container, stack - 1);
             return;
         }
 
         if (data.getDataValue(WukongSkillDataKeys.CAN_FIRST_TIMER.get()) > 0) {
-            data.setDataSync(WukongSkillDataKeys.CAN_FIRST_TIMER.get(), 0, player);
+            data.setDataSync(WukongSkillDataKeys.CAN_FIRST_TIMER.get(), 0);
             if (combo == 3) {
                 if (!data.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())) {
-                    data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), true, player);
+                    data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), true);
                     executor.playAnimationSynchronized(pillarStartAttacks[stack].get(), 0.1F);
                 }
             } else {
-                data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false, player);
-                data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 20, player);
+                data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false);
+                data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 20);
                 executor.playAnimationSynchronized(derivedAttacks1[combo].get(), 0.1F);
             }
             return;
         }
 
         if (!data.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())) {
-            data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false, player);
+            data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false);
             executor.playAnimationSynchronized(chargePre.get(), 0.2F);
         }
     }
@@ -188,7 +188,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                                     container,
                                     container.getResource() + Config.CHARGING_SPEED.get().floatValue() * 60.0F
                             );
-                            data.setDataSync(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get(), true, playerPatch.getOriginal());
+                            data.setDataSync(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get(), true);
                         }
                         BasicAttack.setComboCounterWithEvent(
                                 ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
@@ -246,10 +246,10 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                     var autoAnimations = capability.getAutoAttackMotion(playerPatch);
                     for (int i = 0; i < Math.min(autoAnimations.size(), 4); i++) {
                         if (autoAnimations.get(i).equals(event.getAnimation())) {
-                            data.setDataSync(WukongSkillDataKeys.CAN_FIRST_TIMER.get(), 25, player);
-                            data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0, player);
-                            data.setDataSync(WukongSkillDataKeys.GREATSAGE_NUMBER.get(), i, player);
-                            data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false, player);
+                            data.setDataSync(WukongSkillDataKeys.CAN_FIRST_TIMER.get(), 25);
+                            data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
+                            data.setDataSync(WukongSkillDataKeys.GREATSAGE_NUMBER.get(), i);
+                            data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false);
                             return;
                         }
                     }
@@ -263,8 +263,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                     if (container.isFull()) {
                         container.getDataManager().setDataSync(
                                 WukongSkillDataKeys.CHARGED4_TIMER.get(),
-                                MAX_CHARGED4_TICKS,
-                                event.getPlayerPatch().getOriginal()
+                                MAX_CHARGED4_TICKS
                         );
                     }
                 }
@@ -330,8 +329,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             boolean keyDown = EpicFightKeyMappings.WEAPON_INNATE_SKILL.isDown();
             data.setDataSync(
                     WukongSkillDataKeys.KEY_PRESSING.get(),
-                    keyDown,
-                    (LocalPlayer) container.getExecutor().getOriginal()
+                    keyDown
             );
             return;
         }
@@ -347,7 +345,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                 playerPatch.playSound(WuKongSounds.XULI_LEVEL.get(nextStack - 1).get(), 1.0F, 1.0F);
                 data.setData(WukongSkillDataKeys.LAST_STACK.get(), nextStack);
             }
-            data.setDataSync(WukongSkillDataKeys.ADD_BEANS.get(), false, player);
+            data.setDataSync(WukongSkillDataKeys.ADD_BEANS.get(), false);
         }
 
         decrementTimer(data, WukongSkillDataKeys.CAN_FIRST_TIMER.get(), player);
@@ -380,13 +378,13 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
 
             if (!data.getDataValue(WukongSkillDataKeys.KEY_PRESSING.get())) {
                 int releaseStack = Math.max(0, Math.min(container.getStack(), 4));
-                data.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false, player);
+                data.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
                 data.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
-                data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), releaseStack, player);
+                data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), releaseStack);
                 playerPatch.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2.0F, 2.0F);
 
                 if (pillar) {
-                    data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false, player);
+                    data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false);
                     playerPatch.playAnimationSynchronized(pillarHeavyAttacks[Math.min(releaseStack, pillarHeavyAttacks.length - 1)].get(), 0.0F);
                 } else {
                     playerPatch.playAnimationSynchronized(chargedAttacks[Math.min(releaseStack, chargedAttacks.length - 1)].get(), 0.0F);
@@ -406,7 +404,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
 
         int charged4Timer = data.getDataValue(WukongSkillDataKeys.CHARGED4_TIMER.get());
         if (charged4Timer > 0) {
-            data.setDataSync(WukongSkillDataKeys.CHARGED4_TIMER.get(), charged4Timer - 1, player);
+            data.setDataSync(WukongSkillDataKeys.CHARGED4_TIMER.get(), charged4Timer - 1);
         }
 
         float decay = Config.CHARGING_SPEED.get().floatValue() / 5.0F;
@@ -421,7 +419,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
     private static void decrementTimer(SkillDataManager data, yesman.epicfight.skill.SkillDataKey<Integer> key, ServerPlayer player) {
         int value = data.getDataValue(key);
         if (value > 0) {
-            data.setDataSync(key, value - 1, player);
+            data.setDataSync(key, value - 1);
         }
     }
 
@@ -432,8 +430,8 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
 
     private void cancelCharge(SkillContainer container, ServerPlayerPatch playerPatch) {
         SkillDataManager data = container.getDataManager();
-        data.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false, playerPatch.getOriginal());
-        data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false, playerPatch.getOriginal());
+        data.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
+        data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false);
         setConsumptionSynchronize(container, 1.0F);
         setStackSynchronize(container, 0);
     }
@@ -445,8 +443,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         }
         container.getDataManager().setDataSync(
                 WukongSkillDataKeys.RED_TIMER.get(),
-                Config.DERIVE_CHECK_TIME.get().intValue(),
-                playerPatch.getOriginal()
+                Config.DERIVE_CHECK_TIME.get().intValue()
         );
         setStackSynchronize(container, 0);
         setConsumptionSynchronize(container, 1.0F);
@@ -467,13 +464,13 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         Window window = Minecraft.getInstance().getWindow();
         Vec2i pos = ClientConfig.getWeaponInnatePosition(window.getGuiScaledWidth(), window.getGuiScaledHeight());
 
-        ResourceLocation progressTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/progress/" + progress + ".png");
-        ResourceLocation styleTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stance/greatsage_style.png");
-        ResourceLocation stackBackground = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/ui" + stack + ".png");
-        ResourceLocation stackTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/stack" + stack + ".png");
-        ResourceLocation gold = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/gold.png");
-        ResourceLocation white = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/white.png");
-        ResourceLocation red = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/red.png");
+        ResourceLocation progressTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/progress/" + progress + ".png");
+        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stance/greatsage_style.png");
+        ResourceLocation stackBackground = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/ui" + stack + ".png");
+        ResourceLocation stackTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/stack" + stack + ".png");
+        ResourceLocation gold = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/gold.png");
+        ResourceLocation white = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/white.png");
+        ResourceLocation red = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/red.png");
 
         graphics.blit(progressTexture, pos.x - 12, pos.y - 12, 48, 48, 0.0F, 0.0F, 2, 2, 2, 2);
         drawTexture(graphics, styleTexture, pos.x - 12, pos.y - 12);

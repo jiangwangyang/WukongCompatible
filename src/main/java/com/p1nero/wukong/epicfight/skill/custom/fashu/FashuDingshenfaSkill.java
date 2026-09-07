@@ -207,9 +207,9 @@ public class FashuDingshenfaSkill extends Skill {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
             if (dataManager.getDataValue(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get())) {
-                dataManager.setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get()) - 1, 0), serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get()) - 1, 0));
                 if (dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get()) == 0) {
-                    dataManager.setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), false, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), false);
                     liftDing(serverPlayer);
                 }
                 if (dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get()) % PARTICLE_INTERVAL == 0) {
@@ -217,9 +217,9 @@ public class FashuDingshenfaSkill extends Skill {
                 }
             }
             if (!dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get())) {
-                dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_TIMER.get()) - 1, 0), serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_TIMER.get()) - 1, 0));
                 if (dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_TIMER.get()) == 0) {
-                    dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), true, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), true);
                 }
             }
         }
@@ -236,7 +236,7 @@ public class FashuDingshenfaSkill extends Skill {
         int height = sr.getGuiScaledHeight();
         int alpha = 128; // 50% 閫忔槑搴?
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation styleTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/skills/spell_dsf.png");
+        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_dsf.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get())) {
             alpha = 255;
         }

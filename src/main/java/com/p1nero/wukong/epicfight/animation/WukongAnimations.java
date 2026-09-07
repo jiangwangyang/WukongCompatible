@@ -70,7 +70,7 @@ public class WukongAnimations {
     private static <T> void setWeaponInnateDataSyncIfRegistered(ServerPlayerPatch playerPatch, SkillDataKey<T> key, T value) {
         SkillDataManager dataManager = playerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
         if (dataManager.hasData(key)) {
-            dataManager.setDataSync(key, value, playerPatch.getOriginal());
+            dataManager.setDataSync(key, value);
         }
     }
 
@@ -458,7 +458,7 @@ public class WukongAnimations {
         PILLAR_START4 = builder.nextAccessor("biped/pillar/charged_start4", accessor -> new WukongScaleStaffAttackAnimation(0F,  1.666F,1.5F, 3.6F, WukongColliders.PILLAR_HEAVY4, biped.toolR,  typed(accessor), Armatures.BIPED).addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true).addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.7F, 1.66F)).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 2.0F)).addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
                     livingEntityPatch.reserveAnimation(PILLAR_CHARGED_LOOP4);
                     if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                        serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), true, serverPlayerPatch.getOriginal());
+                        serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), true);
                     }
                 }), AnimationEvent.Side.SERVER))
                 .addEvents(getScaleEvents(ScaleTime.of(0F, 1F, 1F, 1F, 0F, 0F, 0F),
@@ -642,7 +642,7 @@ public class WukongAnimations {
 
         PILLAR_HEAVY_FENGYUNZHUANEND = builder.nextAccessor("biped/pillar/stick_heavy_fengyunzhuanend", accessor -> new BasicAttackAnimation(0F, 0, 0, 1.93333F, null, biped.toolR, typed(accessor), Armatures.BIPED).addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true).addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false).addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0F, 0.5333F)).addEvents(AnimationEvent.InPeriodEvent.create(0F, 1.93333F, (livingEntityPatch, staticAnimation, objects) -> {
             if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), serverPlayerPatch.getOriginal());
+                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue());
                 setWeaponInnateDataSyncIfRegistered(serverPlayerPatch, WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), false);
             }
         }, AnimationEvent.Side.SERVER)).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 2.3F)));
@@ -657,7 +657,7 @@ public class WukongAnimations {
         THRUST_XULI_START = builder.nextAccessor("biped/thrust/thrust_xuli_start", accessor -> new ActionAnimation(0F, typed(accessor), Armatures.BIPED).addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 2.5F)).addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
             livingEntityPatch.reserveAnimation(THRUST_XULI_LOOP);
             if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), true, serverPlayerPatch.getOriginal());
+                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), true);
 
             }
         }), AnimationEvent.Side.SERVER)).addEvents(AnimationEvent.InTimeEvent.create(0.2F, ((livingEntityPatch, staticAnimation, objects) -> {
@@ -744,7 +744,7 @@ public class WukongAnimations {
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1.5F))
                 .addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
                     if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                        serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_CAN_FIRST_DERIVE.get(), false, serverPlayerPatch.getOriginal());}}), AnimationEvent.Side.SERVER))
+                        serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_CAN_FIRST_DERIVE.get(), false);}}), AnimationEvent.Side.SERVER))
                 .addEvents(AnimationProperty.StaticAnimationProperty.TICK_EVENTS,
                 // AnimationEvent.InTimeEvent.create(0.3333F, (livingEntityPatch, staticAnimation, objects) -> BattleUnit.CUNTUI_jiesuo(livingEntityPatch), AnimationEvent.Side.SERVER),
                 AnimationEvent.InTimeEvent.create(0.366F, (livingEntityPatch, staticAnimation, objects) -> BattleUnit.CUNTUI_JIESUO(livingEntityPatch), AnimationEvent.Side.SERVER),
@@ -780,7 +780,7 @@ public class WukongAnimations {
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1.8F))
                 .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
             if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_JUESICK_BACK.get(), false, serverPlayerPatch.getOriginal());
+                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_JUESICK_BACK.get(), false);
             }
         }), AnimationEvent.Side.SERVER)));
 
@@ -910,7 +910,7 @@ public class WukongAnimations {
         SMASH_CHARGING_PRE = builder.nextAccessor("biped/smash/smash_charge_pre", accessor -> new ActionAnimation(0.15F, typed(accessor), Armatures.BIPED).addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
             livingEntityPatch.reserveAnimation(SMASH_CHARGING_LOOP_STAND);
             if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), true, serverPlayerPatch.getOriginal());
+                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), true);
             }
         }), AnimationEvent.Side.SERVER)).addEvents(AnimationEvent.InTimeEvent.create(0.1F, ((livingEntityPatch, staticAnimation, objects) -> {
             livingEntityPatch.playSound(EpicFightSounds.WHOOSH_ROD.get(), 1, 1);
@@ -976,19 +976,19 @@ public class WukongAnimations {
         SMASH_DERIVE1 = builder.nextAccessor("biped/smash/smash_special1", accessor -> new WukongScaleStaffAttackAnimation(0.15F, 0.63F, 0.75F, 1.20F, null, biped.toolR, typed(accessor), Armatures.BIPED).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD).addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(4.0F)).addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true).addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1.0F)).addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
             if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                 SkillDataManager dataManager = serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
-                dataManager.setDataSync(WukongSkillDataKeys.CAN_FIRST_DERIVE.get(), false, serverPlayerPatch.getOriginal());
-                dataManager.setDataSync(WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get(), true, serverPlayerPatch.getOriginal());
-                dataManager.setDataSync(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get(), false, serverPlayerPatch.getOriginal());
+                dataManager.setDataSync(WukongSkillDataKeys.CAN_FIRST_DERIVE.get(), false);
+                dataManager.setDataSync(WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get(), true);
+                dataManager.setDataSync(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get(), false);
             }
         }), AnimationEvent.Side.SERVER)).addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
             if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get(), false, serverPlayerPatch.getOriginal());
+                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get(), false);
             }
         }), AnimationEvent.Side.SERVER)).addEvents(getScaleEvents(ScaleTime.of(0.625F, 1, 1.8F, 1, 0F, 0F, 0F), ScaleTime.of(1.125F, 1, 1.8F, 1, 0F, 0F, 0F), ScaleTime.reset(1.25F))));
 
         SMASH_DERIVE2 = builder.nextAccessor("biped/smash/smash_special2", accessor -> new WukongScaleStaffAttackAnimation(0.15F, 1.04F, 1.71F, 2.30F, null, biped.toolR, typed(accessor), Armatures.BIPED).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG).addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.multiplier(3.0F)).addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true).addProperty(AnimationProperty.ActionAnimationProperty.CANCELABLE_MOVE, false).addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.01F, 1.04F)).newTimePair(0.01F, 1.71F).addState(EntityState.ATTACK_RESULT, (damageSource) -> AttackResult.ResultType.MISSED).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, ((dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1.0F)).addEvents(AnimationProperty.StaticAnimationProperty.ON_BEGIN_EVENTS, AnimationEvent.SimpleEvent.create(((livingEntityPatch, staticAnimation, objects) -> {
             if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
-                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.CAN_SECOND_DERIVE.get(), false, serverPlayerPatch.getOriginal());
+                serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.CAN_SECOND_DERIVE.get(), false);
             }
         }), AnimationEvent.Side.SERVER)).addEvents(append(AnimationEvent.InTimeEvent.create(0.042F, ((livingEntityPatch, anim, obj) -> livingEntityPatch.playSound(WuKongSounds.HIT_GROUND.get(), 1, 1)), AnimationEvent.Side.SERVER), getScaleEvents(ScaleTime.of(0.042F, 1, 1.583F, 1, 0F, 0F, 0F), ScaleTime.of(0.083F, 1, 1.758F, 1, 0F, 0F, 0F), ScaleTime.of(0.167F, 1, 1.952F, 1, 0F, 0F, 0F), ScaleTime.of(0.208F, 1, 2, 1, 0F, 0F, 0F), ScaleTime.of(1.458F, 1, 2, 1, 0F, 0F, 0F), ScaleTime.reset(1.460F))).toArray(new AnimationEvent.InTimeEvent[0])));
         //劈end

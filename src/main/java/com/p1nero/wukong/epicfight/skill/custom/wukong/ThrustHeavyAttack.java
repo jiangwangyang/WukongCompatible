@@ -129,7 +129,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
 
-        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack(), player);//0鏄熶篃鏄槦锛?       // dataManager.setDataSync(WukongSkillDataKeys.Thrust_CAN_SECOND_DERIVE.get(),dataManager.getDataValue(WukongSkillDataKeys.Thrust_STEOP_BACK.get()) , player);//绗簩娈垫淳鐢熻В閿?       // WukongMoveset.LOGGER.info("閲嶅嚮 瀵搁€€鍊掕鏃?{}",+dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get()) );
+        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//0鏄熶篃鏄槦锛?       // dataManager.setDataSync(WukongSkillDataKeys.Thrust_CAN_SECOND_DERIVE.get(),dataManager.getDataValue(WukongSkillDataKeys.Thrust_STEOP_BACK.get()) , player);//绗簩娈垫淳鐢熻В閿?       // WukongMoveset.LOGGER.info("閲嶅嚮 瀵搁€€鍊掕鏃?{}",+dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get()) );
 //        if(dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_TIMER.get()) > 0 ) {
 //            this.setStackSynchronize(container, container.getStack()-container.getStack());
 //          if (container.getStack()==4){executer.playAnimationSynchronized(fengchuanhua.get(), 0F);}
@@ -149,7 +149,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         dataManager.setData(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 0);
             executer.playAnimationSynchronized(stepinch.get(), 0F);
         }else if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get())> 0) {
-            dataManager.setDataSync(WukongSkillDataKeys.THRUST_METERS_BACK.get(), true, player);
+            dataManager.setDataSync(WukongSkillDataKeys.THRUST_METERS_BACK.get(), true);
         }else{
             executer.playAnimationSynchronized(xuli_start.get(), 0F);
         }
@@ -210,12 +210,12 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     for(int i = 0; i < autoAnimations.size(); i++){
                         if(autoAnimations.get(i).equals(event.getAnimation()) && i < 6){
 
-                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 30, player);
-                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_CAN_SECOND_DERIVE.get(), false, player);
-                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), false, player);
-                            dataManager.setDataSync(WukongSkillDataKeys.THRUST_METERS_BACK.get(), false, player);
+                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 30);
+                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_CAN_SECOND_DERIVE.get(), false);
+                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), false);
+                            dataManager.setDataSync(WukongSkillDataKeys.THRUST_METERS_BACK.get(), false);
                           //  container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_DERIVE_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), player);
-                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_DERIVE_TIMER_TWO.get(), 0, player);
+                            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_DERIVE_TIMER_TWO.get(), 0);
                             return;
                         }
                     }
@@ -321,7 +321,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         SkillDataManager dataManager = container.getDataManager();
         if (container.getExecutor().isLogicalClient()) {
             boolean isKeyDown = EpicFightKeyMappings.WEAPON_INNATE_SKILL.isDown();
-            dataManager.setDataSync(WukongSkillDataKeys.Thrust_KEY_PRESSING.get(), isKeyDown, ((LocalPlayer) container.getExecutor().getOriginal()));
+            dataManager.setDataSync(WukongSkillDataKeys.Thrust_KEY_PRESSING.get(), isKeyDown);
 
 
         } else {
@@ -333,33 +333,33 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     serverPlayerPatch.playSound(WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
                     dataManager.setData(WukongSkillDataKeys.Thrust_LAST_STACK.get(), container.getStack());
                 }
-                dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_TIMER.get(), 20, serverPlayer);
-                dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), false, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_TIMER.get(), 20);
+                dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), false);
             }
 
-            dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_TIMER.get()) - 1, 0), serverPlayer);//娲剧敓閲嶅嚮
+            dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_TIMER.get()) - 1, 0));//娲剧敓閲嶅嚮
             if (dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get())!=0){
-                dataManager.setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get())-1, serverPlayer);//閫€瀵?
+                dataManager.setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get())-1);//閫€瀵?
                 }
             if (dataManager.getDataValue(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get())!=0){
-                dataManager.setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get())-1, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get())-1);
             }
             if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get())!=0){
-                dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get())-1, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get())-1);
             }
 
             if(container.getStack() > dataManager.getDataValue(WukongSkillDataKeys.Thrust_LAST_STACK.get())){
                 serverPlayerPatch.playSound(WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
-                dataManager.setDataSync(WukongSkillDataKeys.Thrust_PLAY_SOUND.get(), false, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.Thrust_PLAY_SOUND.get(), false);
                 if (container.getStack()!=3 && dataManager.getDataValue(WukongSkillDataKeys.Thrust_KEY_PRESSING.get()) )
                     serverPlayerPatch.playSound(WuKongSounds.XULI_LEVEL_RISE03.get(), 2.0F, 2.0F);
             }
 
             dataManager.setData(WukongSkillDataKeys.Thrust_LAST_STACK.get(), container.getStack());
-            dataManager.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1, 0), serverPlayer);//浣跨敤鎶€鑳芥槦鏁版樉绀?
+            dataManager.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1, 0));//浣跨敤鎶€鑳芥槦鏁版樉绀?
             if(dataManager.getDataValue(WukongSkillDataKeys.Thrust_IS_CHARGING.get()) ){
                 if(!WukongWeaponCategories.isWeaponValid(serverPlayerPatch)){
-                    dataManager.setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), false, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), false);
                     this.setConsumptionSynchronize(container, 1);
                     this.setStackSynchronize(container, 0);
                     return;
@@ -368,10 +368,10 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     this.setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue());
                 }
                 if(!dataManager.getDataValue(WukongSkillDataKeys.Thrust_KEY_PRESSING.get())){
-                    dataManager.setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), false, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), false);
                     serverPlayerPatch.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
                     serverPlayerPatch.playAnimationSynchronized(animations[container.getStack()].get(), 0.0F);
-                    dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack(), serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());
                     resetConsumption(container, serverPlayerPatch);
                 }
             }
@@ -379,18 +379,18 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0){
                 if (dataManager.getDataValue(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get())){
                     //WukongMoveset.LOGGER.info("鎼呮");
-                    dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
                     //寮€濮嬫悈
                     if (dataManager.getDataValue(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get()) > 0 && !dataManager.getDataValue(WukongSkillDataKeys.IS_REPEATING_DERIVE.get())) {
                         if (dataManager.getDataValue(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get())) {
                             serverPlayerPatch.playAnimationSynchronized(juesick_start.get(), 0.15F);
-                            dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), true, serverPlayer);
-                            dataManager.setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), 0, serverPlayer);
+                            dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), true);
+                            dataManager.setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), 0);
                         }
                     }
                 }else if (dataManager.getDataValue(WukongSkillDataKeys.THRUST_METERS_BACK.get())) {
                     //WukongMoveset.LOGGER.info("杩涘昂");
-                    dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
                     if (container.getStack() > 0 ){
                         serverPlayerPatch.playAnimationSynchronized(footage.get(), 0.0F);
                         this.setStackSynchronize(container, container.getStack() - 1);
@@ -407,15 +407,15 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     //serverPlayerPatch.consumeStamina(Config.CHARGING_STAMINA_CONSUME.get().floatValue());
                     if (!serverPlayerPatch.hasStamina(0.1F)) {
                         serverPlayerPatch.playAnimationSynchronized(juesick_end.get(), 0.0F);
-                        dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), false, serverPlayer);
+                        dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), false);
                     }
                 }
                 //閲嶇疆鍙€€瀵告椂闂?                //dataManager.setDataSync(ThrustHeavyAttack.CAN_FIRST_DERIVE, true, serverPlayerPatch.getOriginal());
-                dataManager.setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 30, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 30);
                 //鏉炬墜浜嗗垯鎾璭nd
                 if (!dataManager.getDataValue(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get())) {
                     serverPlayerPatch.playAnimationSynchronized(juesick_end.get(), 0.0F);
-                    dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), false, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), false);
                 }
             }
 
@@ -432,7 +432,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
             int current = dataManager.getDataValue(WukongSkillDataKeys.Thrust_CHARGED4_TIMER.get());
             if(current > 0){
-                dataManager.setDataSync(WukongSkillDataKeys.Thrust_CHARGED4_TIMER.get(), current - 1, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.Thrust_CHARGED4_TIMER.get(), current - 1);
             }
             float consumption = Config.CHARGING_SPEED.get().floatValue() / 5;
             if(current == 1 && container.isFull()){
@@ -474,9 +474,9 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             int soundIndex = Math.min(container.getStack(), WuKongSounds.stackSounds.size()) - 1;
             executer.playSound(WuKongSounds.stackSounds.get(soundIndex).get(), 1, 1);
         } else {
-            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_PLAY_SOUND.get(), true, executer.getOriginal());
+            container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_PLAY_SOUND.get(), true);
         }
-        container.getDataManager().setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), executer.getOriginal());//閫氱煡瀹㈡埛绔浜孩鐏簡
+        container.getDataManager().setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue());//閫氱煡瀹㈡埛绔浜孩鐏簡
         this.setStackSynchronize(container, 0);
         this.setConsumptionSynchronize(container, 1);
     }
@@ -501,13 +501,13 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         int width = sr.getGuiScaledWidth();
         int height = sr.getGuiScaledHeight();
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation progressTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/progress/" + progress + ".png");
-        ResourceLocation styleTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stance/" + style + "_0.png");
-        ResourceLocation stackBgTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/ui" + stack + ".png");
-        ResourceLocation stackTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/stack" + stack + ".png");
-        ResourceLocation goldenLightTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/gold.png");
-        ResourceLocation whiteLightTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/white.png");
-        ResourceLocation redLightTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/red.png");
+        ResourceLocation progressTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/progress/" + progress + ".png");
+        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stance/" + style + "_0.png");
+        ResourceLocation stackBgTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/ui" + stack + ".png");
+        ResourceLocation stackTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/stack/stack" + stack + ".png");
+        ResourceLocation goldenLightTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/gold.png");
+        ResourceLocation whiteLightTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/white.png");
+        ResourceLocation redLightTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/red.png");
         guiGraphics.blit(progressTexture, pos.x - 12, pos.y - 12, 48, 48, 0.0F, 0.0F, 2, 2, 2, 2);
         drawTexture(guiGraphics,styleTexture, pos.x - 12, pos.y - 12);
         drawTexture(guiGraphics,stackBgTexture,pos.x - 12, pos.y - 12);

@@ -11,7 +11,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
-import net.minecraft.util.LazyLoadedValue;
+import net.minecraftforge.common.util.Lazy;
 
 public enum WukongArmorMaterials implements ArmorMaterial {
     DA_SHENG("da_sheng", 237, new int[]{6, 10, 10, 5}, 15, SoundEvents.ARMOR_EQUIP_NETHERITE, 3.0F, 0.1F, () -> Ingredient.of(Items.NETHERITE_INGOT));
@@ -24,7 +24,8 @@ public enum WukongArmorMaterials implements ArmorMaterial {
     private final SoundEvent sound;
     private final float toughness;
     private final float knockbackResistance;
-    private final LazyLoadedValue<Ingredient> repairIngredient;
+    // 弃用API迁移: LazyLoadedValue已被原版标记废弃, 等价替换为Forge的Lazy(同为懒加载Supplier, get()用法不变)
+    private final Lazy<Ingredient> repairIngredient;
 
     WukongArmorMaterials(String p_40474_, int p_40475_, int[] p_40476_, int p_40477_, SoundEvent p_40478_, float p_40479_, float p_40480_, Supplier p_40481_) {
         this.name = p_40474_;
@@ -34,7 +35,7 @@ public enum WukongArmorMaterials implements ArmorMaterial {
         this.sound = p_40478_;
         this.toughness = p_40479_;
         this.knockbackResistance = p_40480_;
-        this.repairIngredient = new LazyLoadedValue(p_40481_);
+        this.repairIngredient = Lazy.of(p_40481_);
     }
 
 

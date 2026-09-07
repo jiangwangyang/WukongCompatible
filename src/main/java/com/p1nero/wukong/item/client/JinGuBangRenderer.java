@@ -37,7 +37,7 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
     private int currentTextureIndex = 0;
     private static final int TOTAL_TEXTURES = 20;
     public JinGuBangRenderer() {
-        super(new DefaultedItemGeoModel<JinGuBang>(new ResourceLocation(WukongMoveset.MOD_ID, "jingubang")));
+        super(new DefaultedItemGeoModel<JinGuBang>(ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "jingubang")));
     }
 
 
@@ -46,11 +46,11 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
         final Minecraft mc = Minecraft.getInstance();
 
         final ResourceLocation[] textures = {
-                new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang0.png"),
-                new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang1.png"),
-                new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang2.png"),
-                new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang3.png"),
-                new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang4.png"),
+                ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang0.png"),
+                ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang1.png"),
+                ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang2.png"),
+                ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang3.png"),
+                ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang4.png"),
         };
 
         LocalPlayerPatch lpp = EpicFightCapabilities.getEntityPatch(mc.player, LocalPlayerPatch.class);
@@ -65,7 +65,7 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
         SkillContainer containe = lpp == null ? null : lpp.getSkill(WukongSkillSlots.STAFF_STYLE);
         if (containe != null && containe.getSkill() instanceof StaffStance style) {
             if ( style.getStyle(containe) ==  WukongStyles.GREATSAGE){
-                return  new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang6.png");
+                return  ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/item/jingubang/jingubang6.png");
             }
         }
 

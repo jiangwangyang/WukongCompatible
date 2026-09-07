@@ -61,7 +61,7 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         public static void attachEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
             if (event.getObject() instanceof Player) {
                if(!event.getObject().getCapability(WKCapabilityProvider.WK_PLAYER).isPresent()){
-                   event.addCapability(new ResourceLocation(WukongMoveset.MOD_ID, "wk_player"), new WKCapabilityProvider());
+                   event.addCapability(ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "wk_player"), new WKCapabilityProvider());
                }
             }
         }

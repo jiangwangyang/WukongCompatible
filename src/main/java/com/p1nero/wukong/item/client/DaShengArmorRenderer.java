@@ -10,7 +10,7 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class DaShengArmorRenderer extends GeoArmorRenderer<DaShengArmorItem> {
     public DaShengArmorRenderer() {
-        super(new DefaultedItemGeoModel<>(new ResourceLocation(WukongMoveset.MOD_ID, "armor/dasheng")));
+        super(new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "armor/dasheng")));
     }
 }
 

@@ -26,6 +26,10 @@ import java.util.function.Function;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WukongWeaponCapabilityPresets {
+    // 说明: 本类使用的WeaponCapability$Builder的livingMotionModifier/innateSkill/newStyleCombo/styleProvider/comboCancel/passiveSkill
+    // 在当前依赖EpicFight 20.14.17(MC 1.20.1)中虽被标记@Deprecated(since=1.21.1, forRemoval=true)但不存在替代API,
+    // EpicFight官方的WeaponCapabilityPresets与WeaponTypeReloadListener同样在使用这些方法, 属于1.20.1下的标准用法
+    // 因此保留现状与编译弃用警告, 待将来升级EpicFight至1.21.1+版本时再迁移, 请勿在此处添加SuppressWarnings
 
     public static final Function<Item, CapabilityItem.Builder> STAFF = (item) ->
             (CapabilityItem.Builder) WeaponCapability.builder()
@@ -217,7 +221,7 @@ public class WukongWeaponCapabilityPresets {
 
     @SubscribeEvent
     public static void register(WeaponCapabilityPresetRegistryEvent event) {
-        event.getTypeEntry().put(new ResourceLocation(WukongMoveset.MOD_ID, "wk_staff"), STAFF);
+        event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "wk_staff"), STAFF);
        // event.getTypeEntry().put(new ResourceLocation(WukongMoveset.MOD_ID, "smash_only"), SMASH_ONLY);
         //event.getTypeEntry().put(new ResourceLocation(WukongMoveset.MOD_ID, "thrust_only"), THRUST_ONLY);
        // event.getTypeEntry().put(new ResourceLocation(WukongMoveset.MOD_ID, "pillar_only"), PILLAR_ONLY);

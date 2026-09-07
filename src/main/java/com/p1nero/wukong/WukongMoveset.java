@@ -26,7 +26,6 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -42,12 +41,13 @@ public class WukongMoveset{
     public static final String ITEM_HAS_EFFECT_TIMER_KEY = "wukong_has_effect_timer";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public WukongMoveset(){
+    // 弃用API迁移: FMLJavaModLoadingContext.get()/ModLoadingContext.get()已标记废弃, 改为构造器注入context(Forge FMLModContainer支持的注入方式)
+    public WukongMoveset(FMLJavaModLoadingContext context){
         SkillCategory.ENUM_MANAGER.registerEnumCls(MOD_ID ,WukongSkillCategories.class);
         SkillSlot.ENUM_MANAGER.registerEnumCls(MOD_ID ,WukongSkillSlots.class);
         WeaponCategory.ENUM_MANAGER.registerEnumCls(MOD_ID ,WukongWeaponCategories.class);
         Style.ENUM_MANAGER.registerEnumCls(MOD_ID, WukongStyles.class);
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus bus = context.getModEventBus();
         WukongItems.ITEMS.register(bus);
         WukongEntities.ENTITIES.register(bus);
         WukongItems.ITEM_TAB.register(bus);
@@ -64,7 +64,7 @@ public class WukongMoveset{
         fg_bus.addListener(WukongMoveset::onEntityDeath);
         fg_bus.addListener(WukongMoveset::onPlayerTick);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
 

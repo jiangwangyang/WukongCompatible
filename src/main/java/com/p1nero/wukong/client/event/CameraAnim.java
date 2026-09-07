@@ -17,7 +17,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
 /**
  * 抄ef原版的调视角，改了个方向，注意要取消动画的turning lock才不会被打断
@@ -68,7 +69,9 @@ public class CameraAnim {
     }
 
     private static void setRangedWeaponThirdPerson(ViewportEvent.ComputeCameraAngles event, CameraType pov, double partialTicks) {
-        if (ClientEngine.getInstance().getPlayerPatch() == null) {
+        // 弃用API迁移: ClientEngine.getPlayerPatch()等价替换为EpicFightCapabilities.getEntityPatch(已核实弃用方法内部即此实现, 且带空值保护)
+        LocalPlayerPatch playerPatch = EpicFightCapabilities.getEntityPatch(Minecraft.getInstance().player, LocalPlayerPatch.class);
+        if (playerPatch == null) {
             return;
         }
 
@@ -88,7 +91,7 @@ public class CameraAnim {
             double entityPosZ = entity.zOld + (entity.getZ() - entity.zOld) * partialTicks;
             float intpol = (float) zoomCount / (float) zoomMaxCount;
             Vec3f interpolatedCorrection = new Vec3f(AIMING_CORRECTION.x * intpol, AIMING_CORRECTION.y * intpol, AIMING_CORRECTION.z * intpol);
-            OpenMatrix4f rotationMatrix = ClientEngine.getInstance().getPlayerPatch().getMatrix((float)partialTicks);
+            OpenMatrix4f rotationMatrix = playerPatch.getMatrix((float)partialTicks);
             Vec3f rotateVec = OpenMatrix4f.transform3v(rotationMatrix, interpolatedCorrection, null);
             double d3 = Math.sqrt((rotateVec.x * rotateVec.x) + (rotateVec.y * rotateVec.y) + (rotateVec.z * rotateVec.z));
             double smallest = d3;

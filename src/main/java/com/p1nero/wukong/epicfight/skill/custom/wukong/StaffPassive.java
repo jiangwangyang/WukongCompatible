@@ -12,7 +12,6 @@ import com.p1nero.wukong.network.PacketHandler;
 import com.p1nero.wukong.network.PacketRelay;
 import com.p1nero.wukong.network.packet.server.PlayStaffFlowerPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,8 +25,8 @@ import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.utils.AttackResult;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.EpicFightNetworkManager;
@@ -81,20 +80,21 @@ public class StaffPassive extends Skill {
         //棍花期间禁止移动
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event -> {
             if (event.getPlayerPatch().isEpicFightMode() && WukongKeyMappings.STAFF_FLOWER.isDown()) {
-                Input input = event.getMovementInput();
-                input.forwardImpulse = 0.0F;
-                input.leftImpulse = 0.0F;
-                input.down = false;
-                input.up = false;
-                input.left = false;
-                input.right = false;
-                input.jumping = false;
-                input.shiftKeyDown = false;
+                // 弃用API迁移: getMovementInput()改为getInputState(), 通过InputManager.setInputState应用回原版输入(已核实与直接改Input字段等价, shiftKeyDown对应sneaking); 并以KeyMapping.setDown替代已弃用的ControlEngine.setKeyBind
+                InputManager.setInputState(event.getInputState()
+                        .withForwardImpulse(0.0F)
+                        .withLeftImpulse(0.0F)
+                        .withDown(false)
+                        .withUp(false)
+                        .withLeft(false)
+                        .withRight(false)
+                        .withJumping(false)
+                        .withSneaking(false));
                 LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
                 clientPlayer.setSprinting(false);
                 clientPlayer.sprintTriggerTime = -1;
                 Minecraft mc = Minecraft.getInstance();
-                ControlEngine.setKeyBind(mc.options.keySprint, false);
+                mc.options.keySprint.setDown(false);
             }
         }));
 
@@ -201,7 +201,7 @@ public class StaffPassive extends Skill {
         }
         if(Config.entities_can_be_blocked.isEmpty()){
             Config.entities_can_be_blocked = Config.ENTITIES_CAN_BE_BLOCKED_BY_STAFF_FLOWER.get().stream()
-                    .map( entityName -> ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityName)))
+                    .map( entityName -> ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(entityName)))
                     .collect(Collectors.toSet());
         }
         return Config.entities_can_be_blocked.contains(entity.getType());
@@ -236,7 +236,7 @@ public class StaffPassive extends Skill {
         if(WukongKeyMappings.STAFF_FLOWER.isDown() && container.getExecutor().hasStamina(Config.STAFF_FLOWER_STAMINA_CONSUME.get().floatValue())){
             if(!container.getDataManager().getDataValue(PLAYING_STAFF_SPIN.get()) && Minecraft.getInstance().player != null){
                 PacketRelay.sendToServer(PacketHandler.INSTANCE, new PlayStaffFlowerPacket(WukongKeyMappings.W.isDown()));//按w可变双手棍花
-                container.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), true, ((LocalPlayer) container.getExecutor().getOriginal()));
+                container.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), true);
             }
         }
 

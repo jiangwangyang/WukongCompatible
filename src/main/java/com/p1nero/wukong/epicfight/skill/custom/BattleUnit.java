@@ -140,10 +140,10 @@ public class BattleUnit {
             return;
         }
         FashuDingshenfaSkill.trackTarget(serverPlayerPatch.getOriginal(), target);
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), true, serverPlayerPatch.getOriginal());
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), false, serverPlayerPatch.getOriginal());
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), 192, serverPlayerPatch.getOriginal());
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), 1000, serverPlayerPatch.getOriginal());
+        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), true);
+        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), false);
+        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), 192);
+        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), 1000);
     }
     private static void applyDingEffect(LivingEntity attackTarget) {
         if (attackTarget != null) {
@@ -173,9 +173,9 @@ public class BattleUnit {
     public static void CUNTUI_JIESUO(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
         if(entitypatch instanceof ServerPlayerPatch serverPlayerPatch){
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), true, serverPlayerPatch.getOriginal());
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), 30, serverPlayerPatch.getOriginal());
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30, serverPlayerPatch.getOriginal());
+            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), true);
+            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), 30);
+            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30);
 
 
         }
@@ -183,7 +183,7 @@ public class BattleUnit {
     public static void CUNTUI_SHANGSUO(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
         if(entitypatch instanceof ServerPlayerPatch serverPlayerPatch){
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), false, serverPlayerPatch.getOriginal());
+            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), false);
 
         }
     }

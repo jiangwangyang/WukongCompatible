@@ -4,9 +4,6 @@ import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.effects.DingEntityAfterImageParticle;
 
 import com.p1nero.wukong.effects.DingParticle;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleEngine;
-
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,9 +29,9 @@ public class WuKongParticles {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void RP(RegisterParticleProvidersEvent event) {
-        ParticleEngine PE = Minecraft.getInstance().particleEngine;
-        PE.register(DING.get(), DingParticle.DangerParticleProvider::new);
-        PE.register(ENTITY_AFTER_IMAGE.get(), DingEntityAfterImageParticle.DangerParticleProvider::new);
+        // 弃用API迁移: ParticleEngine.register已弃用, 改用本事件自带的registerSpriteSet(同一函数式接口, 行为一致)
+        event.registerSpriteSet(DING.get(), DingParticle.DangerParticleProvider::new);
+        event.registerSpriteSet(ENTITY_AFTER_IMAGE.get(), DingEntityAfterImageParticle.DangerParticleProvider::new);
 
 
 

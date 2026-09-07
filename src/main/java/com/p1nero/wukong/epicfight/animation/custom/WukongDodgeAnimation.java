@@ -38,10 +38,10 @@ public class WukongDodgeAnimation extends DodgeAnimation {
                         weaponInnate.getSkill().setStackSynchronize(weaponInnate, 0);
                     }
                     if (dataManager.hasData(WukongSkillDataKeys.IS_CHARGING.get())) {
-                        dataManager.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false, serverPlayerPatch.getOriginal());
+                        dataManager.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
                     }
                     if (dataManager.hasData(WukongSkillDataKeys.Thrust_IS_CHARGING.get())) {
-                        dataManager.setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), false, serverPlayerPatch.getOriginal());
+                        dataManager.setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), false);
                     }
                 });
             }

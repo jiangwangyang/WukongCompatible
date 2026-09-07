@@ -14,7 +14,7 @@ public class DaShengArmorTextureHandler {
     @SubscribeEvent
     public static void onAnimatedArmorTexture(AnimatedArmorTextureEvent event) {
         if (event.getItemstack().getItem() instanceof DaShengArmorItem) {
-            event.setResultLocation(new ResourceLocation(WukongMoveset.MOD_ID, "textures/item/armor/dasheng.png"));
+            event.setResultLocation(ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/item/armor/dasheng.png"));
         }
     }
 }

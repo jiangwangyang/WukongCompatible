@@ -64,7 +64,7 @@ public class Config
     }
 
     private static boolean validateEntityName(final Object obj){
-        return obj instanceof final String itemName && ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(itemName));
+        return obj instanceof final String itemName && ForgeRegistries.ENTITY_TYPES.containsKey(ResourceLocation.parse(itemName));
     }
 
     @SubscribeEvent

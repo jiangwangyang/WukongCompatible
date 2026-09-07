@@ -273,8 +273,8 @@ public final class WukongGreatSageAnimations {
                                 AnimationEvent.SimpleEvent.create((patch, animation, args) -> {
                                     if (patch instanceof ServerPlayerPatch playerPatch) {
                                         var data = playerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
-                                        data.setDataSync(WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get(), true, playerPatch.getOriginal());
-                                        data.setDataSync(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get(), false, playerPatch.getOriginal());
+                                        data.setDataSync(WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get(), true);
+                                        data.setDataSync(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get(), false);
                                     }
                                 }, AnimationEvent.Side.SERVER))
                         .addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS,
@@ -282,8 +282,7 @@ public final class WukongGreatSageAnimations {
                                     if (patch instanceof ServerPlayerPatch playerPatch) {
                                         playerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(
                                                 WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get(),
-                                                false,
-                                                playerPatch.getOriginal()
+                                                false
                                         );
                                     }
                                 }, AnimationEvent.Side.SERVER)));

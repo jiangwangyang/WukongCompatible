@@ -161,9 +161,9 @@ public class WukongKeyMappings {
                         SkillDataManager manager = patch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
                         if (manager.hasData(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get())) {
                             if (event.getAction() == 1) {
-                                manager.setDataSync(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get(), true, player);
+                                manager.setDataSync(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get(), true);
                             } else if (event.getAction() == 0) {
-                                manager.setDataSync(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get(), false, player);
+                                manager.setDataSync(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get(), false);
                             }
 
                         }

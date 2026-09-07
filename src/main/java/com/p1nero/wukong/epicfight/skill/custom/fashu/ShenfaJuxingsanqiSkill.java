@@ -78,10 +78,10 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
         if(dataManager.getDataValue(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get())){
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get(),false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(),false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), MAX_TRANSPARENT_TIMER, player);
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get(),700, player);
+            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get(),false);
+            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(),false);
+            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), MAX_TRANSPARENT_TIMER);
+            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get(),700);
             executer.playSound(WuKongSounds.SHENFA_JXSQ_CAST.get(), 0.0F, 0.0F);
             executer.playAnimationSynchronized(deriveAnimation1.get(), 0F);
             PacketRelay.sendToAll(PacketHandler.INSTANCE, new AddEntityAfterImageWithTextureParticle(executer.getOriginal().getId()));
@@ -120,20 +120,20 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                         }else{
                             event.getPlayerPatch().playAnimationSynchronized(deriveAnimation3.get(), 0.0F);
                         }
-                        container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(), true, player);
-                        container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0, ((ServerPlayer) event.getPlayerPatch().getOriginal()));
+                        container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(), true);
+                        container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0);
                     }
                 }
             }
             //閲嶇疆鍔犱激璁℃椂鍣?
             if(event.getSkillContainer().getSkill().equals(this) && !event.getPlayerPatch().isLogicalClient()){
-                container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), MAX_TIME, ((ServerPlayer) event.getPlayerPatch().getOriginal()));
+                container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), MAX_TIME);
             }
         });
 
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event) -> {
             if(container.getDataManager().getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get()) > 10){
-                container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0, event.getPlayerPatch().getOriginal());
+                container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0);
             }
         });
 
@@ -142,7 +142,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
             PlayerPatch<?> executer = event.getPlayerPatch();
             ServerPlayer player = (ServerPlayer) executer.getOriginal();
             if(container.getDataManager().getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get()) > 10){
-                container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0, event.getPlayerPatch().getOriginal());
+                container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0);
             }
         });
 
@@ -192,15 +192,15 @@ public class ShenfaJuxingsanqiSkill extends Skill {
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
 
             if (!dataManager.getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get())) {
-                dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get()) - 1, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get()) - 1);
                 if (dataManager.getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get()) == 0)
-                    dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(), true, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(), true);
             }
 
             if (!dataManager.getDataValue(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get())) {
-                dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get()) - 1, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get()) - 1);
                 if (dataManager.getDataValue(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get()) == 0)
-                    dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get(), true, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get(), true);
             }
 
 
@@ -227,7 +227,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         int height = sr.getGuiScaledHeight();
         int alpha = 128; // 50% 閫忔槑搴?
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation styleTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/skills/spell_jxsq.png");
+        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_jxsq.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get())) {
             alpha = 255;
         }

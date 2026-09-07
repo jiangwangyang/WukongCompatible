@@ -50,7 +50,7 @@ public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
         super.begin(entityPatch);
         if(entityPatch instanceof ServerPlayerPatch serverPlayerPatch && WukongWeaponCategories.isWeaponValid(serverPlayerPatch)){
             SkillContainer passiveContainer = serverPlayerPatch.getSkill(SkillSlots.WEAPON_PASSIVE);
-            passiveContainer.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), true, serverPlayerPatch.getOriginal());
+            passiveContainer.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), true);
         }
     }
 
@@ -59,7 +59,7 @@ public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
         super.end(entityPatch, nextAnimation, isEnd);
         if(entityPatch instanceof ServerPlayerPatch serverPlayerPatch && WukongWeaponCategories.isWeaponValid(serverPlayerPatch)){
             SkillContainer passiveContainer = serverPlayerPatch.getSkill(SkillSlots.WEAPON_PASSIVE);
-            passiveContainer.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), false, serverPlayerPatch.getOriginal());
+            passiveContainer.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), false);
         }
         if(entityPatch.isLogicalClient() && CameraAnim.isAiming()){
             CameraAnim.zoomOut(20);//淇濋櫓

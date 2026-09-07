@@ -141,13 +141,13 @@ public class WukongDodgeSkill extends Skill {
 //        executer.playAnimationSynchronized(this.animations[0][i].get(), 0.0F);
         executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F);//杞挱
         executer.playSound(EpicFightSounds.ROLL.get(), 1.0F, 1.0F);
-        dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i, executer.getOriginal());//瀹岀編闂伩鐢?
+        dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i);//瀹岀編闂伩鐢?
         if(count != 0){
-            dataManager.setDataSync(WukongSkillDataKeys.RESET_TIMER.get(), RESET_TICKS, executer.getOriginal());
+            dataManager.setDataSync(WukongSkillDataKeys.RESET_TIMER.get(), RESET_TICKS);
             BasicAttack.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
                     executer, executer.getSkill(SkillSlots.BASIC_ATTACK), this.animations[count][i].get(), 0);
         }
-        dataManager.setDataSync(WukongSkillDataKeys.COUNT.get(), ++count % 3, executer.getOriginal());
+        dataManager.setDataSync(WukongSkillDataKeys.COUNT.get(), ++count % 3);
 
         executer.setModelYRot(yaw, true);
     }

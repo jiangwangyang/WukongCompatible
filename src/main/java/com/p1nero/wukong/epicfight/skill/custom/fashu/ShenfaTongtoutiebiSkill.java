@@ -74,11 +74,11 @@ public class ShenfaTongtoutiebiSkill extends Skill {
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
         if( dataManager.getDataValue(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get()) ){
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get(),false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(),true, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(),18, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_TIMER.get(),300, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(),0, player);
+            dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get(),false);
+            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(),true);
+            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(),18);
+            dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_TIMER.get(),300);
+            dataManager.setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(),0);
             executer.playAnimationSynchronized(deriveAnimation1.get(), 0F);
         }else{
             player.sendSystemMessage(Component.literal("Tongtoutiebi is cooling down."));
@@ -97,10 +97,10 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                 event.setCanceled(true);
                 return;
             }else if (container.getDataManager().getDataValue(WukongSkillDataKeys.TTTB_RESTORE_ZT.get())){
-                container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(), false, event.getPlayerPatch().getOriginal());
+                container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(), false);
                 if(container.getDataManager().getDataValue(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get()) > 0 ){
-                    container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(), 30, event.getPlayerPatch().getOriginal());
-                    container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 0, event.getPlayerPatch().getOriginal());
+                    container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(), 30);
+                    container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 0);
                     serverPlayerPatch.playSound(WuKongSounds.SHENFA_TTTB.get(), 1, 1);
 
                     SkillContainer containe = serverPlayerPatch.getSkill(WukongSkillSlots.STAFF_STYLE);
@@ -116,9 +116,9 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                         if (style.getStyle(containe) ==  WukongStyles.SMASH){
                            // serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), true, serverPlayerPatch.getOriginal());
                         }else if (style.getStyle(containe) ==  WukongStyles.PILLAR){
-                            weaponContainer.getDataManager().setDataSync(WukongSkillDataKeys.PILLAR_FASHU_STACK.get(), true, serverPlayerPatch.getOriginal());
+                            weaponContainer.getDataManager().setDataSync(WukongSkillDataKeys.PILLAR_FASHU_STACK.get(), true);
                         }else if (style.getStyle(containe) ==  WukongStyles.THRUST){
-                            weaponContainer.getDataManager().setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), true, serverPlayerPatch.getOriginal());
+                            weaponContainer.getDataManager().setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), true);
                         }
                     }
 
@@ -128,7 +128,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                     event.setCanceled(true);
                     return;
                 }else{
-                     container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 0, event.getPlayerPatch().getOriginal());
+                     container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 0);
                      event.getPlayerPatch().playAnimationSynchronized(deriveAnimation2.get(), 0.0F);
                 }
             }
@@ -178,18 +178,18 @@ public class ShenfaTongtoutiebiSkill extends Skill {
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
 
             if(dataManager.getDataValue(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get()) != 0){
-                dataManager.setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get()) - 1, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get()) - 1);
             }
             if(dataManager.getDataValue(WukongSkillDataKeys.TTTB_RESTORE_ZT.get()) ) {
-                dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get()) - 1, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get()) - 1);
                 if(dataManager.getDataValue(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get()) == 0){
-                    container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(), false,serverPlayer);
+                    container.getDataManager().setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(), false);
                 }
             }
             if(!dataManager.getDataValue(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get())){
-                dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.TTTB_COOLING_TIMER.get()) - 1, 0), serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.TTTB_COOLING_TIMER.get()) - 1, 0));
                 if (dataManager.getDataValue(WukongSkillDataKeys.TTTB_COOLING_TIMER.get()) == 0)
-                    dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get(), true, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get(), true);
             }
 
 
@@ -208,7 +208,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
         int height = sr.getGuiScaledHeight();
         int alpha = 128;
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation styleTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/skills/spell_tttb.png");
+        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_tttb.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get())) {
             alpha = 255;
         }

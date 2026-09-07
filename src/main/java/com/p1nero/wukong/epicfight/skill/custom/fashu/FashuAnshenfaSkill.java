@@ -89,10 +89,10 @@ public class FashuAnshenfaSkill extends Skill {
         if (dataManager.getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get()) && dataManager.getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
             executer.playSound(WuKongSounds.FASHU_ASS.get(), 0.0F, 0.0F);
             executer.playAnimationSynchronized(deriveAnimation1.get(), 0F);
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get(), false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_DERIVE_TIMER.get(), ACTIVE_TICKS, player);
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_TIMER.get(), 1000, player);
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_ATTACK.get(), false, player);
+            dataManager.setDataSync(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get(), false);
+            dataManager.setDataSync(WukongSkillDataKeys.ASF_DERIVE_TIMER.get(), ACTIVE_TICKS);
+            dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_TIMER.get(), 1000);
+            dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_ATTACK.get(), false);
             Vec3 origin = player.position();
             player.getPersistentData().putDouble(ORIGIN_X, origin.x);
             player.getPersistentData().putDouble(ORIGIN_Y, origin.y);
@@ -178,7 +178,7 @@ public class FashuAnshenfaSkill extends Skill {
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
             if (!dataManager.getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
                 int remaining = Math.max(dataManager.getDataValue(WukongSkillDataKeys.ASF_DERIVE_TIMER.get()) - 1, 0);
-                dataManager.setDataSync(WukongSkillDataKeys.ASF_DERIVE_TIMER.get(), remaining, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.ASF_DERIVE_TIMER.get(), remaining);
                 if (remaining <= ACTIVE_TICKS - WARMUP_TICKS && remaining % PULSE_INTERVAL == 0) {
                     Vec3 origin = new Vec3(
                             serverPlayer.getPersistentData().getDouble(ORIGIN_X),
@@ -190,7 +190,7 @@ public class FashuAnshenfaSkill extends Skill {
                     restoreHealthAndFocus(serverPlayer, origin, serverPlayerPatch);
                 }
                 if (remaining == 0) {
-                    dataManager.setDataSync(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get(), true, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get(), true);
                     serverPlayer.getPersistentData().remove(ORIGIN_X);
                     serverPlayer.getPersistentData().remove(ORIGIN_Y);
                     serverPlayer.getPersistentData().remove(ORIGIN_Z);
@@ -199,9 +199,9 @@ public class FashuAnshenfaSkill extends Skill {
 
             if (!dataManager.getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get())) {
                 int cooldown = Math.max(dataManager.getDataValue(WukongSkillDataKeys.ASF_COOLING_TIMER.get()) - 1, 0);
-                dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_TIMER.get(), cooldown, serverPlayer);
+                dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_TIMER.get(), cooldown);
                 if (cooldown == 0) {
-                    dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_ATTACK.get(), true, serverPlayer);
+                    dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_ATTACK.get(), true);
                 }
             }
         }
@@ -226,7 +226,7 @@ public class FashuAnshenfaSkill extends Skill {
         int height = sr.getGuiScaledHeight();
         int alpha = 128; // 50% 閫忔槑搴?
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation styleTexture = new ResourceLocation(WukongMoveset.MOD_ID, "textures/gui/skills/spell_asf.png");
+        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_asf.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get()) && container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
             alpha = 255;
         }

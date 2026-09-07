@@ -12,7 +12,7 @@ import yesman.epicfight.skill.SkillDataKey;
 
 public class WukongSkillDataKeys {
 
-    public static final DeferredRegister<SkillDataKey<?>> DATA_KEYS = DeferredRegister.create(new ResourceLocation(EpicFightMod.MODID, "skill_data_keys"), WukongMoveset.MOD_ID);
+    public static final DeferredRegister<SkillDataKey<?>> DATA_KEYS = DeferredRegister.create(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill_data_keys"), WukongMoveset.MOD_ID);
 
 
     //棍式

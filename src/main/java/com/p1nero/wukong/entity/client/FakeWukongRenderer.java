@@ -34,6 +34,6 @@ public class FakeWukongRenderer extends HumanoidMobRenderer<FakeWukongEntity, Hu
                 }
             }
         }
-        return new ResourceLocation("minecraft:textures/entity/player/steve.png");
+        return ResourceLocation.parse("minecraft:textures/entity/player/steve.png");
     }
 }
