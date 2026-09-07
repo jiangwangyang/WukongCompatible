@@ -2,7 +2,7 @@
 
 ## 1. 概述
 
-本 mod(黑风山悟空动作组, 后文简称"本 mod")从旧版 Epic Fight(约 20.8, 对应旧成品 jar wukong-forge1.20.1-20.2.0.jar)移植到 Epic Fight 20.14.17(移植提交 e8e2d22)后, 出现了一批与"API 变更"和"资源路径变更"直接相关的缺陷。本文档汇总记录其中 3 个提交修复的 6 个问题, 统一归档原因分析、修改内容与风险说明:
+本 mod(黑风山悟空动作组, 后文简称"本 mod")从旧版 Epic Fight(约 20.8, 对应旧成品 jar wukong-forge1.20.1-20.2.0.jar)移植到 Epic Fight 20.14.17(移植提交 e8e2d22)后, 出现了一批与"API 变更"和"资源路径变更"直接相关的缺陷。本文档汇总记录其中 4 个提交修复的 7 个问题, 统一归档原因分析、修改内容与风险说明:
 
 | 问题 | 对应提交 | 类型 |
 |---|---|---|
@@ -12,8 +12,9 @@
 | 问题四: 孤立数据文件 ryjgb.json | b315a26 | 移植照搬的冗余数据清理 |
 | 问题五: 首次向后闪避失败 | f2fd90f | 动画 JSON 关键帧数据损坏 |
 | 问题六: 完美闪避不保留棍势 | f2fd90f | 布尔标志从未置位 + 读取器取反 |
+| 问题七: 大圣模式立棍后永久卡死 | b2a6810 | 移植新增的取消蓄力逻辑与新版事件触发点冲突 |
 
-除上述 6 个问题外, 同一批移植修复中的"大圣套装碎片"与"聚形散气瞬移/定字"两类问题因内容独立且篇幅较长, 已分别归档于 docs/dasheng_armor_fix.md 与 docs/jxsq_dash_and_ding_particle_fix.md, 本文不再重复。
+除上述 7 个问题外, 同一批移植修复中的"大圣套装碎片"与"聚形散气瞬移/定字"两类问题因内容独立且篇幅较长, 已分别归档于 docs/dasheng_armor_fix.md 与 docs/jxsq_dash_and_ding_particle_fix.md, 本文不再重复。
 
 ## 2. 背景知识
 
@@ -62,6 +63,19 @@ Epic Fight 20.14.17 用 ItemCapabilityReloadListener 在资源重载时扫描 da
 - 完美闪避: 在敌人攻击即将命中的瞬间闪避成功。Epic Fight 会在这种闪避上触发 DODGE_SUCCESS_EVENT(闪避成功事件);
 - 判定链路(修复后的完整流程): 闪避动画开始(WukongDodgeAnimation.begin)时服务端把玩家能力数据 WKPlayer 的 perfectDodge 标志重置为 false → 若这次闪避触发了 DODGE_SUCCESS_EVENT(WukongDodgeSkill.onInitiate 监听), 把 perfectDodge 置为 true → 闪避动画播放到 delayTime 时刻(WukongDodgeAnimation 内注册的 InTimeEvent, 服务端执行)时, 若玩家正在蓄力且 perfectDodge 为 false, 才清空棍势。
 
+### 2.7 立棍蓄力流程与 ACTION_EVENT 的触发时机
+
+大圣(greatsage)与立棍(pillar)两套重击技能共用的"站棍蓄力"动画链, 动画定义均在 WukongAnimations.java, 由 WukongSkills.java 的两个技能 build 分别引用:
+
+- 起手 PILLAR_START0..4: 播放结束时(ON_END_EVENTS, 服务端执行)reserve 下一动画, 并给 WEAPON_INNATE 技能的数据管理器置 IS_CHARGING=true;
+- 循环 PILLAR_LOOP0(起手 0..3 衔接)与 PILLAR_CHARGED_LOOP4(起手 4 衔接): 均为 ActionAnimation, ON_END 里 reserve 自身形成无限自循环, 是"站棍蓄力"的常态载体(NO_GRAVITY_TIME/MOVE_VERTICAL 把人物固定在棍顶, 实测每次自循环回卷约 4 秒);
+- 升星 PILLAR_UP: 蓄力中星级提升时插入播放, 结束后同样 reserve 回 PILLAR_LOOP0;
+- 出口: 技能侧 updateContainer 每 tick 检查 KEY_PRESSING(客户端每 tick 同步的技能键按下状态), 松键时播放 PILLAR_HEAVY0..4 下棍重击。
+
+反编译 20.14.17 核实的事件触发点: MainFrameAnimation.begin(LivingEntityPatch) 在每个 MainFrame 动画(含其子类 ActionAnimation)开始播放时触发 ACTION_EVENT_CLIENT(逻辑客户端的本地玩家)或 ACTION_EVENT_SERVER(其余场合); ServerAnimator.tick() 在当前动画结束、切换到 reserve 动画的时机调用 DynamicAnimation.begin()。因此"reserve 自动衔接"的动画开始播放同样会触发 ACTION_EVENT_SERVER, 与玩家主动发起的动作在事件层面不可区分。
+
+对照: 劈棍蓄力的常态动画 SMASH_CHARGING_LOOP_STAND 是普通 StaticAnimation(非 MainFrameAnimation), 其 begin() 不触发 ACTION_EVENT。这是"劈棍蓄力 + 蓄力中做其它动作就取消"的监听器能共存, 而"立棍(复用 ActionAnimation 自循环) + 同款取消监听器"出问题的结构性原因。
+
 ## 3. 问题现象
 
 1. 切手技无法释放: 拿金箍棒普攻后按右键, 无法触发切手/派生重击(四套重击: 劈棍 smash / 戳棍 thrust / 立棍 pillar / 大圣 greatsage 全部失效);
@@ -69,7 +83,8 @@ Epic Fight 20.14.17 用 ItemCapabilityReloadListener 在资源重载时扫描 da
 3. 金箍棒渲染崩溃: 打开背包等 GUI 场景时偶发崩溃, 报 NullPointerException, 位置在 JinGuBangRenderer;
 4. 每次资源重载(进存档/按 F3+T)日志出现 ryjgb 物品不存在的 warn;
 5. 首次向后闪避失败: 玩家第一次使用向后闪避时动作无法播放;
-6. 完美闪避不保留棍势: 完美闪避本应保留已蓄的棍势, 实际同样被清空。
+6. 完美闪避不保留棍势: 完美闪避本应保留已蓄的棍势, 实际同样被清空;
+7. 大圣模式立棍后永久卡死: 大圣势下普攻 4 段接特殊技(武器 innate 技能键), 棍子立地、人物爬上棍顶后永久无法操作(攻击/闪避/移动均无响应), 只能退出重进。
 
 ## 4. 原因分析
 
@@ -144,9 +159,24 @@ Root 骨骼 transform 数组末尾连续两行完全相同(重复数据):
 
 另: WukongDodgeAnimation 有带 isPerfect 参数的五参构造器(4 参构造默认 false), 是动画层面的第二道豁免; 当前 WukongAnimations.java 中注册的全部闪避动画(DODGE_F1~L2, DODGE_F3/B3 等)都用四参构造, isPerfect 恒 false, 因此实际判定完全依赖 perfectDodge 标志。
 
+### 4.7 问题七: 大圣模式立棍后永久卡死 —— 自动衔接的循环动画触发了"其它动作"取消蓄力
+
+按 2.7 节的动画链与事件触发点, 复盘卡死过程(编号对应时间顺序):
+
+1. 普攻 4 段后按特殊技, GreatSageHeavyAttack.executeOnServer 命中"combo==3"分支, 置 GREATSAGE_PILLAR=true 并播放 PILLAR_START0..3(按当前星级选档), 玩家看到棍子立地、人物爬棍;
+2. PILLAR_START 播放结束, ON_END 里 reserve PILLAR_LOOP0 并置 IS_CHARGING=true;
+3. 下一帧 ServerAnimator.tick 切换到 PILLAR_LOOP0 时调用其 begin(), 触发 ACTION_EVENT_SERVER。移植时在 GreatSageHeavyAttack 的该事件监听器里新加了一段取消逻辑(与 SmashHeavyAttack 同款; 反编译旧成品 jar 证实原版 GreatSageHeavyAttack 的监听器没有这段): "IS_CHARGING 为 true 且当前动画不是 chargePre 且不是闪避动画, 则 cancelCharge()"。PILLAR_LOOP0 三条都不满足豁免, 于是 IS_CHARGING 被置回 false, 棍势被清空;
+4. updateContainer 中"松开技能键 → 播放 PILLAR_HEAVY 下棍"的唯一出口以 IS_CHARGING 为前提, 从此永不可达; 而 PILLAR_LOOP0 无限自循环把人物锁在棍顶, 即为卡死。
+
+为什么劈棍蓄力、普通立棍模式没有此问题: 劈棍的常态蓄力动画 SMASH_CHARGING_LOOP_STAND 是普通 StaticAnimation, begin() 不触发 ACTION_EVENT(见 2.7 节对照); PillarHeavyAttack 的 ACTION_EVENT 监听器没有取消逻辑。大圣 = 复用立棍的 ActionAnimation 自循环 + 套用劈棍式的取消监听器, 两者组合才触发。
+
+第一次修复的回归(诊断日志抓到): 第一次修复在取消条件中排除立棍动画, 但对 PILLAR_LOOP0 写成了 WukongAnimations.PILLAR_LOOP0.get().equals(animation)。WukongAnimations 中 PILLAR_LOOP0/PILLAR_CHARGED_LOOP4 字段本身就是 AnimationAccessor 句柄(与 4.1/5.1 节的 StaticAnimationProvider 不同, 它们不是"返回句柄的提供者"), 在句柄上调 get() 返回的是动画本体, "本体 vs 句柄"的比较永远 false。诊断日志显示 pillar_start0 的 pillarFlow=true(经由 pillarStartAttacks 数组命中)而 pillar_loop0 的 pillarFlow=false, 取消逻辑照旧触发。该比较语义正是 2.1 节"票和本体比较永远为否"的又一次踩坑, 只是这次反在了提供者一侧。
+
+现场证据(临时诊断日志, 已随修复移除): ACTION_EVENT anim=pillar_loop0 charging=true 后紧跟 cancelCharge fired by ACTION_EVENT; 蓄力期间无任何 charging tick 日志(IS_CHARGING 在置位同帧即被清空); 约 4 秒后循环回卷再次触发同一事件(charging 已为 false)。
+
 ## 5. 修改内容
 
-共 3 个提交, 涉及 8 个 Java 文件(4 个重击技能 + JinGuBangRenderer + WKPlayer + WukongDodgeSkill + WukongDodgeAnimation)、11 张贴图与 1 个被删除的数据文件。以上均为已合入 git 历史的既成提交, 本次任务仅补充文档, 未改动其中任何内容。
+共 4 个提交, 涉及 8 个 Java 文件(4 个重击技能 + JinGuBangRenderer + WKPlayer + WukongDodgeSkill + WukongDodgeAnimation)、11 张贴图与 1 个被删除的数据文件。以上均为已合入 git 历史的既成提交, 本次任务仅补充文档, 未改动其中任何内容。
 
 ### 5.1 比较方向改为新版句柄语义(问题一)
 
@@ -194,6 +224,14 @@ Root 骨骼 transform 数组末尾连续两行完全相同(重复数据):
 - 为什么: 见 4.6 节, 三处改动分别对应"读取器取反""标志从未置位""条件语义反转"三个缺陷;
 - 作用: 完美闪避(触发 DODGE_SUCCESS_EVENT)时不清棍势; 普通闪避照旧清空; begin() 每次闪避开始重置标志的既有逻辑不变, 保证标志只在本次闪避窗口内有效。
 
+### 5.7 立棍流程动画豁免取消蓄力(问题七)
+
+文件: GreatSageHeavyAttack.java(提交 b2a6810)
+
+- 是什么: ACTION_EVENT_SERVER 监听器的取消条件增加 !isPillarFlowAnimation(event.getAnimation()); 新增私有方法 isPillarFlowAnimation(AnimationManager.AnimationAccessor<? extends MainFrameAnimation>): 逐项比较 pillarStartAttacks(PILLAR_START0..4)与 pillarUp 的句柄, 并与 WukongAnimations.PILLAR_LOOP0/PILLAR_CHARGED_LOOP4 两个句柄字段直接 equals; 相应新增 3 个 import;
+- 为什么: 见 4.7 节。立棍起手/升星/循环动画由流程自动衔接, 不是玩家主动动作, 不应触发"其它动作取消蓄力";
+- 作用: 大圣模式立棍蓄力(含升星)不再被误取消, 松键可正常下棍重击; 立棍蓄力中玩家主动普攻/非闪避技能仍会取消蓄力(原设计保留), 闪避豁免不变; 劈棍/戳棍/普通立棍均不经过该监听器, 不受影响。
+
 ## 6. 修改前后区别
 
 | 场景 | 修改前 | 修改后 |
@@ -207,6 +245,10 @@ Root 骨骼 transform 数组末尾连续两行完全相同(重复数据):
 | 首次向后闪避 | 动画解析抛异常, 闪避失败 | 动画正常播放 |
 | 蓄力中完美闪避 | 棍势被清空 | 棍势保留 |
 | 蓄力中普通闪避 | 棍势被清空 | 棍势被清空(设计如此, 不变) |
+| 大圣普攻 4 段接特殊技立棍 | 蓄力被自动衔接的循环动画误取消, 人物永久卡在棍上 | 蓄力正常进行, 松键正常下棍重击 |
+| 大圣立棍蓄力中升星 | PILLAR_UP 同样触发误取消, 蓄力中断 | 正常升星, 蓄力不中断 |
+| 大圣立棍蓄力中普攻/非闪避技能打断 | 取消蓄力(设计) | 不变 |
+| 劈棍/戳棍/普通立棍模式蓄力 | 正常 | 不变(不经过该监听器) |
 | 旧扁平图标(被技能内部代码引用) | 存在 | 保留不动 |
 | 立棍衔接等与本次无关的逻辑 | - | 未触碰 |
 
@@ -218,7 +260,11 @@ Root 骨骼 transform 数组末尾连续两行完全相同(重复数据):
 4. 判空的静默降级: lpp 为 null 时金箍棒按默认贴图渲染, 不再崩溃但也"看不到势特效", 这与旧版行为一致(旧版在这些场景直接崩溃), 属可接受降级;
 5. 删除 ryjgb.json 的兼容性: 若有旧存档/外部数据包显式引用 wukong:ryjgb 能力(未发现此类引用, 项目内零引用), 将回退为默认武器能力。规避: 若日后发现第三方资源包引用, 按其需求补回对应物品的真实命名文件即可;
 6. 完美闪避窗口边界: perfectDodge 标志在 begin() 重置、DODGE_SUCCESS_EVENT 置位、InTimeEvent 判定, 三者都在同一次闪避动画生命周期内, 理论上不存在跨次闪避的标志残留; 若实测出现"上一次完美闪避影响下一次", 应检查 DODGE_SUCCESS_EVENT 与动画 begin 的先后顺序(以服务端时序为准);
-7. dodge_b1.json 为手工删行修复: 已逐行核实修复后 31 帧与旧版资源前 31 帧完全一致(只移除重复帧, 无数值改动), 并以脚本核对全部 20 根骨骼 time/transform 数量匹配; 风险仅剩未做游戏内实测(见第 9 节第 6 条)。
+7. dodge_b1.json 为手工删行修复: 已逐行核实修复后 31 帧与旧版资源前 31 帧完全一致(只移除重复帧, 无数值改动), 并以脚本核对全部 20 根骨骼 time/transform 数量匹配; 风险仅剩未做游戏内实测(见第 9 节第 6 条);
+8. 立棍豁免列表的维护成本: isPillarFlowAnimation 依赖 pillarStartAttacks/pillarUp 两个技能字段与 WukongAnimations.PILLAR_LOOP0/PILLAR_CHARGED_LOOP4 两个静态句柄。若日后给大圣换用新的立棍循环/起手动画, 必须同步把新句柄加入该方法, 否则卡死复发; 引入新立棍衔接动画时同理;
+9. 句柄 equals 语义(与风险 1 同源): AnimationAccessorImpl 的 equals 实现未逐字节核实, 但修复已由玩家实测(立棍蓄力/升星/松键下棍正常)确认成立; 若未来升级 Epic Fight 后立棍再次卡死, 优先复查该 equals 语义与 MainFrameAnimation.begin 的事件触发范围;
+10. PILLAR_HEAVY 有意未加入豁免列表: 松键下棍时服务端先把 IS_CHARGING 置 false 再播放下棍动画, 事件触发时蓄力标志已清除, 无需豁免; 若日后把释放顺序改为"先播放后清标志", 需重新评估此处;
+11. 立棍起手约 1 秒的窗口期内重复按特殊技, executeOnServer 会因 IS_CHARGING 尚未置 true 而走 chargePre 分支, 把立棍起手替换为站桩蓄力并清掉 GREATSAGE_PILLAR。该行为与旧版一致, 本次未改动; 若要"起手期间忽略重复按键", 可后续单独处理。
 
 ## 8. 内容出处
 
@@ -230,10 +276,16 @@ Root 骨骼 transform 数组末尾连续两行完全相同(重复数据):
   - yesman/epicfight/api/data/reloader/ItemCapabilityReloadListener: 扫描 capabilities/ 下 armors 与 weapons 子目录, 文件名映射物品注册名, 无对应物品时 warn 并跳过;
   - yesman/epicfight/api/asset/JsonAssetLoader.getTransformSheet: time 与 transform 数组长度校验, 不等抛 AssetLoadingException;
   - yesman/epicfight/api/animation/AnimationManager.loadAnimationClip 与 StaticAnimation: 动画 clip 按需加载, 失败包装后重新抛出;
-  - yesman/epicfight/world/capabilities/EpicFightCapabilities.getEntityPatch: 实体为 null/无能力/类型不符时返回 null。
-- 旧成品 jar(反编译与内容列举 libs/wukong-forge1.20.1-20.2.0.jar): 图标全部位于 skills/ 根目录(扁平规则); GreatSageHeavyAttack 字节码硬编码 textures/gui/staff_stack/stance/greatsage_style.png; stance 目录无 3_0.png; capabilities/weapons/ 同时含 jingubang.json 与 ryjgb.json 且内容相同。
-- 本项目源码(修复前后的 git 提交 d50e438/b315a26/f2fd90f 及当前工作区): WukongSkillCategories.java(四类别定义), WukongStyles.java(枚举顺序即势编号), WukongDodgeSkill.java(createDodgeBuilder 设定 DODGE 类别, DODGE_SUCCESS_EVENT 监听), WukongAnimations.java(闪避动画注册, 816~825 行均为四参构造), WKPlayer.java(perfectDodge 字段与读写器), WukongDodgeAnimation.java(begin 重置与 InTimeEvent 清棍势判定), JinGuBangRenderer.java(两处判空), ThrustHeavyAttack/SmashHeavyAttack/PillarHeavyAttack/GreatSageHeavyAttack.java(HUD 立势图标路径与派生检测), ShenfaJuxingsanqiSkill.java 等五处 styleTexture 硬编码引用(扁平图标需保留的依据), src/main/resources/assets/wukong/animmodels/animations/biped/dodge/dodge_b1.json(重复行位置), src/main/resources/data/wukong/capabilities/weapons/(现存三个数据文件), assets/wukong/lang/*.json(item.wukong.jingubang = 如意金箍棒)。
-- 校验手段: 3_0.png 与 greatsage_style.png 的 MD5(0565a7ab44df8e3e28f30ee5632c23f1)一致; dodge_b1.json 修复前后逐骨骼数组计数脚本比对(修复前 Root 31/32, 其余 19 根匹配; 修复后 20 根全部匹配), 修复后 31 帧与旧成品 jar 前帧逐行一致(仅去重复帧), 并全库扫描 117 个动画 JSON 确认无其它不匹配; 修复前 dodge_b1.json 与旧成品 jar 同名文件逐字节一致(证明损坏源自上游旧版资源)。
+  - yesman/epicfight/world/capabilities/EpicFightCapabilities.getEntityPatch: 实体为 null/无能力/类型不符时返回 null;
+  - yesman/epicfight/api/animation/types/MainFrameAnimation.begin: 每个 MainFrame 动画(含 ActionAnimation 子类)开始播放时触发 ACTION_EVENT_CLIENT(逻辑客户端本地玩家)或 ACTION_EVENT_SERVER(其余);
+  - yesman/epicfight/api/animation/ServerAnimator.tick: 当前动画结束切换到 reserve 动画时调用 DynamicAnimation.begin(), 即 reserve 衔接的动画同样触发上述事件;
+  - yesman/epicfight/api/animation/types/StaticAnimation.end: 触发 ON_END_EVENTS 属性中注册的事件;
+  - yesman/epicfight/skill/SkillDataKey.createSkillDataKey: 第三参数为 syncronizeTrackingPlayers(服务端向旁观者自动同步), 与客户端→服务端的键位同步无关;
+  - yesman/epicfight/network/client/CPModifySkillData.handle: 客户端 KEY_PRESSING 同步包在服务端 setDataRawtype 无校验直写(已核实同步链路完好, 排除该嫌疑);
+  - yesman/epicfight/world/capabilities/entitypatch/player/PlayerPatch.tick 与 SkillContainer.update: 服务端与本地客户端每 tick 均调用 updateContainer(已核实, 排除"客户端不更新"嫌疑)。
+- 旧成品 jar(反编译与内容列举 libs/wukong-forge1.20.1-20.2.0.jar): 图标全部位于 skills/ 根目录(扁平规则); GreatSageHeavyAttack 字节码硬编码 textures/gui/staff_stack/stance/greatsage_style.png; stance 目录无 3_0.png; capabilities/weapons/ 同时含 jingubang.json 与 ryjgb.json 且内容相同; 原版 GreatSageHeavyAttack 的 ACTION_EVENT_SERVER 监听器只有派生检测, 没有取消蓄力逻辑(证明该取消逻辑为移植期新增)。
+- 本项目源码(修复前后的 git 提交 d50e438/b315a26/f2fd90f/b2a6810 及当前工作区): WukongSkillCategories.java(四类别定义), WukongStyles.java(枚举顺序即势编号), WukongDodgeSkill.java(createDodgeBuilder 设定 DODGE 类别, DODGE_SUCCESS_EVENT 监听), WukongAnimations.java(闪避动画注册, 816~825 行均为四参构造; PILLAR_START0..4/PILLAR_LOOP0/PILLAR_UP/PILLAR_CHARGED_LOOP4 的 ON_END 衔接与 IS_CHARGING 置位, SMASH_CHARGING_LOOP_STAND 为普通 StaticAnimation 的对照), WKPlayer.java(perfectDodge 字段与读写器), WukongDodgeAnimation.java(begin 重置与 InTimeEvent 清棍势判定), JinGuBangRenderer.java(两处判空), ThrustHeavyAttack/SmashHeavyAttack/PillarHeavyAttack/GreatSageHeavyAttack.java(HUD 立势图标路径与派生检测), ShenfaJuxingsanqiSkill.java 等五处 styleTexture 硬编码引用(扁平图标需保留的依据), src/main/resources/assets/wukong/animmodels/animations/biped/dodge/dodge_b1.json(重复行位置), src/main/resources/data/wukong/capabilities/weapons/(现存三个数据文件), assets/wukong/lang/*.json(item.wukong.jingubang = 如意金箍棒), WukongSkills.java(大圣与立棍两个技能 build 共用 PILLAR 系动画), GreatSageHeavyAttack.java(提交 b2a6810 的豁免方法与取消条件), PillarHeavyAttack.java/SmashHeavyAttack.java(取消逻辑有无的对照组)。
+- 校验手段: 3_0.png 与 greatsage_style.png 的 MD5(0565a7ab44df8e3e28f30ee5632c23f1)一致; dodge_b1.json 修复前后逐骨骼数组计数脚本比对(修复前 Root 31/32, 其余 19 根匹配; 修复后 20 根全部匹配), 修复后 31 帧与旧成品 jar 前帧逐行一致(仅去重复帧), 并全库扫描 117 个动画 JSON 确认无其它不匹配; 修复前 dodge_b1.json 与旧成品 jar 同名文件逐字节一致(证明损坏源自上游旧版资源); 问题七以临时诊断日志([GS-DIAG], 已随修复移除)抓取现场: pillar_start0 begin 时 pillarFlow=true 而 pillar_loop0 begin 时 pillarFlow=false 并触发 cancelCharge, 蓄力期间无 charging tick/RELEASE 日志, 循环每约 4 秒回卷重复触发; 修复后玩家实测立棍蓄力/升星/松键下棍正常。
 
 ## 9. 遗漏情况说明
 
@@ -242,4 +294,7 @@ Root 骨骼 transform 数组末尾连续两行完全相同(重复数据):
 3. 金箍棒判空仅覆盖 JinGuBangRenderer 两处直接链式调用; 同文件其余 lpp 使用处(getTextureLocation 与 actuallyRender 中的动画/蓄力判断)本就带有 lpp != null 前置判断, 未改动;
 4. 立势图标动态路径中还有 "_1" 系列贴图(0_1/1_1/2_1), 现有代码只拼接 "_0"; "_1" 贴图为旧版遗留, 本次未清理, 不影响运行;
 5. 动画按需加载意味着 dodge_b1.json 的损坏在首次后闪时才暴露; 已对全库 117 个动画 JSON 逐骨骼扫描 time/transform 数量, 无其它文件存在同类不匹配;
-6. 本次任务仅新增本份文档, 未改动任何代码与资源; 6 个问题的修复效果均已由玩家游戏内实测确认(见问题记录); 建议回归测试场景: 普攻后切手/蓄力中闪避/完美闪避保留棍势/背包打开不崩溃/首次后闪/大圣势 HUD 图标。
+6. 本次任务仅新增本份文档, 未改动任何代码与资源; 6 个问题的修复效果均已由玩家游戏内实测确认(见问题记录); 建议回归测试场景: 普攻后切手/蓄力中闪避/完美闪避保留棍势/背包打开不崩溃/首次后闪/大圣势 HUD 图标;
+7. 立棍起手约 1 秒窗口期内重复按特殊技会把起手替换为站桩蓄力(见第 7 节第 11 条), 该行为与旧版一致, 本次未改动, 未视为缺陷修复;
+8. 问题七修复过程中加入的临时诊断日志已全部删除(提交 b2a6810 的 diff 仅含修复本体), 日志证据摘要记录于 4.7 节与第 8 节校验手段;
+9. 问题七的回归测试场景: 大圣普攻 4 段接特殊技立棍蓄力/蓄力中升星/松键下棍(0~3 星各档)/蓄力中普攻与闪避打断/普通模式立棍与劈棍蓄力。
