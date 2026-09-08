@@ -27,7 +27,8 @@ public record AddEntityAfterImageWithTextureParticle(int id) implements BasePack
         if(Minecraft.getInstance().player != null && Minecraft.getInstance().level != null){
             Entity entity = Minecraft.getInstance().level.getEntity(id);
             if(entity != null){
-                Minecraft.getInstance().level.addParticle(WuKongParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0, 0.0);
+                // 字符粒子以 y 为中心渲染, 用脚底坐标会半个身子陷进地面, 抬高 1 格
+                Minecraft.getInstance().level.addParticle(WuKongParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY() + 1.0, entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0, 0.0);
             }
         }
     }

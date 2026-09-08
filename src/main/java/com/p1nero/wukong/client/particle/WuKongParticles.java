@@ -21,7 +21,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class WuKongParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, WukongMoveset.MOD_ID);
     public static final RegistryObject<SimpleParticleType> DING = PARTICLES.register("ding", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> ENTITY_AFTER_IMAGE = PARTICLES.register("ding1", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> ENTITY_AFTER_IMAGE = PARTICLES.register("shen", () -> new SimpleParticleType(true));
 
     public WuKongParticles() {
     }

@@ -152,3 +152,31 @@ ding() 的 50 格兜底搜索增加条件 !(entity instanceof CloudStepLeftEntit
 ### 9.5 踩坑记录
 
 @Inject 处理器的参数类型与顺序必须与目标方法描述符完全一致: PatchedLivingEntityRenderer.render 的最后两个参数是 (int, float)(I 在前 F 在后), 处理器若写成 (float, int) 虽能通过编译(泛型无此检查), 但运行时 mixin 应用失败(InvalidInjectionException: Invalid descriptor), 游戏启动即崩溃。
+
+## 10. 追加修改(第三轮): "定"/"身"字分离 —— 聚形散气残影改"身"字, 定身法改用 DING 粒子
+
+### 10.1 需求
+
+聚形散气原地的残影不再借用"定"字, 改为专属的"身"字; "定"字只保留给定身法。定身法的显示路径也要与 shen 粒子解耦。
+
+### 10.2 修改内容
+
+1. 新增贴图: textures/particle/shen.png(380x380, #FFFF00 黄色"身"字, 演示夏行楷字体渲染, 与原"定"字规格一致); 同步重做 textures/mob_effect/shen.png 为夏行楷版本(备用状态效果图标)。
+2. 粒子注册改名: WuKongParticles.ENTITY_AFTER_IMAGE 的注册 id 由 "ding1" 改为 "shen"(字段名保留, 引用处无需改动)。
+3. 粒子 json 改名: particles/ding1.json -> particles/shen.json, 贴图引用由 "wukong:ding1" 改为 "wukong:shen"。
+4. 删除不再被引用的 textures/particle/ding1.png("定"字世界粒子现由 textures/particle/ding.png 承担, 二者原本同图)。
+5. AddEntityAfterImageWithTextureParticle.execute(聚形散气施法残影): 粒子生成 y 坐标由 entity.getY() 改为 entity.getY() + 1.0 —— 粒子以 y 为中心渲染, 用脚底坐标会半陷地面(实测反馈"字贴在地上")。
+6. DingAfterImageParticle.execute(定身法显示"定"): 粒子由 WuKongParticles.ENTITY_AFTER_IMAGE(现为"身"字)改回 WuKongParticles.DING("ding" -> textures/particle/ding.png, "定"字), 使定身法与 shen 粒子彻底解耦。
+
+### 10.3 现状梳理
+
+| 粒子注册 id | 贴图 | 使用方 | 显示 |
+|---|---|---|---|
+| wukong:ding | particle/ding.png("定") | DingAfterImageParticle(定身法网络包) | "定"字 |
+| wukong:shen | particle/shen.png("身") | AddEntityAfterImageWithTextureParticle(聚形散气残影) | "身"字 |
+
+mob_effect/ding.png 仍为定身状态效果图标(MobEffect 系统自动加载); mob_effect/shen.png 为身外身法预留的状态效果图标, 当前未注册效果, 不参与渲染。
+
+### 10.4 验证
+
+gradlew build 通过(0 错误, 仅原有的 Epic Fight 旧 API 过时警告), 产物 build/libs/wukong_compact-forge-1.20.1-1.0.0.jar。本文第 3.2/4.3 节所述"沿用'定'字粒子"的历史决策已被本节取代: 聚形散气残影现为"身"字, "定"字仅属定身法。

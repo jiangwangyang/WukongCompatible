@@ -24,7 +24,9 @@ public record DingAfterImageParticle(int id) implements BasePacket {
             Entity entity = Minecraft.getInstance().level.getEntity(id);
             if(entity != null){
                 double eyeHeight = ((LivingEntity) entity).getEyeHeight();
-                Minecraft.getInstance().level.addParticle(WuKongParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY()+ eyeHeight+1, entity.getZ(), Double.longBitsToDouble(entity.getId()), 1, 0);
+                // 定身法显示"定"字, 使用 DING 粒子(textures/particle/ding.png);
+                // ENTITY_AFTER_IMAGE 已改名为 shen, 仅供聚形散气残影显示"身"字
+                Minecraft.getInstance().level.addParticle(WuKongParticles.DING.get(), entity.getX(), entity.getY()+ eyeHeight+1, entity.getZ(), Double.longBitsToDouble(entity.getId()), 1, 0);
             }
         }
     }
