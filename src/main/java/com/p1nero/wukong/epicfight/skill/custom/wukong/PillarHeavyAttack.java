@@ -160,10 +160,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         if(container.getStack() > 0){
             int cnt = container.getStack();
 
-        } else {
-            //  container.getDataManager().setDataSync(MoreBattlesSkillDataKeys.PLAY_SOUND.get(), true, executer.getOriginal());
         }
-        //  container.getDataManager().setDataSync(MoreBattlesSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), executer.getOriginal());//通知客户端该亮红灯了
         this.setStackSynchronize(container, 0);
         this.setConsumptionSynchronize(container, 1);
     }
@@ -252,7 +249,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     if(!WukongWeaponCategories.isWeaponValid(event.getPlayerPatch())){
                         return;
                     }
-                    //普攻后立即右键可以衍生                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
+                    //普攻后立即右键可以衍生
                     var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     for(int i = 0; i < autoAnimations.size(); i++){
                         if(autoAnimations.get(i).equals(event.getAnimation()) && i < 4){

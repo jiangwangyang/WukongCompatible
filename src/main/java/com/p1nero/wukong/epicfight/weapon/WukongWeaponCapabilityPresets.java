@@ -198,33 +198,9 @@ public class WukongWeaponCapabilityPresets {
 
             ;
 
-//    public static final Function<Item, CapabilityItem.Builder> SMASH_ONLY = (item) ->
-//            (CapabilityItem.Builder) WeaponCapability.builder().category(WukongWeaponCategories.WK_STAFF)
-//                    .styleProvider((entityPatch) -> WukongStyles.GREATSAGE)
-//                    .collider(WukongColliders.WK_STAFF)
-//                    .hitSound(EpicFightSounds.BLUNT_HIT.get())
-//                    .hitParticle(EpicFightParticles.HIT_BLUNT.get())
-//                    .canBePlacedOffhand(false)
-//                    .comboCancel((style) -> false)
-//                    .newStyleCombo(WukongStyles.GREATSAGE,
-//                            WukongGreatSageAnimations.STAFF_AUTO1,
-//                            WukongAnimations.STAFF_AUTO1_DASH,
-//                            WukongAnimations.JUMP_ATTACK_LIGHT)
-//                    .innateSkill(WukongStyles.GREATSAGE, (itemstack) -> WukongSkills.GREATSAGE_HEAVY_ATTACK)
-//                    .livingMotionModifier(WukongStyles.GREATSAGE, LivingMotions.IDLE, WukongAnimations.IDLE)
-//                    .livingMotionModifier(WukongStyles.GREATSAGE, LivingMotions.WALK, WukongAnimations.RUN)
-//                    .livingMotionModifier(WukongStyles.GREATSAGE, LivingMotions.CHASE, WukongAnimations.DASH)
-//                    .livingMotionModifier(WukongStyles.GREATSAGE, LivingMotions.RUN,WukongAnimations.DASH)
-//                    .livingMotionModifier(WukongStyles.GREATSAGE, LivingMotions.SWIM, WukongAnimations.WALK)
-//                    .livingMotionModifier(WukongStyles.GREATSAGE, LivingMotions.JUMP, WukongAnimations.JUMP)
-//                    .livingMotionModifier(WukongStyles.GREATSAGE, LivingMotions.FALL, WukongAnimations.FALL);
-
     @SubscribeEvent
     public static void register(WeaponCapabilityPresetRegistryEvent event) {
         event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "wk_staff"), STAFF);
-       // event.getTypeEntry().put(new ResourceLocation(WukongMoveset.MOD_ID, "smash_only"), SMASH_ONLY);
-        //event.getTypeEntry().put(new ResourceLocation(WukongMoveset.MOD_ID, "thrust_only"), THRUST_ONLY);
-       // event.getTypeEntry().put(new ResourceLocation(WukongMoveset.MOD_ID, "pillar_only"), PILLAR_ONLY);
     }
 
 }

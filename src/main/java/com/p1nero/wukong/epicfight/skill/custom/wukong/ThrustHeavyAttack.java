@@ -7,12 +7,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
-import com.p1nero.wukong.capability.entity.FakeWukongEntityPatch;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.WukongStyles;
 import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
-import com.p1nero.wukong.epicfight.skill.custom.avatar.FakeWukongEntityRegistry;
 import com.p1nero.wukong.epicfight.skill.custom.avatar.HeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.network.PacketHandler;
@@ -24,7 +22,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -43,7 +40,6 @@ import org.jetbrains.annotations.Nullable;
 
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.Vec2i;
@@ -129,21 +125,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
 
-        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//0星也是星       // dataManager.setDataSync(WukongSkillDataKeys.Thrust_CAN_SECOND_DERIVE.get(),dataManager.getDataValue(WukongSkillDataKeys.Thrust_STEOP_BACK.get()) , player);//第二段派生解锁       // WukongMoveset.LOGGER.info("重击 寸倒计时{}",+dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get()) );
-//        if(dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_TIMER.get()) > 0 ) {
-//            this.setStackSynchronize(container, container.getStack()-container.getStack());
-//          if (container.getStack()==4){executer.playAnimationSynchronized(fengchuanhua.get(), 0F);}
-//          if (container.getStack()!=4 && container.getStack()!=0){executer.playAnimationSynchronized(animations[container.getStack()].get(), 0F);}
-//            dataManager.setData(WukongSkillDataKeys.THRUST_FASHU_TIMER.get(), 0);
-//
-//        }else if(container.getStack()==4 ) {
-//            this.setStackSynchronize(container, container.getStack()-container.getStack());
-//            dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack(), player);
-//            dataManager.setData(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 0);
-//            executer.playAnimationSynchronized(fengchuanhua.get(), 0F);
-//            executer.playSound(WuKongSounds.PERFECT_FENGCHUANHUA.get(), 1, 1);
-//        } else
-
+        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//0星也是星
 
         if (dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get()) > 0) {//普攻击解锁退寸技
         dataManager.setData(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 0);
@@ -156,30 +138,12 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         super.executeOnServer(container, args);
     }
 
-    public void wuKongFengShenZhiLl(ServerPlayer player, AnimationManager.AnimationAccessor<? extends MainFrameAnimation> animation) {
-        //wuKongFengShenZhiLl(serverPlayer, animations[container.getStack()].get());
-        List<Integer> summonedIds = FakeWukongEntityRegistry.getFakeWukongEntityIds(player);
-        for (Integer id : summonedIds) {
-            ServerLevel serverLevel = (ServerLevel) player.level();
-            Entity entity = serverLevel.getEntity(id);
-            if (entity == null) {
-                FakeWukongEntityRegistry.clearFakeWukongEntityIdsIfNotExist(player, id);
-                continue;
-            }
-            FakeWukongEntityPatch patch = EpicFightCapabilities.getEntityPatch(entity, FakeWukongEntityPatch.class);
-            if (patch != null) {
-                patch.playAnimationSynchronized(animation, 0);
-            }
-        }
-    }
-
     @Override
     public void onInitiate(SkillContainer container) {
         SkillDataManager dataManager = container.getDataManager();
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event -> {
             ServerPlayerPatch serverPlayerPatch = event.getPlayerPatch();
             ServerPlayer player = serverPlayerPatch.getOriginal();
-           // SkillContainer container = serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE);
             if(event.getPlayerPatch().getAnimator().getPlayerFor(null).getAnimation().equals(WukongAnimations.THRUST_JUESICK_LOOP.get())){
                 if (container.getStack()<4){
                     container.getSkill().setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue()*3);
@@ -195,7 +159,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     createRepelForAttackTarget(player, event.getForgeEvent().getEntity(), 1.5);
                 }
             }
-            //  WukongMoveset.LOGGER.info("重击 寸倒计时{}",+dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get()) );
         }));
 
 
@@ -214,7 +177,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_CAN_SECOND_DERIVE.get(), false);
                             container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), false);
                             dataManager.setDataSync(WukongSkillDataKeys.THRUST_METERS_BACK.get(), false);
-                          //  container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_DERIVE_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), player);
                             container.getDataManager().setDataSync(WukongSkillDataKeys.Thrust_DERIVE_TIMER_TWO.get(), 0);
                             return;
                         }
@@ -225,62 +187,21 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event -> {
             if (event.getDamageSource().is(DamageTypes.FALL) && container.getDataManager().getDataValue(WukongSkillDataKeys.THRUST_PROTECT_NEXT_FALL.get())) {
                 event.setCanceled(true);
-                event.setCanceled(true);
                 event.setResult(AttackResult.ResultType.MISSED);
                 event.getPlayerPatch().getOriginal().resetFallDistance();
                 container.getDataManager().setData(WukongSkillDataKeys.THRUST_PROTECT_NEXT_FALL.get(), false);
             }
             if(container.getDataManager().getDataValue(WukongSkillDataKeys.Thrust_STEOP_BACK.get())){
-              //  if(event.getPlayerPatch().getAnimator().getPlayerFor(null).getAnimation().equals(stepinch.get())){
                 container.getSkill().setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue() * 90); // 获得大量棍势
                 PacketRelay.sendToAll(PacketHandler.INSTANCE, new AddEntityAfterImageParticle(event.getPlayerPatch().getOriginal().getId()));
                 event.getPlayerPatch().playSound(WuKongSounds.PERFECT_DODGE.get(), 0.5F, 0, 0);
                 modifyStamina(event.getPlayerPatch().getOriginal(), 5.0F);
                 event.setCanceled(true);
-                event.setCanceled(true);
             }
 
         }));
 
-       /* container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event -> {
-            if(event.getDamageSource() instanceof EpicFightDamageSource epicFightDamageSource && epicFightDamageSource.is(EpicFightDamageType.PARTIAL_DAMAGE))
-                return;
-            //退寸成功普攻从第一段开始
-            if (event.getDamageSource() instanceof EpicFightDamageSource epicFightDamageSource) {
-                epicFightDamageSource.setStunType(StunType.NONE);
-            }
-            if(event.getPlayerPatch().getAnimator().getPlayerFor(null).getAnimation().equals(stepinch.get())){
-                PacketRelay.sendToAll(PacketHandler.INSTANCE, new AddEntityAfterImageParticle(event.getPlayerPatch().getOriginal().getId()));
-                container.getSkill().setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue() * 90); // 获得大量棍势
-                event.getPlayerPatch().playSound(WuKongSounds.PERFECT_DODGE.get(), 0.5F, 0, 0);//TODO 替换
-             //   BasicAttack.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, event.getPlayerPatch(), event.getPlayerPatch().getSkill(SkillSlots.BASIC_ATTACK), stepinch.get(), 4);
-                modifyStamina(event.getPlayerPatch().getOriginal(), 5.0F);
-                event.setCanceled(true);
-                event.setCanceled(true);
-            }
-            DynamicAnimation current = event.getPlayerPatch().getAnimator().getPlayerFor(null).getAnimation();
-            if(current.equals(stepinch.get()) || current.equals(footage.get())){
-                if(event.getDamageSource() instanceof EpicFightDamageSource epicFightDamageSource){
-                    epicFightDamageSource.setStunType(StunType.NONE);
-                }
-                LivingEntityPatch<?> attackerPatch = EpicFightCapabilities.getEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class);
-                this.processDamage(event.getPlayerPatch(), event.getDamageSource(), AttackResult.ResultType.SUCCESS, event.getDamage() * 0.7F, attackerPatch);
-                event.setResult(AttackResult.ResultType.BLOCKED);
-                event.setCanceled(true);
-            }
-            event.getPlayerPatch().getOriginal().getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> {
-                if (wkPlayer.getDamageReduce() > 0) {
-                    LivingEntityPatch<?> attackerPatch = EpicFightCapabilities.getEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class);
-                    this.processDamage(event.getPlayerPatch(), event.getDamageSource(), AttackResult.ResultType.SUCCESS, event.getDamage() * (1 - wkPlayer.getDamageReduce()), attackerPatch);
-                    event.setResult(AttackResult.ResultType.BLOCKED);
-                    event.setCanceled(true);
-                }
-            });
-        }));
-*/
 
-
-//
 
         super.onInitiate(container);
     }
@@ -402,15 +323,13 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             }
 
             if (dataManager.getDataValue(WukongSkillDataKeys.IS_REPEATING_DERIVE.get())) {
-                //鎵ｈ€愬姏
                 if (!serverPlayer.isCreative()) {
-                    //serverPlayerPatch.consumeStamina(Config.CHARGING_STAMINA_CONSUME.get().floatValue());
                     if (!serverPlayerPatch.hasStamina(0.1F)) {
                         serverPlayerPatch.playAnimationSynchronized(juesick_end.get(), 0.0F);
                         dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), false);
                     }
                 }
-                //重置可寸时机                //dataManager.setDataSync(ThrustHeavyAttack.CAN_FIRST_DERIVE, true, serverPlayerPatch.getOriginal());
+                //重置可寸时机
                 dataManager.setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 30);
                 //松手了则播end
                 if (!dataManager.getDataValue(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get())) {

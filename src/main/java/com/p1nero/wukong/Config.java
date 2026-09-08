@@ -77,16 +77,4 @@ public class Config
         );
     }
 
-    private static int setConfig(ForgeConfigSpec.DoubleValue config, double value, CommandSourceStack stack){
-        config.set(value);
-        stack.sendSuccess(() -> Component.literal("Successfully set to : "+value), true);
-        return 0;
-    }
-
-    private static int setConfig(ForgeConfigSpec.BooleanValue config, boolean value, CommandSourceStack stack){
-        config.set(value);
-        stack.sendSuccess(() -> Component.literal("Successfully set to : "+value), true);
-        return 0;
-    }
-
 }

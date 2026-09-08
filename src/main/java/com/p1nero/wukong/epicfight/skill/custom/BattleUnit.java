@@ -61,7 +61,6 @@ public class BattleUnit {
                     FakeWukongEntity fakeWukongEntity = new FakeWukongEntity(serverPlayerPatch.getOriginal());
                     fakeWukongEntity.setPos(particleOrigin.add(xOffset, 1, zOffset));  // 设置位置
                     serverLevel.getLevel().addFreshEntity(fakeWukongEntity);
-                   // serverLevel.getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> wkPlayer.addFakeWukongId(fakeWukongEntity.getId()));
 
 
                 }
@@ -159,13 +158,9 @@ public class BattleUnit {
                 EnderDragon enderDragon = (EnderDragon) attackTarget;
                 enderDragon.setNoAi(true);
                 enderDragon.setAggressive(false);
-              //  enderDragon.setDeltaMovement(0, 0, 0);  // 停止飞行
-              //  WukongMoveset.LOGGER.info("禁用目标末影龙的AI并使其不再攻击: {}", enderDragon.getName().getString());
             } else if (attackTarget instanceof Monster monster) {  // 针对怪物类实体
                 monster.setNoAi(true);
                 monster.setAggressive(false);
-               // monster.setDeltaMovement(0, 0, 0);  // 停止移动
-              //  monster.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, Integer.MAX_VALUE, 255, false, false));  // 使其极度减速
 
             }
         }

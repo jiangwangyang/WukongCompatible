@@ -27,29 +27,11 @@ public record PlayStaffFlowerPacket(boolean isTwoHand) implements BasePacket {
         if(player != null){
 
             player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((entityPatch -> {
-                 if(entityPatch instanceof ServerPlayerPatch playerPatch  ){//&& !playerPatch.getEntityState().inaction()
+                 if(entityPatch instanceof ServerPlayerPatch playerPatch  ){
                     playerPatch.playAnimationSynchronized((isTwoHand)
                             ? WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP : WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP, 0);
                     playerPatch.setStamina(playerPatch.getStamina() - (player.isCreative() ? 0 : Config.STAFF_FLOWER_STAMINA_CONSUME.get().floatValue()));
                 }
-               /* if (lpp != null && lpp.getAnimator().getPlayerFor(null).getAnimation() instanceof StaticAnimation staticAnimation && AnimationJudge.isGh(staticAnimation)) {
-                    WukongMoveset.LOGGER.error("棍花");
-                    if(entityPatch instanceof ServerPlayerPatch playerPatch  ){
-                        playerPatch.playAnimationSynchronized((isTwoHand)
-                                ? WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP : WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP, 0);
-                        playerPatch.setStamina(playerPatch.getStamina() - (player.isCreative() ? 0 : Config.STAFF_FLOWER_STAMINA_CONSUME.get().floatValue()));
-                    }
-                }else{
-                    if(entityPatch instanceof ServerPlayerPatch playerPatch && !playerPatch.getEntityState().inaction() ){//&& !playerPatch.getEntityState().inaction()
-                        playerPatch.playAnimationSynchronized((isTwoHand)
-                                ? WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP : WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP, 0);
-                        playerPatch.setStamina(playerPatch.getStamina() - (player.isCreative() ? 0 : Config.STAFF_FLOWER_STAMINA_CONSUME.get().floatValue()));
-                    }
-                }
-                */
-
-
-
             }));
         }
     }

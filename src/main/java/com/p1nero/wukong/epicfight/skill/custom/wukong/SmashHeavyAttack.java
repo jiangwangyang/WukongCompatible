@@ -234,7 +234,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                         container.getDataManager().setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
                     }
 
-                    //普攻后立即右键可以衍生                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
+                    //普攻后立即右键可以衍生
                     var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     for(int i = 0; i < autoAnimations.size(); i++){
                         if(autoAnimations.get(i).equals(event.getAnimation()) && i < 4){

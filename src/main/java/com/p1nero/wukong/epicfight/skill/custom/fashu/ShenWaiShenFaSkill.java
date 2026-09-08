@@ -13,10 +13,7 @@ import com.p1nero.wukong.epicfight.WukongSkillCategories;
 import com.p1nero.wukong.epicfight.WukongSkillSlots;
 import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
-import com.p1nero.wukong.epicfight.skill.custom.avatar.FakeWukongEntityRegistry;
 import com.p1nero.wukong.epicfight.skill.custom.avatar.HeavyAttack;
-import com.p1nero.wukong.epicfight.skill.custom.wukong.SmashHeavyAttack;
-import com.p1nero.wukong.epicfight.skill.custom.wukong.ThrustHeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,18 +23,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.http.message.HeaderValueParser;
 import yesman.epicfight.api.animation.AnimationManager;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
@@ -46,18 +37,13 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.*;
-import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public class ShenWaiShenFaSkill extends Skill {
@@ -80,7 +66,6 @@ public class ShenWaiShenFaSkill extends Skill {
             if(hurtEvent.getPlayerPatch().getOriginal() == hurtEvent.getDamageSource().getEntity() || (hurtEvent.getDamageSource().getEntity() instanceof FakeWukongEntity fakeWukongEntity && fakeWukongEntity.getOwner() != null && hurtEvent.getPlayerPatch().getOriginal().getId() == fakeWukongEntity.getOwner().getId())){
                 hurtEvent.setCanceled(true);
                 hurtEvent.setResult(AttackResult.ResultType.MISSED);
-                hurtEvent.setCanceled(true);
             }
         }),10);
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID, (actionEvent -> {
@@ -136,39 +121,12 @@ public class ShenWaiShenFaSkill extends Skill {
             executor.playAnimationSynchronized(deriveAnimation1.get(), 0F);
             dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get(),false);
             dataManager.setDataSync(WukongSkillDataKeys.SWSF_COOLING_TIMER.get(),2400);//800
-           // PILLAR_CHARGED_HEAVY4(player,executor);
         }else{
             player.sendSystemMessage(Component.literal("Shenwaishenfa is cooling down."));
         }
 
 
     }
-  /*  public static void PILLAR_CHARGED_HEAVY4(ServerPlayer player,ServerPlayerPatch executor) {
-        Vec3 playerPos = player.position();
-        Vec3 particleOrigin = playerPos.subtract(0, 1, 0);
-        ServerLevel serverLevel = (ServerLevel) player.level();
-        int particleCount = 7;
-        float radius = 5F;
-        for (int i = 0; i < particleCount; i++) {
-            float angle = (float) i / particleCount * (float) Math.PI * 2;
-            float xOffset = radius * (float) Math.cos(angle);
-            float zOffset = radius * (float) Math.sin(angle);
-            Vec3 particlePos = particleOrigin.add(xOffset, 0, zOffset);
-            serverLevel.sendParticles(ParticleTypes.POOF, particlePos.x, particlePos.y + 2, particlePos.z, 20, 0, 0, 0, 0.1);
-            FakeWukongEntity fakeWukongEntity = new FakeWukongEntity(executor.getOriginal());
-            fakeWukongEntity.setPos(particleOrigin.add(xOffset, 1, zOffset));
-            executor.getOriginal().serverLevel().addFreshEntity(fakeWukongEntity);
-            FakeWukongEntityRegistry.registerFakeWukongEntity(player, fakeWukongEntity.getId());
-//            int entityId=fakeWukongEntity.getId();
-//            Entity entity = serverLevel.getEntity(entityId);
-//            FakeWukongEntityPatch patch = EpicFightCapabilities.getEntityPatch(entity, FakeWukongEntityPatch.class);
-//            if (patch != null) {
-//                patch.playAnimationSynchronized(WukongAnimations.THRUST_FOOTAGE, 0);
-//            }
-        }
-
-    }
-    */
 
     @Override
     public void updateContainer(SkillContainer container) {

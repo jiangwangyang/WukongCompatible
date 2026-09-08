@@ -139,7 +139,6 @@ public class WukongDodgeSkill extends Skill {
         SkillDataManager dataManager = container.getDataManager();
         dataManager.setData(WukongSkillDataKeys.DODGE_PLAYED.get(), false);
         int count = Mth.clamp(dataManager.getDataValue(WukongSkillDataKeys.COUNT.get()), 0, 2);
-//        executer.playAnimationSynchronized(this.animations[0][i].get(), 0.0F);
         executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F);//轮播
         executer.playSound(EpicFightSounds.ROLL.get(), 1.0F, 1.0F);
         dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i);//完美闪避方向

@@ -221,21 +221,6 @@ public class WukongKeyMappings {
             }
         }
 
-        public static void heavyAttackKeyPressed(int action) {
-            if (action == GLFW.GLFW_PRESS) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                if (player != null) {
-                    LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
-                    if (patch != null && WukongWeaponCategories.isWeaponValid(patch)) {
-                        SkillContainer container = patch.getSkill(SkillSlots.WEAPON_INNATE);
-                        if (container != null && !container.isEmpty()) {
-                            container.sendCastRequest(patch, ClientEngine.getInstance().controlEngine);
-                        }
-                    }
-                }
-            }
-        }
-
 
     }
 

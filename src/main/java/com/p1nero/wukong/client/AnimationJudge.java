@@ -77,8 +77,7 @@ public record AnimationJudge() {
         return contains(GH, staticAnimation);
     }
     public static boolean isGlow(StaticAnimation staticAnimation) {
-       // WukongMoveset.LOGGER.error("isGlow:"+staticAnimation);
-      return contains(Glow, staticAnimation);
+        return contains(Glow, staticAnimation);
     }
     public static boolean isQie(StaticAnimation staticAnimation) {
         return contains(ONE_STOR, staticAnimation);

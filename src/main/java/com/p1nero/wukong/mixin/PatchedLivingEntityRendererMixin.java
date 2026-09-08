@@ -8,14 +8,11 @@ import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenfaJuxingsanqiSkill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -28,7 +25,6 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 @Mixin(value = PatchedLivingEntityRenderer.class, remap = false)
 
 public class PatchedLivingEntityRendererMixin {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PatchedLivingEntityRendererMixin.class);
 
     /**
      * 记录当前正在渲染的实体, 用于在 modifyArg 中判断透明度修改是否只应作用于本地玩家。
@@ -58,9 +54,6 @@ public class PatchedLivingEntityRendererMixin {
         if (patch == null) {
             return alpha;
         }
-//            if (!isHoldingJingubang(player)) {
-//                return 1.0F;
-//            }
         SkillContainer shenFa = patch.getSkill(WukongSkillSlots.SHENFA_SKILL_SLOT);
         if (shenFa != null) {
             SkillDataManager manager = shenFa.getDataManager();
@@ -85,13 +78,6 @@ public class PatchedLivingEntityRendererMixin {
             }
         }
         return alpha;
-    }
-
-    private boolean isHoldingJingubang(LocalPlayer player) {
-        return isJingubang(player.getMainHandItem()) || isJingubang(player.getOffhandItem());
-    }
-    private boolean isJingubang(ItemStack item) {
-        return item.getDescriptionId().equals("item.wukong.jingubang");
     }
 
 }

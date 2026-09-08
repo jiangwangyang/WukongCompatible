@@ -67,7 +67,6 @@ public class CloudStepLeftEntity extends LivingEntity {
             if (entity instanceof Warden warden) {
                 warden.increaseAngerAt(this);
             } else if(entity instanceof Mob mob){
-               // System.out.println("发现怪物: " + mob.getName().getString() + " (UUID: " + mob.getUUID() + ")");
                 mob.setTarget(this);
             }
         });

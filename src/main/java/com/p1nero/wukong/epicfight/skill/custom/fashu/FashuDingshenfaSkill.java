@@ -39,9 +39,7 @@ import yesman.epicfight.skill.*;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 法术：定身术
@@ -49,7 +47,6 @@ import java.util.UUID;
 
 public class FashuDingshenfaSkill extends Skill {
 
-    private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0442ac114510");
     private static final String TRACKED_TARGET = "wukong_dingshen_target";
     private static final double FALLBACK_SEARCH_RADIUS = 64.0D;
     private static final int PARTICLE_INTERVAL = 5;
@@ -91,19 +88,6 @@ public class FashuDingshenfaSkill extends Skill {
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
-//        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.ANIMATION_BEGIN_EVENT, EVENT_UUID, (event -> {
-//            if (event.getAnimation().equals(WukongAnimations.FASHU_MAGICARTS_DSF_START)) {
-//                if (container.getDataManager().getDataValue(WukongSkillDataKeys.DSF_ENEMY_ATTACK.get())) {
-//                    container.getDataManager().setData(WukongSkillDataKeys.DSF_ENEMY_ATTACK.get(), false);
-//                    if (container.getExecutor() instanceof ServerPlayerPatch) {
-//                        ServerPlayerPatch serverPlayerPatch = (ServerPlayerPatch) container.getExecutor();
-//                        Dingshenshu_traverse(serverPlayerPatch.getOriginal(),container);;
-//                        container.getDataManager().setData(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), false);
-//                    }
-//                }
-//            }
-//        }));
-
     }
 
     public static void trackTarget(ServerPlayer player, LivingEntity target) {
@@ -176,22 +160,6 @@ public class FashuDingshenfaSkill extends Skill {
         if (!executer.isLogicalClient() && executer.getOriginal() instanceof ServerPlayer player) {
             liftDing(player);
         }
-        /*if (executer.getOriginal() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) container.getExecutor().getOriginal();
-            SkillDataManager dataManager = container.getDataManager();
-            // 重置定身状态
-            dataManager.setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), false, player);
-            // 重置冷却状态
-            dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), true, player);
-            dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), 0, player);
-            dataManager.setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), 0, player);
-            // 解除定身
-            Dingshenshu_lift(player);
-        }
-        */
-
-        PlayerEventListener listener = container.getExecutor().getEventListener();
-        //listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
         super.onRemoved(container);
     }
 

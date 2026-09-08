@@ -3,7 +3,6 @@ package com.p1nero.wukong.item.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.logging.LogUtils;
 import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.client.AnimationJudge;
@@ -18,7 +17,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import org.slf4j.Logger;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -74,16 +72,9 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
 
     }
 
-
-    @Override
-    public void preRender(PoseStack poseStack, JinGuBang jinGuBang, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        super.preRender(poseStack, jinGuBang, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-    }
-
     @Override
     public void actuallyRender(PoseStack poseStack, JinGuBang jinGuBang, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-       // RenderSystem.setShaderColor(1.0F, 0.0F, 0.0F, 1.0F);
 
         final Minecraft mc = Minecraft.getInstance();
         LocalPlayerPatch lpp = EpicFightCapabilities.getEntityPatch(mc.player, LocalPlayerPatch.class);

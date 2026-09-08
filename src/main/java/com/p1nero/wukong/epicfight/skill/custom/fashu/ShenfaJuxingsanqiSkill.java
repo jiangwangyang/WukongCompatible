@@ -153,18 +153,6 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
 
-        /*PlayerPatch<?> executer = container.getExecutor();
-        if (executer.getOriginal() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) executer.getOriginal();
-            SkillDataManager dataManager = container.getDataManager();
-            // 重置技能状态
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get(), true, player);
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(), false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0, player);
-            dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get(), 0, player);
-        }
-        */
-
         // 清理所有监听器
         PlayerEventListener listener = container.getExecutor().getEventListener();
         listener.removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);

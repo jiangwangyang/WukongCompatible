@@ -42,14 +42,12 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 法术：安身法
  */
 public class FashuAnshenfaSkill extends Skill {
 
-    private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0142ac114510");
     private static final String ORIGIN_X = "wukong_anshen_origin_x";
     private static final String ORIGIN_Y = "wukong_anshen_origin_y";
     private static final String ORIGIN_Z = "wukong_anshen_origin_z";
@@ -60,7 +58,6 @@ public class FashuAnshenfaSkill extends Skill {
     private static final int CIRCLE_PARTICLES = 48;
 
     protected StaticAnimationProvider deriveAnimation1;
-    protected StaticAnimationProvider deriveAnimation2;
 
     public static Builder create() {
         return new Builder().setCategory(WukongSkillCategories.FASHU_STYLE).setResource(Resource.NONE);
@@ -110,18 +107,6 @@ public class FashuAnshenfaSkill extends Skill {
     }
     @Override
     public void onRemoved(SkillContainer container) {
-       /* PlayerPatch<?> executer = container.getExecutor();
-        if (executer.getOriginal() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) container.getExecutor().getOriginal();
-            SkillDataManager dataManager = container.getDataManager();
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get(), false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_DERIVE_TIMER.get(), 0, player);
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_TIMER.get(), 0, player);
-            dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_ATTACK.get(), false, player);
-        }
-        */
-        PlayerEventListener listener = container.getExecutor().getEventListener();
-        //listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
         super.onRemoved(container);
     }
 

@@ -28,9 +28,6 @@ public record AddEntityAfterImageWithTextureParticle(int id) implements BasePack
             Entity entity = Minecraft.getInstance().level.getEntity(id);
             if(entity != null){
                 Minecraft.getInstance().level.addParticle(WuKongParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0, 0.0);
-
-                //  Minecraft.getInstance().level.addParticle(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0, 0.0);
-
             }
         }
     }

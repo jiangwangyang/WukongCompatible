@@ -21,11 +21,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -56,13 +53,10 @@ public class WukongMoveset{
         WuKongSounds.SOUND_EVENTS.register(bus);
         WukongSkillDataKeys.DATA_KEYS.register(bus);
         PacketHandler.register();
-        //LOGGER.info("注册实体：{}", EpicFightEntities.DODGE_LEFT.getId());
 
         IEventBus fg_bus = MinecraftForge.EVENT_BUS;
         fg_bus.addListener(WukongAnimations::onPlayerTick);
         fg_bus.addListener(WukongMoveset::onPlayerLoggedIn);
-        fg_bus.addListener(WukongMoveset::onEntityDeath);
-        fg_bus.addListener(WukongMoveset::onPlayerTick);
 
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
@@ -100,37 +94,4 @@ public class WukongMoveset{
         event.getEntity().addItem(book);
         Config.GET_GUILD_BOOK.set(false);
     }
-    @SubscribeEvent
-    public static void onEntityDeath(LivingDeathEvent event) {
-
-
-    }
-
-
-    @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-//        Player player = event.player;
-//        ItemStack mainHandItem = player.getMainHandItem();
-//        ItemStack offHandItem = player.getOffhandItem();
-//        //WukongMoveset.LOGGER.info("当前主手装备 {}", mainHandItem);
-//
-//        if (mainHandItem.getItem() == WukongItems.JIN_GU_BANG.get()) {
-//
-//           // float currentFov = Minecraft.getInstance().options.fov().get();
-//           // WukongMoveset.LOGGER.info("视角 {}", currentFov);
-//           // Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
-//
-//            player.addEffect(new MobEffectInstance(EpicFightMobEffects.STUN_IMMUNITY.get(), 300, 5));
-//            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 300, 3));
-//            CameraType cameraType = Minecraft.getInstance().options.getCameraType();
-//            if (cameraType == CameraType.THIRD_PERSON_BACK || cameraType == CameraType.THIRD_PERSON_FRONT){
-//                Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
-//            }
-//
-//        }
-
-    }
-
-
-
 }

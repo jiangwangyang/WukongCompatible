@@ -45,10 +45,8 @@ public class WukongMoveCoordFunctions extends MoveCoordFunctions {
                     translation.z *= scale;
                 }
             }
-           // isSjzt(entitypatch);
             transformSheet.readFrom(transform);
         } else {
-         //   WukongMoveset.LOGGER.info("TRACE_LOCROT_TARGET: {}","走备用方案");
             attackTarget = findClosestEnemyPosition(entitypatch);
             if (attackTarget != null) {
                     Vec3 targetpos = attackTarget.position();
@@ -65,7 +63,6 @@ public class WukongMoveCoordFunctions extends MoveCoordFunctions {
                             translation.z *= scale;
                         }
                     }
-                   // isSjzt(entitypatch);
                     transformSheet.readFrom(transform);
             } else {
                 transformSheet.readFrom(self.getCoord().copyAll());

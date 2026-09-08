@@ -102,7 +102,6 @@ public class StaffPassive extends Skill {
 
             if(event.getDamageSource().is(DamageTypes.LIGHTNING_BOLT) && WukongAnimations.STAFF_AUTO4.equals(event.getPlayerPatch().getAnimator().getPlayerFor(null).getAnimation())){
                 event.setCanceled(true);
-                event.setCanceled(true);
             }
 
             if(container.getDataManager().getDataValue(PLAYING_STAFF_SPIN.get()) && (canBeBlocked(event.getDamageSource().getDirectEntity()) || event.getDamageSource().is(DamageTypes.MOB_PROJECTILE))){

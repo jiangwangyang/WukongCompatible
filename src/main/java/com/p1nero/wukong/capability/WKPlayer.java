@@ -9,17 +9,8 @@ public class WKPlayer {
     private String lastSkill = "";//用于恢复闪避技能
     private boolean perfectDodge;
     private float damageReduce = 0.0f; // 伤害减少值，默认值为 0
-    private int blfov = 0;  // 静态字段
 
     private  final List<Integer> fakeWukongIds= new ArrayList<>();
-
-    public  void setFovsz(int fov) {
-        blfov = fov;  // 访问静态字段
-    }
-
-    public  int getFovsz() {
-        return blfov;
-    }
 
     public void setPerfectDodge(boolean perfectDodge) {
         this.perfectDodge = perfectDodge;

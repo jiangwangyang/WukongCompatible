@@ -47,10 +47,5 @@ public class DingParticle extends TextureSheetParticle {
     public ParticleRenderType getRenderType() {
         return ParticleRenderTypeN.PARTICLE_SHEET_LIT_NO_CULL;
     }
-    @Override
-    public void tick() {
-        super.tick();
-    }
-
 
 }

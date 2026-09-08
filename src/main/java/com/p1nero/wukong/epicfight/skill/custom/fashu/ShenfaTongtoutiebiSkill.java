@@ -113,9 +113,8 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                             event.setCanceled(true);
                             return;
                         }
-                        //WukongMoveset.LOGGER.info("重击: {}",  style.getStyle(containe));
                         if (style.getStyle(containe) ==  WukongStyles.SMASH){
-                           // serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), true, serverPlayerPatch.getOriginal());
+                            // SMASH 式无铜头铁臂加成
                         }else if (style.getStyle(containe) ==  WukongStyles.PILLAR){
                             weaponContainer.getDataManager().setDataSync(WukongSkillDataKeys.PILLAR_FASHU_STACK.get(), true);
                         }else if (style.getStyle(containe) ==  WukongStyles.THRUST){
@@ -123,9 +122,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                         }
                     }
 
-                  //  serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.PILLAR_FASHU_STACK.get(), true, serverPlayerPatch.getOriginal());
                     event.setResult(AttackResult.ResultType.MISSED);
-                    event.setCanceled(true);
                     event.setCanceled(true);
                     return;
                 }else{
@@ -141,25 +138,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
     }
     @Override
     public void onRemoved(SkillContainer container) {
-
-       /* PlayerPatch<?> executer = container.getExecutor();
-        if (executer.getOriginal() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) executer.getOriginal();
-            SkillDataManager dataManager = container.getDataManager();
-            // 重置技能状态数
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get(), true, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(), false, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 0, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_TIMER.get(), 0, player);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(), 0, player);
-        }
-        */
-
-        PlayerEventListener listener = container.getExecutor().getEventListener();
-        // 移除事件监听器        listener.removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
-
         super.onRemoved(container);
-
     }
 
     public void modifyStamina(LivingEntity livingentity, float staminaChange) {
