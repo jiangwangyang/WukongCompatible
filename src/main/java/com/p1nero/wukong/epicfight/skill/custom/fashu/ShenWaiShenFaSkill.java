@@ -167,7 +167,8 @@ public class ShenWaiShenFaSkill extends Skill {
 //            }
         }
 
-    }*/
+    }
+    */
 
     @Override
     public void updateContainer(SkillContainer container) {
@@ -194,7 +195,7 @@ public class ShenWaiShenFaSkill extends Skill {
         Window sr = Minecraft.getInstance().getWindow();
         int width = sr.getGuiScaledWidth();
         int height = sr.getGuiScaledHeight();
-        int alpha = 128; // 50% 閫忔槑搴?
+        int alpha = 128; // 50% 透明度
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
         ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_swsf.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.SWSF_COOLING_ATTACK.get())) {
@@ -211,7 +212,7 @@ public class ShenWaiShenFaSkill extends Skill {
                     Minecraft.getInstance().font,
                     String.format("%.1f", second),
                     pos.x - 42 + (20 -  Minecraft.getInstance().font.width(String.format("%.1f", second))) / 2+1,pos.y - 4 + (20 -  Minecraft.getInstance().font.lineHeight) / 2+1,
-                    16777215 // 鏂囨湰棰滆壊锛堢櫧鑹诧級
+                    16777215 // 文本颜色（白色）
             );
         }
     }

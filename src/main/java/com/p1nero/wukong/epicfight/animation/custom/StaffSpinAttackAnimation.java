@@ -21,8 +21,9 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import static com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys.PLAYING_STAFF_SPIN;
 
 /**
- * 灏濊瘯淇敼鍔ㄧ敾鎾斁鐨刴ove lock
- * 鍚庨潰鐩存帴鐩戝惉杈撳叆浜嬩欢鍙栨秷input浜嗐€傘€? */
+ * 尝试修改动画播放的move lock
+ * 后面直接监听输入事件取消input了
+ */
 public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
 
     public StaffSpinAttackAnimation(float end, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, HumanoidArmature biped, float damageMultiplier, boolean isTwoHand){
@@ -62,7 +63,7 @@ public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
             passiveContainer.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), false);
         }
         if(entityPatch.isLogicalClient() && CameraAnim.isAiming()){
-            CameraAnim.zoomOut(20);//淇濋櫓
+            CameraAnim.zoomOut(20);//保险
         }
     }
 

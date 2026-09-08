@@ -48,7 +48,8 @@ import java.util.UUID;
 import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
 
 /**
- * 娉曟湳锛氶摐澶撮搧鑷? */
+ * 法术：铜头铁臂
+ */
 public class ShenfaTongtoutiebiSkill extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0272ac114513");
     protected StaticAnimationProvider deriveAnimation1;
@@ -112,7 +113,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                             event.setCanceled(true);
                             return;
                         }
-                        //WukongMoveset.LOGGER.info("閲嶅嚮: {}",  style.getStyle(containe));
+                        //WukongMoveset.LOGGER.info("重击: {}",  style.getStyle(containe));
                         if (style.getStyle(containe) ==  WukongStyles.SMASH){
                            // serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), true, serverPlayerPatch.getOriginal());
                         }else if (style.getStyle(containe) ==  WukongStyles.PILLAR){
@@ -145,16 +146,17 @@ public class ShenfaTongtoutiebiSkill extends Skill {
         if (executer.getOriginal() instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) executer.getOriginal();
             SkillDataManager dataManager = container.getDataManager();
-            // 閲嶇疆鎶€鑳界姸鎬佹暟鎹?
+            // 重置技能状态数
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get(), true, player);
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(), false, player);
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 0, player);
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_TIMER.get(), 0, player);
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(), 0, player);
-        }*/
+        }
+        */
 
         PlayerEventListener listener = container.getExecutor().getEventListener();
-        // 绉婚櫎浜嬩欢鐩戝惉鍣?        listener.removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
+        // 移除事件监听器        listener.removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
 
         super.onRemoved(container);
 
@@ -213,7 +215,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
             alpha = 255;
         }
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc(); // 浣跨敤榛樿鐨勯€忔槑搴︽贩鍚堟ā寮?
+        RenderSystem.defaultBlendFunc(); // 使用默认的透明度混合模式
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
         guiGraphics.blit(styleTexture, pos.x - 52, pos.y -20, 20, 20, 0.0f, 0f, 1, 1, 1, 1);
         if (!container.getDataManager().getDataValue(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get()) ) {
@@ -243,7 +245,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
         return super.canExecute(container);
     }
 
-    // 鏋勫缓鍣紝鐢ㄤ簬鍒涘缓鎶€鑳藉疄渚?
+    // 构建器，用于创建技能实例
     public static class Builder extends SkillBuilder<ShenfaTongtoutiebiSkill> {
         protected StaticAnimationProvider[] animationProviders;
         protected StaticAnimationProvider derive1;

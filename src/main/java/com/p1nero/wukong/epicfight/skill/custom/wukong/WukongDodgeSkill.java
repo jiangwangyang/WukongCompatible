@@ -42,7 +42,8 @@ import java.util.UUID;
 import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
 
 /**
- * 瀹岀編闂伩鍥炴鍔? */
+ * 完美闪避回棍势
+ */
 public class WukongDodgeSkill extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("d2d011cc-f30f-11ed-a05b-0242ac114515");
       public static final int RESET_TICKS = 100;
@@ -67,7 +68,7 @@ public class WukongDodgeSkill extends Skill {
                 player.getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> wkPlayer.setPerfectDodge(true));
                 event.getPlayerPatch().playSound(WuKongSounds.PERFECT_DODGE.get(), 1, 1);
                 if(player.level() instanceof ServerLevel){
-                    PacketRelay.sendToAll(PacketHandler.INSTANCE, new AddEntityAfterImageParticle(player.getId()));//涓嬮潰閭ｈ鏃犳晥锛屾墜鍔ㄥ彂鍖呰В鍐?//                serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
+                    PacketRelay.sendToAll(PacketHandler.INSTANCE, new AddEntityAfterImageParticle(player.getId()));//下面那行无效，手动发包解决//                serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
                 }
                 SkillContainer weaponInnateContainer = event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
                 if (weaponInnateContainer != null && !weaponInnateContainer.isEmpty()) {
@@ -139,9 +140,9 @@ public class WukongDodgeSkill extends Skill {
         dataManager.setData(WukongSkillDataKeys.DODGE_PLAYED.get(), false);
         int count = Mth.clamp(dataManager.getDataValue(WukongSkillDataKeys.COUNT.get()), 0, 2);
 //        executer.playAnimationSynchronized(this.animations[0][i].get(), 0.0F);
-        executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F);//杞挱
+        executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F);//轮播
         executer.playSound(EpicFightSounds.ROLL.get(), 1.0F, 1.0F);
-        dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i);//瀹岀編闂伩鐢?
+        dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i);//完美闪避方向
         if(count != 0){
             dataManager.setDataSync(WukongSkillDataKeys.RESET_TIMER.get(), RESET_TICKS);
             BasicAttack.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
@@ -153,7 +154,8 @@ public class WukongDodgeSkill extends Skill {
     }
 
     /**
-     * 澶箙鍒欏鍘熺涓€娈?     */
+     * 太久则复原第一段
+     */
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
@@ -172,7 +174,7 @@ public class WukongDodgeSkill extends Skill {
     }
 
     public static class Builder extends SkillBuilder<WukongDodgeSkill> {
-        protected StaticAnimationProvider[][] animations = new StaticAnimationProvider[4][4];//绗竴涓弬鏁板垎鍒槸1銆?銆?娈靛拰瀹岀編闂伩锛岀浜屼釜鏄墠銆佸悗銆佸乏銆佸彸
+        protected StaticAnimationProvider[][] animations = new StaticAnimationProvider[4][4];//第一个参数分别是1~3段和完美闪避，第二个是前、后、左、右
 
         public Builder() {
         }

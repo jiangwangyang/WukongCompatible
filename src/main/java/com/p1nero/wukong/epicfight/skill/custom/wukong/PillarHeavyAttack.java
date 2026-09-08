@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- *绔嬫閲嶅嚮
+ *立棍重击
  */
 public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
@@ -67,7 +67,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
      public static final int MAX_ANGLE_FOV = 74;
     public static final int MAX_FOVLJ = 0;
     protected final StaticAnimationProvider[] up;
-     protected final StaticAnimationProvider[] start;//绔嬭捣鏉?     protected final StaticAnimationProvider[] up;//澧為珮锛?灏辨槸0to1锛?灏辨槸1to2
+     protected final StaticAnimationProvider[] start;//立起     protected final StaticAnimationProvider[] up;//增高，即0到1、1到2
      protected final StaticAnimationProvider[] heavy;
 
     protected StaticAnimationProvider deriveAnimation1;
@@ -102,15 +102,15 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
 
     /**
-     * 鍦ㄨ鏃跺懆鏈熷唴浣跨敤鎶€鑳芥墠绠椾娇鐢ㄨ鐢燂紝鍚﹀垯瑙嗕负閲嶅嚮
-     * 闀挎寜寰幆绗竴娈佃鐢熺殑鍒ゆ柇鍦▄@link PillarHeavyAttack#updateContainer(SkillContainer)}
+     * 在计时周期内使用技能才算使用衍生，否则视为重击
+     * 长按循环第一段衍生的判断在{@link PillarHeavyAttack#updateContainer(SkillContainer)}
      */
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
-        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//0鏄熶篃鏄槦锛?
+        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//0星也是星
         boolean stackConsumed = container.getStack() > 0;
         if ( container.getStack()==4){
             dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
@@ -135,7 +135,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             this.setStackSynchronize(container, container.getStack() - 1);
             executer.playAnimationSynchronized(deriveAnimation2.get(), 0F);
         }else {
-            //閲嶅嚮寮€濮嬭搫鍔?
+            //重击开始蓄力
             if(!dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get()) && checkSpace(player, container.getStack() * 2)){
                 dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
                 if (container.getStack()>0){
@@ -163,7 +163,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         } else {
             //  container.getDataManager().setDataSync(MoreBattlesSkillDataKeys.PLAY_SOUND.get(), true, executer.getOriginal());
         }
-        //  container.getDataManager().setDataSync(MoreBattlesSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), executer.getOriginal());//閫氱煡瀹㈡埛绔浜孩鐏簡
+        //  container.getDataManager().setDataSync(MoreBattlesSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue(), executer.getOriginal());//通知客户端该亮红灯了
         this.setStackSynchronize(container, 0);
         this.setConsumptionSynchronize(container, 1);
     }
@@ -178,12 +178,12 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }));
 
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event -> {
-            //闀挎寜鏈熼棿绂佹璺宠穬
+            //长按期间禁止跳跃
             if (event.getPlayerPatch().isEpicFightMode() && EpicFightKeyMappings.WEAPON_INNATE_SKILL.isDown()) {
                 // 弃用API迁移: getMovementInput()改为getInputState(), 通过InputManager.setInputState应用回原版输入(已核实与直接改Input字段等价)
                 InputManager.setInputState(event.getInputState().withJumping(false));
             }
-            //钃勫姏鏈熼棿绂佺敤绉诲姩
+            //蓄力期间禁用移动
             if (event.getPlayerPatch().isEpicFightMode() && EpicFightKeyMappings.WEAPON_INNATE_SKILL.isDown()) {
                 // 弃用API迁移: 同上, 并以KeyMapping.setDown替代已弃用的ControlEngine.setKeyBind(其内部就是该调用)
                 InputManager.setInputState(event.getInputState()
@@ -210,7 +210,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 event.getPlayerPatch().getOriginal().resetFallDistance();
                 container.getDataManager().setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), false);
             }
-            //闇镐綋鍑忎激
+            //霸体减伤
             if(event.getDamageSource() instanceof EpicFightDamageSource epicFightDamageSource && epicFightDamageSource.is(EpicFightDamageType.PARTIAL_DAMAGE))
                 return;
             float damageReduce = container.getDataManager().getDataValue(WukongSkillDataKeys.DAMAGE_REDUCE.get());
@@ -224,7 +224,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 event.setResult(AttackResult.ResultType.MISSED);
                 event.setCanceled(true);
             }
-            //闃叉鍧犳満
+            //防止坠机
 
             if (event.getDamageSource().is(DamageTypes.FALL) && container.getDataManager().getDataValue(WukongSkillDataKeys.PROTECT_NEXT_FALL.get())) {
                 LivingEntityPatch<?> attackerPatch = EpicFightCapabilities.getEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class);
@@ -252,7 +252,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     if(!WukongWeaponCategories.isWeaponValid(event.getPlayerPatch())){
                         return;
                     }
-                    //鏅敾鍚庣珛鍗冲彸閿彲浠ヨ鐢?                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
+                    //普攻后立即右键可以衍生                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     for(int i = 0; i < autoAnimations.size(); i++){
                         if(autoAnimations.get(i).equals(event.getAnimation()) && i < 4){
@@ -275,20 +275,22 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
     }
     /**
-     * 鍒ゆ柇绌洪棿鏄惁瓒冲绔?     * @param height 浠ョ帺瀹惰剼搴曞紑濮嬪線涓婇渶瑕佸嚑鏍?     */
+     * 判断空间是否足够
+     * @param height 以玩家脚底开始往上需要几格
+     */
     public static boolean checkSpace(ServerPlayer serverPlayer, int height) {
-        // 鑾峰彇鐜╁鎵€鍦ㄧ殑鏈嶅姟鍣ㄤ笘鐣?
+        // 获取玩家所在的服务器世界
         ServerLevel serverLevel = serverPlayer.serverLevel();
-        // 寰幆妫€鏌ョ帺瀹跺ご椤?`height` 楂樺害鍐呯殑姣忎釜浣嶇疆
+        // 循环检测玩家头顶`height` 高度内的每个位置
         for (int i = 1; i <= height; i++) {
-            // 妫€鏌ョ帺瀹跺綋鍓嶆墍鍦ㄤ綅缃笂鏂?`i` 涓崟浣嶇殑鏂瑰潡鐘舵€?
+            // 检测玩家当前所在位置上 `i` 个单位的方块状态
             if (!serverLevel.getBlockState(serverPlayer.getOnPos().above(i)).is(Blocks.AIR)) {
-                // 濡傛灉涓嶆槸绌烘皵锛岃繑鍥?false
+                // 如果不是空气，返回 false
                 return false;
             }
         }
 
-        // 濡傛灉妫€鏌ュ畬鎵€鏈夐珮搴﹀悗閮戒负绌烘皵锛屽垯杩斿洖 true
+        // 如果检测完所有高度后都为空气，则返回 true
         return true;
     }
 
@@ -312,13 +314,13 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         super.updateContainer(container);
         SkillDataManager dataManager = container.getDataManager();
         if(container.getExecutor().isLogicalClient()){
-            //KEY_PRESSING鐢ㄤ簬鏈嶅姟绔垽鏂槸鍚︾户缁挱鍔ㄧ敾
+            //KEY_PRESSING用于服务端判断是否继续播动画
             boolean isKeyDown = EpicFightKeyMappings.WEAPON_INNATE_SKILL.isDown();
             dataManager.setDataSync(WukongSkillDataKeys.KEY_PRESSING.get(), isKeyDown);
         } else {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
-            //灞傛暟鍙樺寲妫€娴嬩互鎾煶鏁?
+            //层数变化检测以播放音效
             if(container.getStack() > dataManager.getDataValue(WukongSkillDataKeys.LAST_STACK.get())){
                 serverPlayerPatch.playSound(WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
                 dataManager.setDataSync(WukongSkillDataKeys.PLAY_SOUND.get(), false);
@@ -329,9 +331,9 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 }
             }
             dataManager.setData(WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
-            //鏇存柊璁℃椂鍣?
-            dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get()) - 1, 0));//娲剧敓閲嶅嚮
-            dataManager.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1, 0));//浣跨敤鎶€鑳芥槦鏁版樉绀?
+            //更新计时器
+            dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get()) - 1, 0));//派生重击
+            dataManager.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1, 0));//使用技能星数显示
             if(dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FASHU_STACK.get()) ){
                 if(container.getStack() < 3){
                     this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
@@ -343,21 +345,21 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             }
 
             if(dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0){
-                dataManager.setDataSync(WukongSkillDataKeys.DERIVE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) - 1);//鍒囨墜鎶€鏈夋晥鏃堕棿璁＄畻
+                dataManager.setDataSync(WukongSkillDataKeys.DERIVE_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) - 1);//切手技有效时间计算
             }
             if(dataManager.getDataValue(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get()) > 0){
-                dataManager.setDataSync(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get()) - 1);//鍒囨墜鎶€鏈夋晥鏃堕棿璁＄畻
+                dataManager.setDataSync(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get(), dataManager.getDataValue(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get()) - 1);//切手技有效时间计算
             }
 
             if(dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())){
-                //闃叉鍒囩墿鍝佷骇鐢熺殑bug
+                //防止切物品产生的bug
                 if(!WukongWeaponCategories.isWeaponValid(serverPlayerPatch)){
                     dataManager.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
                     this.setConsumptionSynchronize(container, 1);
                     this.setStackSynchronize(container, 0);
                     return;
                 }
-                //钃勫姏鐨勫姞鏉?
+                //蓄力的加成
                 if(container.getStack() < 3&&dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())){
                     this.setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue());
                 }
@@ -367,14 +369,14 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);//MAN
                     serverPlayerPatch.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
 
-                    serverPlayerPatch.playAnimationSynchronized(heavy[container.getStack()].get(), 0.0F);//鏈夊嚑鏄熷氨鍑犳槦閲嶅嚮
-                    dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//璁剧疆娑堣€楁槦鏁帮紝鏂逛究瀹㈡埛绔粯鍒?
+                    serverPlayerPatch.playAnimationSynchronized(heavy[container.getStack()].get(), 0.0F);//有几星就几星重击
+                    dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//设置消星数，方便客户端绘制
                     resetConsumption(container, serverPlayerPatch);
                 }
 
             }
 
-            // WukongMoveset.LOGGER.info("绔嬫PILLAR_JIANGHAIFAN_TIMER: {}",dataManager.getDataValue(WukongSkillDataKeys.JIANGHAIFAN_TIMER.get())) ;
+            // WukongMoveset.LOGGER.info("立棍PILLAR_JIANGHAIFAN_TIMER: {}",dataManager.getDataValue(WukongSkillDataKeys.JIANGHAIFAN_TIMER.get())) ;
 
             if(dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FENG_YU_ZHUAN.get())){
                 if(!dataManager.getDataValue(WukongSkillDataKeys.KEY_PRESSING.get())){
@@ -383,7 +385,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 }
             }
 
-            //鐮存潯鍒欏姞stack娓呯┖钃勫姏鏉?
+            //破条则加stack清空蓄力条
             if (container.getStack() < 1 && container.getResource() > container.getMaxResource() * 0.3) {
                 breakProgress(serverPlayerPatch, container);
             } else if (container.getStack() < 2 && container.getResource() > container.getMaxResource() * 0.5) {
@@ -391,7 +393,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             } else if (container.getStack() < 3 && container.getResource() > container.getMaxResource() * 0.7) {
                 breakProgress(serverPlayerPatch, container);
             }
-            //鍥涜搫鐨勬帀妫嶅娍鏃堕棿鍒ゆ柇
+            //四蓄的掉棍势时间判断
             int current = dataManager.getDataValue(WukongSkillDataKeys.CHARGED4_TIMER.get());
             if(current > 0){
                 dataManager.setDataSync(WukongSkillDataKeys.CHARGED4_TIMER.get(), current - 1);
@@ -526,20 +528,22 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
 
         /**
-         * 绔嬫钃勫姏鍓嶆憞
+         * 立棍蓄力前摇
          */
         public Builder setStartAnimations(StaticAnimationProvider... animationProviders) {
             this.start = animationProviders;
             return this;
         }
         /**
-         * 绔嬫钃勫姏0鍒?璞嗚宫鑵?         */
+         * 立棍蓄力0到4星
+         */
         public Builder setUpAnimations(StaticAnimationProvider... animationProviders) {
             this.up = animationProviders;
             return this;
         }
         /**
-         * 0~4鏄熼噸鍑?         */
+         * 0~4星重击
+         */
         public Builder setHeavyAttacks(StaticAnimationProvider... animationProviders) {
             this.heavy = animationProviders;
             return this;

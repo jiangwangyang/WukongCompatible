@@ -57,14 +57,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 鍔堟閲嶅嚮THRUSTHeavyAttack
+ * 劈棍重击THRUSTHeavyAttack
  * ThrustHeavyAttack
  */
 public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0242ac114512");
     @NotNull
-    protected final StaticAnimationProvider[] animations;//0~4鍏辨湁浜旂閲嶅嚮
+    protected final StaticAnimationProvider[] animations;//0~4共有五种重击
     public static final int MAX_CHARGED4_TICKS = 300;//15s
     protected StaticAnimationProvider deriveAnimation1;
     protected StaticAnimationProvider deriveAnimation2;
@@ -99,27 +99,27 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
 
     /**
-     * 鍦ㄨ鏃跺懆鏈熷唴浣跨敤鎶€鑳芥墠绠椾娇鐢ㄨ鐢燂紝鍚﹀垯瑙嗕负閲嶅嚮
-     * 闀挎寜寰幆绗竴娈佃鐢熺殑鍒ゆ柇鍦▄@link SmashHeavyAttack#updateContainer(SkillContainer)}
+     * 在计时周期内使用技能才算使用衍生，否则视为重击
+     * 长按循环第一段衍生的判断在{@link SmashHeavyAttack#updateContainer(SkillContainer)}
      */
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
-        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//0鏄熶篃鏄槦锛?
+        dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//0星也是星
         if(dataManager.getDataValue(WukongSkillDataKeys.CAN_JUMP_HEAVY.get()) && !player.onGround()){
-            dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);//鏀鹃噷闈紝闃叉鐬庢寜鎶€鑳介敭灏遍槻鍧犳満鐨刡ug
-            //璺宠穬鏀诲嚮锛屼篃娑堣€楁墍鏈夋鍔?
+            dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);//放里面，防止瞎按技能键就防坠机的bug
+            //跳跃攻击，也消所有棍势
             dataManager.setDataSync(WukongSkillDataKeys.CAN_JUMP_HEAVY.get(), false);
-            if(container.getStack() > 0){//0鏄熸槸null浼氫腑鏂?                executer.playSound(WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
+            if(container.getStack() > 0){//0星是null会中空                executer.playSound(WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
             }
             executer.playAnimationSynchronized(jumpAttackHeavy.get(), 0.15F);
             resetConsumption(container, executer, false);
         } else if(player.onGround()){
-            //濡傛灉鐢ㄤ簡鏄熷垯瑕佸己鍖栬鐢?
+            //如果用了星则要强化衍生
             boolean stackConsumed = container.getStack() > 0;
-            if(dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0  && !container.isFull()){//鏈夋槦鎵嶈兘鐢ㄧ牬妫嶅紡锛屼笖婊℃槦鐩存帴鏀惧ぇ锛堜篃闃瞓ug锛?
+            if(dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0  && !container.isFull()){//有星才能用破棍式，且满星直接放大（也防bug）
             if(dataManager.getDataValue(WukongSkillDataKeys.CAN_FIRST_DERIVE.get())){
                     dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
                     executer.playSound(WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
@@ -134,7 +134,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             } else if (container.isFull() && deriveAnimation3 != null && isWearingGreatSageSet(player)) {
                 executer.playAnimationSynchronized(deriveAnimation3.get(), 0.2F);
             } else {
-                //閲嶅嚮锛屾秷鑰楁墍鏈夋槦锛屽紑濮嬭搫鍔涳紝鏉炬墜鍦ㄥ鎴风鍒ゆ柇
+                //重击，消耗所有星，开始蓄力，松手在客户端判断
                 if(!dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())){
                     executer.playAnimationSynchronized(chargePre.get(), 0.2F);
 
@@ -154,7 +154,9 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
     }
 
     /**
-     * 娓呯┖鑰愬姏骞舵挱绾㈠厜鍜岄煶鏁?     * @param playSound 濡傛灉鏄€氳繃钃勫姏鑰岄噴鏀剧殑灏变笉鎾煶鏁?     */
+     * 清空耐力并播红光和音效
+     * @param playSound 如果是通过蓄力而释放的就不播放音效
+     */
     private void resetConsumption(SkillContainer container, ServerPlayerPatch executer, boolean playSound){
         if(playSound && container.getStack() > 0){
             int soundIndex = Math.min(container.getStack(), WuKongSounds.stackSounds.size()) - 1;
@@ -162,7 +164,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         } else {
             container.getDataManager().setDataSync(WukongSkillDataKeys.PLAY_SOUND.get(), true);
         }
-        container.getDataManager().setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue());//閫氱煡瀹㈡埛绔浜孩鐏簡
+        container.getDataManager().setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue());//通知客户端该亮红灯了
         this.setStackSynchronize(container, 0);
         this.setConsumptionSynchronize(container, 1);
     }
@@ -170,7 +172,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
     @Override
     public void onInitiate(SkillContainer container) {
 
-        //闀挎寜鏈熼棿绂佹璺宠穬
+        //长按期间禁止跳跃
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event -> {
             if (event.getPlayerPatch().isEpicFightMode() && EpicFightKeyMappings.WEAPON_INNATE_SKILL.isDown()) {
                 // 弃用API迁移: getMovementInput()改为getInputState(), 通过InputManager.setInputState应用回原版输入(已核实与直接改Input字段等价)
@@ -178,13 +180,13 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             }
         }));
 
-        //鎴愬姛璇嗙牬鍔犳鍔匡紝骞堕噸缃櫘鏀昏鏁板櫒锛屼笅娆′粠涓夋鏅敾寮€濮?
+        //成功识破加棍势，并重置普攻计数器，下次从三段普攻开始
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event -> {
             if(event.getDamageSource() instanceof EpicFightDamageSource epicFightDamageSource && epicFightDamageSource.is(EpicFightDamageType.PARTIAL_DAMAGE))
                 return;
             if(container.getDataManager().getDataValue(WukongSkillDataKeys.IS_IN_SPECIAL_ATTACK.get())){
                 if(!container.getDataManager().getDataValue(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get())){
-                    container.getSkill().setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue() * 30);//鑾峰緱澶ч噺妫嶅娍
+                    container.getSkill().setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue() * 30);//获得大量棍势
                     container.getDataManager().setDataSync(WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get(), true);
                 }
                 BasicAttack.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, event.getPlayerPatch(), event.getPlayerPatch().getSkill(SkillSlots.BASIC_ATTACK), deriveAnimation1.get(), 2);
@@ -193,7 +195,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             }
 
             float damageReduce = container.getDataManager().getDataValue(WukongSkillDataKeys.DAMAGE_REDUCE.get());
-            //闇镐綋
+            //霸体
             if(damageReduce > 0){
                 if(event.getDamageSource() instanceof EpicFightDamageSource epicFightDamageSource){
                     epicFightDamageSource.setStunType(StunType.NONE);
@@ -205,7 +207,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                 event.setCanceled(true);
             }
 
-            //闃叉鍧犳満 FIXME
+            //防止坠机 FIXME
             if (event.getDamageSource().is(DamageTypes.FALL) && container.getDataManager().getDataValue(WukongSkillDataKeys.PROTECT_NEXT_FALL.get())) {
                 System.out.println("man!");
                 event.setCanceled(true);
@@ -225,14 +227,14 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                         return;
                     }
 
-                    //钃勫姏鐨勬椂鍊欏仛鍔ㄤ綔鏄潪娉曠殑锛屽簲璇ユ竻绌烘鍔?
+                    //蓄力的时候做动作是非法的，应该清空棍势
                     if(container.getDataManager().getDataValue(WukongSkillDataKeys.IS_CHARGING.get()) && !event.getAnimation().equals(chargePre.get()) && !(event.getAnimation().get() instanceof WukongDodgeAnimation)){
                         this.setConsumptionSynchronize(container, 1);
                         this.setStackSynchronize(container, 0);
                         container.getDataManager().setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
                     }
 
-                    //鏅敾鍚庣珛鍗冲彸閿彲浠ヨ鐢?                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
+                    //普攻后立即右键可以衍生                    var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     var autoAnimations = capabilityItem.getAutoAttackMotion(event.getPlayerPatch());
                     for(int i = 0; i < autoAnimations.size(); i++){
                         if(autoAnimations.get(i).equals(event.getAnimation()) && i < 4){
@@ -243,7 +245,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                     }
                 }));
 
-        //鍒锋柊鍥涜搫璁℃椂鍣紝璇嗙牬鎵撲腑鍒欏彲鎺ヤ簩娈?
+        //刷新四蓄计时器，识破打中则可接二段
         container.getExecutor().getEventListener().addEventListener(
                 PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (event -> {
                     ServerPlayer player = event.getPlayerPatch().getOriginal();
@@ -256,7 +258,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                     }
                 }));
 
-        //鏍规嵁鏄熸暟鏀硅烦璺冮噸鍑诲拰鐮淬€佹柀妫嶅紡浼ゅ
+        //根据星数改跳跃重击和破斩棍式伤害
         container.getExecutor().getEventListener().addEventListener(
                 PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event -> {
                     int starCnt = container.getDataManager().getDataValue(WukongSkillDataKeys.STARS_CONSUMED.get());
@@ -281,7 +283,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                         };
                         event.getDamageSource().attachDamageModifier(ValueModifier.multiplier(mul));
                     }
-                    //瀵瑰€掑湴鐨勬晫浜轰笉鏂藉姞纭洿
+                    //对地的敌人不施加硬直
                     event.getTarget().getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(entityPatch -> {
                         if(entityPatch instanceof LivingEntityPatch<?> livingEntityPatch){
                             if(livingEntityPatch.getEntityState().knockDown()){
@@ -326,59 +328,59 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         super.updateContainer(container);
         SkillDataManager dataManager = container.getDataManager();
         if(container.getExecutor().isLogicalClient()){
-            //KEY_PRESSING鐢ㄤ簬鏈嶅姟绔垽鏂槸鍚︾户缁挱鍔ㄧ敾
+            //KEY_PRESSING用于服务端判断是否继续播动画
             boolean isKeyDown = EpicFightKeyMappings.WEAPON_INNATE_SKILL.isDown();
             dataManager.setDataSync(WukongSkillDataKeys.KEY_PRESSING.get(), isKeyDown);
         } else {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
 
-            //灞傛暟鍙樺寲妫€娴嬩互鎾煶鏁?
+            //层数变化检测以播放音效
             if(container.getStack() > dataManager.getDataValue(WukongSkillDataKeys.LAST_STACK.get())){
                 serverPlayerPatch.playSound(WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
                 dataManager.setDataSync(WukongSkillDataKeys.PLAY_SOUND.get(), false);
             }
             dataManager.setData(WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
 
-            //璺抽噸鍑荤殑鍒ゆ柇
+            //跳重击的判断
             if(!serverPlayer.onGround()){
                 dataManager.setDataSync(WukongSkillDataKeys.CAN_JUMP_HEAVY.get(), true);
             } else if(dataManager.getDataValue(WukongSkillDataKeys.CAN_JUMP_HEAVY.get())){
                 dataManager.setDataSync(WukongSkillDataKeys.CAN_JUMP_HEAVY.get(), false);
             }
 
-            //鏇存柊璁℃椂鍣?
-            dataManager.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1, 0));//浣跨敤鎶€鑳芥槦鏁版樉绀?
-            dataManager.setDataSync(WukongSkillDataKeys.DERIVE_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) - 1, 0));//鍒囨墜鎶€鏈夋晥鏃堕棿璁＄畻
+            //更新计时器
+            dataManager.setDataSync(WukongSkillDataKeys.RED_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1, 0));//使用技能星数显示
+            dataManager.setDataSync(WukongSkillDataKeys.DERIVE_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) - 1, 0));//切手技有效时间计算
             if(dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) <= 0){
                 dataManager.setDataSync(WukongSkillDataKeys.CAN_FIRST_DERIVE.get(), false);
                 dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_DERIVE.get(), false);
             }
 
             if(dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())){
-                //闃叉鍒囩墿鍝佷骇鐢熺殑bug
+                //防止切物品产生的bug
                 if(!WukongWeaponCategories.isWeaponValid(serverPlayerPatch)){
                     dataManager.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
                     this.setConsumptionSynchronize(container, 1);
                     this.setStackSynchronize(container, 0);
                     return;
                 }
-                //钃勫姏鐨勫姞鏉?
+                //蓄力的加成
                 if(container.getStack() < 3){
                     this.setConsumptionSynchronize(container, container.getResource() + Config.CHARGING_SPEED.get().floatValue());
                 }
-                //鏉炬墜鍒欐竻绌烘鍔挎墦閲嶅嚮
+                //松手则清空棍势打重击
                 if(!dataManager.getDataValue(WukongSkillDataKeys.KEY_PRESSING.get())){
                     dataManager.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
                     dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);//MAN
                     serverPlayerPatch.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
-                    serverPlayerPatch.playAnimationSynchronized(animations[container.getStack()].get(), 0.0F);//鏈夊嚑鏄熷氨鍑犳槦閲嶅嚮
-                    dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//璁剧疆娑堣€楁槦鏁帮紝鏂逛究瀹㈡埛绔粯鍒?
+                    serverPlayerPatch.playAnimationSynchronized(animations[container.getStack()].get(), 0.0F);//有几星就几星重击
+                    dataManager.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());//设置消星数，方便客户端绘制
                     resetConsumption(container, serverPlayerPatch, true);
                 }
             }
 
-            //鐮存潯鍒欏姞stack娓呯┖钃勫姏鏉?
+            //破条则加stack清空蓄力条
             if (container.getStack() < 1 && container.getResource() > container.getMaxResource() * 0.3) {
                 breakProgress(serverPlayerPatch, container);
             } else if (container.getStack() < 2 && container.getResource() > container.getMaxResource() * 0.5) {
@@ -386,7 +388,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             } else if (container.getStack() < 3 && container.getResource() > container.getMaxResource() * 0.7) {
                 breakProgress(serverPlayerPatch, container);
             }
-            //鍥涜搫鐨勬帀妫嶅娍鏃堕棿鍒ゆ柇
+            //四蓄的掉棍势时间判断
             int current = dataManager.getDataValue(WukongSkillDataKeys.CHARGED4_TIMER.get());
             if(current > 0){
                 dataManager.setDataSync(WukongSkillDataKeys.CHARGED4_TIMER.get(), current - 1);
@@ -522,14 +524,16 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         }
 
         /**
-         * 0~4鏄熼噸鍑?         */
+         * 0~4星重击
+         */
         public Builder setHeavyAttacks(StaticAnimationProvider... animationProviders) {
             this.animationProviders = animationProviders;
             return this;
         }
 
         /**
-         * 濡傛灉鏄彲闀挎寜鐨勮鐢熷垯derive1灏辨槸pre鍔ㄧ敾锛屽叿浣撻€昏緫鍦ㄥ姩鐢婚偅閲屽垽鏂?         */
+         * 如果是可长按的衍生则derive1就是pre动画，具体逻辑在动画那里判断
+         */
         public Builder setDeriveAnimations(StaticAnimationProvider derive1, StaticAnimationProvider derive2, StaticAnimationProvider derive3) {
             this.derive1 = derive1;
             this.derive2 = derive2;

@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 娉曟湳锛氬畾韬湳
+ * 法术：定身术
  */
 
 public class FashuDingshenfaSkill extends Skill {
@@ -179,15 +179,16 @@ public class FashuDingshenfaSkill extends Skill {
         /*if (executer.getOriginal() instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) container.getExecutor().getOriginal();
             SkillDataManager dataManager = container.getDataManager();
-            // 閲嶇疆瀹氳韩鐘舵€?
+            // 重置定身状态
             dataManager.setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), false, player);
-            // 閲嶇疆鍐峰嵈鐘舵€?
+            // 重置冷却状态
             dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), true, player);
             dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), 0, player);
             dataManager.setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), 0, player);
-            // 瑙ｉ櫎瀹氳韩
+            // 解除定身
             Dingshenshu_lift(player);
-        }*/
+        }
+        */
 
         PlayerEventListener listener = container.getExecutor().getEventListener();
         //listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
@@ -202,7 +203,7 @@ public class FashuDingshenfaSkill extends Skill {
         SkillDataManager dataManager = container.getDataManager();
 
         if (container.getExecutor().isLogicalClient()) {
-            // 瀹㈡埛绔墽琛岀殑閫昏緫
+            // 客户端执行的逻辑
         } else {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
@@ -234,14 +235,14 @@ public class FashuDingshenfaSkill extends Skill {
         Window sr = Minecraft.getInstance().getWindow();
         int width = sr.getGuiScaledWidth();
         int height = sr.getGuiScaledHeight();
-        int alpha = 128; // 50% 閫忔槑搴?
+        int alpha = 128; // 50% 透明度
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
         ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_dsf.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get())) {
             alpha = 255;
         }
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc(); // 浣跨敤榛樿鐨勯€忔槑搴︽贩鍚堟ā寮?
+        RenderSystem.defaultBlendFunc(); // 使用默认的透明度混合模式
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
         guiGraphics.blit(styleTexture, pos.x - 32, pos.y -20, 20, 20, 0.0f, 0f, 1, 1, 1, 1);
         if (!container.getDataManager().getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get()) ) {

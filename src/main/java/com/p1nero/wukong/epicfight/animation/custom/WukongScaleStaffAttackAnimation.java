@@ -67,7 +67,8 @@ public class WukongScaleStaffAttackAnimation extends BasicAttackAnimation {
             float newFov = currentFov + (targetFov - currentFov) * progress;
             MC.options.fov().set((int) newFov);
         };
-        scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.MILLISECONDS);*/
+        scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.MILLISECONDS);
+        */
 
        // Minecraft.getInstance().options.fov().set(WKPlayer.getFovsz());
 

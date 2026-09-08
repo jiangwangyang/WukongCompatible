@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 娉曟湳锛氬畨韬硶
+ * 法术：安身法
  */
 public class FashuAnshenfaSkill extends Skill {
 
@@ -82,7 +82,7 @@ public class FashuAnshenfaSkill extends Skill {
         if (executer == null) {
             return;
         }
-        //WukongMoveset.LOGGER.info("瀹夎韩娉? {}", "executeOnServer");
+        //WukongMoveset.LOGGER.info("安身 {}", "executeOnServer");
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
 
@@ -118,7 +118,8 @@ public class FashuAnshenfaSkill extends Skill {
             dataManager.setDataSync(WukongSkillDataKeys.ASF_DERIVE_TIMER.get(), 0, player);
             dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_TIMER.get(), 0, player);
             dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_ATTACK.get(), false, player);
-        }*/
+        }
+        */
         PlayerEventListener listener = container.getExecutor().getEventListener();
         //listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
         super.onRemoved(container);
@@ -224,7 +225,7 @@ public class FashuAnshenfaSkill extends Skill {
         Window sr = Minecraft.getInstance().getWindow();
         int width = sr.getGuiScaledWidth();
         int height = sr.getGuiScaledHeight();
-        int alpha = 128; // 50% 閫忔槑搴?
+        int alpha = 128; // 50% 透明度
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
         ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_asf.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get()) && container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {

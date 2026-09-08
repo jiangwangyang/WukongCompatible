@@ -46,7 +46,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 娉曟湳锛氳仛姘斿寲褰? */
+ * 法术：聚气化形
+ */
 public class ShenfaJuxingsanqiSkill extends Skill {
 
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0252ac114513");
@@ -103,14 +104,14 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID, (event) -> {
             if(!event.getPlayerPatch().isLogicalClient()){
                 PlayerPatch<?> executer = event.getPlayerPatch();
-                ServerPlayer player = (ServerPlayer) executer.getOriginal();// 鑾峰彇鐜╁鐨勪綅缃?
-                Vec3 playerPos = player.position();// 璁剧疆鎺㈡祴鑼冨洿锛屾瘮濡備竴涓崐寰勪负 10 鐨勭悆褰㈣寖鍥?
+                ServerPlayer player = (ServerPlayer) executer.getOriginal();// 获取玩家的位置
+                Vec3 playerPos = player.position();// 设置探测范围，比如一个半径为 10 的球形范围
                 double radius = 10.0;
-                AABB range = new AABB(playerPos.subtract(radius, radius, radius), playerPos.add(radius, radius, radius));// 鑾峰彇鍛ㄥ洿鐨勫疄浣擄紙鎬墿銆佸姩鐗╃瓑锛?
-                List<Entity> nearbyEntities = player.level().getEntitiesOfClass(Entity.class, range, entity -> entity instanceof Monster); // 鍙幏鍙栨€墿// 鎵撳嵃鎵惧埌鐨勬€墿鏁伴噺
-              //  WukongMoveset.LOGGER.info("鑱氭皵鍖栧舰: {}", nearbyEntities.size());
+                AABB range = new AABB(playerPos.subtract(radius, radius, radius), playerPos.add(radius, radius, radius));// 获取周围的实体（怪物、动物等）
+                List<Entity> nearbyEntities = player.level().getEntitiesOfClass(Entity.class, range, entity -> entity instanceof Monster); // 只获取物// 打印找到的物数量
+              //  WukongMoveset.LOGGER.info("聚气化形: {}", nearbyEntities.size());
 
-                //骞矨鎹㈡垚鐮撮殣
+                //平A换成破隐
                 if(event.getSkillContainer().getSkill().getCategory().equals(SkillCategories.BASIC_ATTACK)){
                     if(container.getDataManager().getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get())> 10){
                         event.setCanceled(true);
@@ -125,7 +126,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                     }
                 }
             }
-            //閲嶇疆鍔犱激璁℃椂鍣?
+            //重置加伤计时器
             if(event.getSkillContainer().getSkill().equals(this) && !event.getPlayerPatch().isLogicalClient()){
                 container.getDataManager().setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), MAX_TIME);
             }
@@ -137,7 +138,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
             }
         });
 
-        //鏈夋敾鍑诲垯閲嶇疆璁℃椂
+        //有攻击则重置计时
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID, (event) -> {
             PlayerPatch<?> executer = event.getPlayerPatch();
             ServerPlayer player = (ServerPlayer) executer.getOriginal();
@@ -156,14 +157,15 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         if (executer.getOriginal() instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) executer.getOriginal();
             SkillDataManager dataManager = container.getDataManager();
-            // 閲嶇疆鎶€鑳界姸鎬?
+            // 重置技能状态
             dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get(), true, player);
             dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get(), false, player);
             dataManager.setDataSync(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get(), 0, player);
             dataManager.setDataSync(WukongSkillDataKeys.JXSQ_COOLING_TIMER.get(), 0, player);
-        }*/
+        }
+        */
 
-        // 娓呯悊鎵€鏈夌洃鍚櫒
+        // 清理所有监听器
         PlayerEventListener listener = container.getExecutor().getEventListener();
         listener.removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
@@ -225,7 +227,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         Window sr = Minecraft.getInstance().getWindow();
         int width = sr.getGuiScaledWidth();
         int height = sr.getGuiScaledHeight();
-        int alpha = 128; // 50% 閫忔槑搴?
+        int alpha = 128; // 50% 透明度
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
         ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_jxsq.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.JXSQ_COOLING_ATTACK.get())) {
@@ -248,7 +250,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     }
 
 
-    // 鏋勫缓鍣紝鐢ㄤ簬鍒涘缓鎶€鑳藉疄渚?
+    // 构建器，用于创建技能实例
     public static class Builder extends SkillBuilder<ShenfaJuxingsanqiSkill> {
         protected StaticAnimationProvider[] animationProviders;
         protected StaticAnimationProvider derive1;

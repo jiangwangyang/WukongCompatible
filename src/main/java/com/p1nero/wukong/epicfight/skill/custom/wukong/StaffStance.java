@@ -37,7 +37,8 @@ public class StaffStance extends Skill {
 
 
     /**
-     * 寰楁牴鎹甼ey杩斿洖锛屼笉鐒跺鎴风涓嶅悓姝ャ€傘€傚緢濂囨€紝onInitiate閲岄潰setDataSync浼氬嚭閿?     */
+     * 得根据key返回，不然客户端不同步。很奇怪，onInitiate里面setDataSync会出错。
+     */
     public WukongStyles getStyle(SkillContainer container) {
         return style == null ? WukongStyles.SMASH : style;
     }

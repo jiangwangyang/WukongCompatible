@@ -14,8 +14,9 @@ import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 /**
- * 鍦ㄩ€犳垚浼ゅ鐨勬椂闂磋妭鐐圭粰鐗╁搧娣诲姞nbt鏍囩锛屾柟渚垮仛妫嶅瓙鐨勪汉鎿嶄綔缂╂斁
- * 鏍规嵁妫嶅娍鍔犱激锛屼絾鏄繕娌″疄鐜? */
+ * 在造成伤害的时间节点给物品添加nbt标签，方便做棍子的人操作缩放
+ * 根据棍势加伤，但是还没实现
+ */
 public class WukongChargedAttackAnimation extends BasicAttackAnimation {
     public WukongChargedAttackAnimation(float convertTime, float antic, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends BasicAttackAnimation> accessor, AssetAccessor<? extends Armature> armature) {
         super(convertTime, antic, contact, recovery, collider, colliderJoint, accessor, armature);

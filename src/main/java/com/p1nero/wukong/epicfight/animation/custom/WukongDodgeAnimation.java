@@ -15,7 +15,8 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 /**
- * 鏃犳晫鏃堕棿缂╃煭鍒板悗鎽囩粨鏉? */
+ * 无敌时间缩短到后摇结束
+ */
 public class WukongDodgeAnimation extends DodgeAnimation {
 
     public WukongDodgeAnimation(float convertTime, float delayTime, AnimationManager.AnimationAccessor<? extends DodgeAnimation> accessor, float width, float height, AssetAccessor<? extends Armature> armature, boolean isPerfect) {
@@ -66,7 +67,8 @@ public class WukongDodgeAnimation extends DodgeAnimation {
     }
 
     /**
-     * 瑙﹀彂瀹岀編闂伩鎵嶆敼鐘舵€?     */
+     * 触发完美闪避才改状态
+     */
     @Override
     public void begin(LivingEntityPatch<?> entityPatch) {
         super.begin(entityPatch);
