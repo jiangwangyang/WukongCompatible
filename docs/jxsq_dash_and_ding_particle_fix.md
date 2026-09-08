@@ -78,6 +78,8 @@ SHENFA_MAGICARTS_JQSQ_END 的 COORD_SET_BEGIN / COORD_SET_TICK 由 MoveCoordFunc
 
 即: "原地出现一个'定'字"从此是有意保留的表现, 不再视为缺陷; 真正修复的只有问题一(瞬移)与 4.4(定身法兜底不再选中假身)。
 
+> 追加(见第 9 节): 后续实测反馈"定"字残影驻留时间应与聚形散气隐身状态一致, 已将粒子寿命改为 200 tick(10 秒), 且隐身结束时(主动攻击/受击/倒计时归零)残影同步消失。
+
 ### 4.4 定身法兜底排除假身
 
 文件: src/main/java/com/p1nero/wukong/epicfight/skill/custom/BattleUnit.java
@@ -120,3 +122,33 @@ ding() 的 50 格兜底搜索增加条件 !(entity instanceof CloudStepLeftEntit
 3. 未修改定身法主路径(锁定目标时)的"定"落点; 未修改 STAFF_AUTO5 等其它使用 TRACE_TARGET_LOCATION_ROTATION 的动画(它们配的是默认 MODEL_COORD, 行为正常)。
 4. 本地没有旧版 Epic Fight(约 20.8)的 jar, 旧版 TRACE_DEST_LOCATION 的内部实现依据旧成品 jar 的调用方式与现版 API 语义反推; 但修复不依赖这一猜测 —— 新生成器是按 20.14.17 的 WORLD_COORD 语义从第一性原理实现的。
 5. 编译检验通过, 但未进行游戏内实测(遵守不运行程序的规范); 建议实测场景: 10 格内有怪踢击/无怪踢击/怪物在墙后/假身存在时施放定身法。
+
+## 9. 追加修复(第二轮实测反馈): 残影时长同步隐身状态 + 隐身误伤周围怪物
+
+### 9.1 问题现象
+
+1. 聚形散气施法后原地的"定"字残影驻留 5 秒, 但聚形散气隐身最长 10 秒; 且主动攻击/受击提前破隐时, 残影仍然挂满 5 秒不消失;
+2. 玩家隐身期间, 周围的怪物也一起变成半透明(隐身)了。
+
+### 9.2 原因分析
+
+问题一: DingEntityAfterImageParticle("定"字粒子)寿命写死 100 tick, 且 tick() 只在持有者死亡时移除, 与聚形散气的技能状态(JXSQ_YINGSHEN_TIMER / JXSQ_YINGSHEN_ZT)完全无关。另外假身 CloudStepLeftEntity.tick() 未自增 tickCount(覆写时未调 super.tick()), 其 tickCount > MAX_TIME 的超时兜底永远不会触发。
+
+问题二: PatchedLivingEntityRendererMixin.modifyAlpha 只读取本地玩家的技能数据来决定透明度, 但它注入的 PatchedLivingEntityRenderer.render 对**所有**被 Epic Fight 接管的实体都会执行 —— 本地玩家隐身时, 场景里所有实体渲染都变成了半透明。
+
+### 9.3 修改内容
+
+1. DingEntityAfterImageParticle.java: 粒子寿命改为 ShenfaJuxingsanqiSkill.MAX_TIME(200 tick, 与隐身时长一致); tick() 中经 LocalPlayerPatch 读取技能状态, 当 JXSQ_YINGSHEN_ZT 为 true 或计时器 <= 10(主动攻击/受击清零、倒计时归零)时提前移除粒子; 施法后前 10 tick 为数据同步缓冲期, 不做提前移除判定。
+2. PatchedLivingEntityRendererMixin.java: 新增 @Inject(HEAD) 处理器 captureRenderingEntity, 用 ThreadLocal 记录当前正在渲染的实体; modifyAlpha 仅在渲染对象为本地玩家本人时才应用隐身透明度。
+3. CloudStepLeftEntity.java: tick() 手动自增 tickCount 使超时兜底生效; 增加 entityPatch 判空。
+
+### 9.4 修改前后区别
+
+| 场景 | 修改前 | 修改后 |
+|---|---|---|
+| 聚形散气隐身期间 | "定"字残影固定驻留 5 秒 | 残影与隐身状态同步: 主动攻击/受击/倒计时归零时立即消失, 自然到期上限 10 秒 |
+| 玩家隐身时周围的怪物 | 一并被渲染成半透明 | 只有玩家本人半透明, 怪物正常显示 |
+
+### 9.5 踩坑记录
+
+@Inject 处理器的参数类型与顺序必须与目标方法描述符完全一致: PatchedLivingEntityRenderer.render 的最后两个参数是 (int, float)(I 在前 F 在后), 处理器若写成 (float, int) 虽能通过编译(泛型无此检查), 但运行时 mixin 应用失败(InvalidInjectionException: Invalid descriptor), 游戏启动即崩溃。

@@ -1,13 +1,21 @@
 package com.p1nero.wukong.effects;
 
+import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenfaJuxingsanqiSkill;
+import com.p1nero.wukong.epicfight.WukongSkillSlots;
+import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.skill.lizi.ParticleRenderTypeN;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.skill.SkillDataManager;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
 
 @OnlyIn(Dist.CLIENT)
@@ -43,7 +51,7 @@ public class DingEntityAfterImageParticle extends TextureSheetParticle {
         this.ID = ID;  // 保存 ID
         this.setSize(2.5f, 2.5f);
         this.quadSize *= 2.85f;
-        this.lifetime = 100;
+        this.lifetime = ShenfaJuxingsanqiSkill.MAX_TIME; // 与聚形散气隐身时长保持一致(200 tick = 10s)
         this.gravity = 0f;
         this.hasPhysics = false;
         this.setColor(1.0F, 1.0F, 1.0F); // 设置白色不透明
@@ -68,9 +76,40 @@ public class DingEntityAfterImageParticle extends TextureSheetParticle {
             float health = ((LivingEntity) entity).getHealth();
             // 如果实体的健康为 0，移除粒子
             if (health == 0) this.remove();
+            // 聚形散气结束时(主动攻击/受击/倒计时归零)残影同步消失, 前 10 tick 是施法同步缓冲期
+            if (this.age > 10 && this.isJxsqEnded(entity)) {
+                this.remove();
+            }
         } else {
             this.remove();
         }
+    }
+
+    /**
+     * 判断聚形散气隐身状态是否已结束。
+     * 隐身激活时: JXSQ_YINGSHEN_ZT == false 且 JXSQ_YINGSHEN_TIMER > 10;
+     * 主动攻击或受击会把计时器清零, 自然到期时状态位翻为 true。
+     */
+    private boolean isJxsqEnded(Entity entity) {
+        if (!(entity instanceof Player player)) {
+            return false;
+        }
+        LocalPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, LocalPlayerPatch.class);
+        if (patch == null) {
+            return false;
+        }
+        SkillContainer shenFa = patch.getSkill(WukongSkillSlots.SHENFA_SKILL_SLOT);
+        if (shenFa == null) {
+            return false;
+        }
+        SkillDataManager manager = shenFa.getDataManager();
+        Integer timer = manager.getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_TIMER.get());
+        Boolean zt = manager.getDataValue(WukongSkillDataKeys.JXSQ_YINGSHEN_ZT.get());
+        if (timer == null || zt == null) {
+            return false;
+        }
+        // 刚施法的一瞬间计时器可能还未同步到满值, 用 ZT 为准
+        return zt || timer <= 10;
     }
 
 

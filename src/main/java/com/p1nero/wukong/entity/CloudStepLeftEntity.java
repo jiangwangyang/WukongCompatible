@@ -51,6 +51,12 @@ public class CloudStepLeftEntity extends LivingEntity {
         }
     }
     public void tick() {
+        // tickCount 手动自增, 否则下方的超时兜底永远不会触发
+        this.tickCount++;
+        if (entityPatch == null) {
+            this.discard();
+            return;
+        }
         level().getNearbyEntities(LivingEntity.class, TargetingConditions.forCombat(), entityPatch.getOriginal(), new AABB(this.position().add(-30, -30, -30), this.position().add(30, 30, 30))).forEach(entity -> {
             if(entityPatch.getOriginal().equals(entity.getLastHurtMob())){
                 entity.setLastHurtMob(this);
