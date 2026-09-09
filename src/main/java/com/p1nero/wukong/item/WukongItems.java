@@ -34,17 +34,6 @@ public class WukongItems {
                                     (new Item.Properties())
                                             .defaultDurability(2777)
                                             .rarity(Rarity.UNCOMMON)));
-    public static final RegistryObject<Item> RED_TIDE =
-            ITEMS.register(
-                    "red_tide",
-                    () ->
-                            new RedTide(
-                                    Tiers.NETHERITE,
-                                    1,
-                                    -3,
-                                    (new Item.Properties())
-                                            .defaultDurability(2777)
-                                            .rarity(Rarity.UNCOMMON)));
     public static final RegistryObject<Item> JIN_GU_BANG =
             ITEMS.register(
                     "jingubang",
@@ -111,7 +100,6 @@ public class WukongItems {
                                             (parameters, tabData) -> {
                                                 tabData.accept(STAFF.get());
                                                 tabData.accept(KANG_JIN.get());
-                                                tabData.accept(RED_TIDE.get());
                                                 tabData.accept(JIN_GU_BANG.get());
 
                                                 tabData.accept(DASHENG_H.get());

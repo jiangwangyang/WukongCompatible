@@ -83,10 +83,9 @@ public class WukongDodgeSkill extends Skill {
                                     PacketRelay.sendToAll(
                                             PacketHandler.INSTANCE,
                                             new AddEntityAfterImageParticle(
-                                                    player
-                                                            .getId())); // 下面那行无效，手动发包解决//
-                                                                        //
-                                                                        // serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
+                                                    player.getId())); // 下面那行无效，手动发包解决//
+                                    //
+                                    // serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
                                 }
                                 SkillContainer weaponInnateContainer =
                                         event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
