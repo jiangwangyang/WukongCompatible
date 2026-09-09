@@ -3,6 +3,7 @@ package com.p1nero.wukong.epicfight.skill.custom.wukong;
 import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.client.WuKongSounds;
@@ -536,6 +537,10 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             float x,
             float y,
             float partialTick) {
+        // 显式开启混合并重置着色器颜色, 避免依赖上游 GL 状态导致光晕画成不透明色块
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int stack = Mth.clamp(container.getStack(), 0, 4);
         int style =
                 container
@@ -577,7 +582,8 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         ResourceLocation redLightTexture =
                 ResourceLocation.fromNamespaceAndPath(
                         WukongMoveset.MOD_ID, "textures/gui/staff_stack/light/red.png");
-        guiGraphics.blit(progressTexture, pos.x - 12, pos.y - 12, 48, 48, 0.0F, 0.0F, 2, 2, 2, 2);
+        guiGraphics.blit(
+                progressTexture, pos.x - 12, pos.y - 12, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
         drawTexture(guiGraphics, styleTexture, pos.x - 12, pos.y - 12);
         drawTexture(guiGraphics, stackBgTexture, pos.x - 12, pos.y - 12);
         Vec2i light1 = new Vec2i(pos.x - 14, pos.y + 3);
@@ -587,7 +593,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
         if (container.isFull()) {
             for (Vec2i lightPos : lightList) {
-                drawTexture(guiGraphics, goldenLightTexture, lightPos.x, lightPos.y);
+                drawLightTexture(guiGraphics, goldenLightTexture, lightPos.x, lightPos.y);
             }
         }
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.RED_TIMER.get()) > 0) {
@@ -600,7 +606,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             if (star > 0) {
                 for (int i = 0; i < star; i++) {
                     Vec2i lightPos = lightList.get(i);
-                    drawTexture(guiGraphics, redLightTexture, lightPos.x, lightPos.y);
+                    drawLightTexture(guiGraphics, redLightTexture, lightPos.x, lightPos.y);
                 }
             }
         }
@@ -608,14 +614,22 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         if (stack > 0) {
             for (int i = 0; i < Math.min(stack, 3); i++) {
                 Vec2i lightPos = lightList.get(i);
-                drawTexture(guiGraphics, whiteLightTexture, lightPos.x, lightPos.y);
+                drawLightTexture(guiGraphics, whiteLightTexture, lightPos.x, lightPos.y);
             }
             drawTexture(guiGraphics, stackTexture, pos.x - 12, pos.y - 12);
         }
     }
 
     public void drawTexture(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y) {
-        guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 2, 2, 2, 2);
+        guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
+    }
+
+    /** 光晕以星点为中心缩小绘制(星点位于 48x48 贴图中心, 即入参偏移 +24), 避免光斑过大溢出圆环 */
+    public void drawLightTexture(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y) {
+        int size = 20;
+        int offset = (48 - size) / 2;
+        guiGraphics.blit(
+                texture, x + offset, y + offset, size, size, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
     public WeaponInnateSkill registerPropertiesToAnimation() {
