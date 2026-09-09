@@ -380,6 +380,15 @@ public class WukongSkillDataKeys {
                                     0,
                                     false,
                                     ThrustHeavyAttack.class)); // 四段棍势持续时间
+    public static final RegistryObject<SkillDataKey<Integer>> RECENT_DODGE_TIMER =
+            DATA_KEYS.register(
+                    "recent_dodge_timer",
+                    () ->
+                            SkillDataKey.createSkillDataKey(
+                                    PacketBufferCodec.INTEGER,
+                                    0,
+                                    false,
+                                    ThrustHeavyAttack.class)); // 闪避后的切手技判定窗口, 供戳棍4段直放凤穿花判定
     public static final RegistryObject<SkillDataKey<Integer>> Thrust_LAST_STACK =
             DATA_KEYS.register(
                     "thrust_last_stack",
