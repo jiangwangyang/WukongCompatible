@@ -480,7 +480,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1,
                             0)); // 使用技能星数显示
             if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FASHU_STACK.get())) {
-                if (container.getStack() < 3) {
+                if (container.getStack() < 4) {
                     this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
                     serverPlayerPatch.playSound(
                             WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);

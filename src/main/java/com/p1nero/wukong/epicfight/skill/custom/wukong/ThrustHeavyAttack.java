@@ -349,7 +349,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
             if (dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_STACK.get())) {
-                if (container.getStack() < 3) {
+                if (container.getStack() < 4) {
                     this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
                     serverPlayerPatch.playSound(
                             WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);

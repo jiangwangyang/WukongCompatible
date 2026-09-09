@@ -379,9 +379,9 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             data.setDataSync(WukongSkillDataKeys.ADD_BEANS.get(), false);
         }
 
-        // 铜头铁臂成功格挡后跳2星(与劈棍/立棍/戳棍行为统一)
+        // 铜头铁臂成功格挡后加2星并封顶4星(3星+2=4), 与劈棍/立棍/戳棍行为统一
         if (data.getDataValue(WukongSkillDataKeys.GREATSAGE_FASHU_STACK.get())) {
-            if (container.getStack() < 3) {
+            if (container.getStack() < 4) {
                 setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
                 playerPatch.playSound(
                         WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1.0F, 1.0F);

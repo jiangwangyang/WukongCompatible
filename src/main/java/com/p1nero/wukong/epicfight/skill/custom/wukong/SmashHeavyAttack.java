@@ -477,14 +477,13 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
 
-            // 铜头铁臂成功格挡后跳2星(与立棍/戳棍行为统一)
+            // 铜头铁臂成功格挡后加2星并封顶4星(3星+2=4), 与立棍/戳棍/大圣行为统一
             if (dataManager.getDataValue(WukongSkillDataKeys.SMASH_FASHU_STACK.get())) {
-                if (container.getStack() < 3) {
+                if (container.getStack() < 4) {
                     this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
                     serverPlayerPatch.playSound(
                             WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
-                    dataManager.setData(
-                            WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
+                    dataManager.setData(WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
                 }
                 dataManager.setDataSync(WukongSkillDataKeys.SMASH_FASHU_STACK.get(), false);
             }
