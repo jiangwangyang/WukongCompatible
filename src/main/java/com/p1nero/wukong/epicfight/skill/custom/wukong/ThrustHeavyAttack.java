@@ -115,9 +115,8 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         dataManager.setDataSync(
                 WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack()); // 0星也是星
 
-        // 4段棍势且处于闪避后的切手技判定窗口内, 按重击直接释放凤穿花(无需蓄力前摇); 非闪避后仍走蓄力前摇
-        if (container.getStack() >= 4
-                && dataManager.getDataValue(WukongSkillDataKeys.RECENT_DODGE_TIMER.get()) > 0) {
+        // 4段棍势(含闪避保留棍势后)按重击直接释放凤穿花, 无需蓄力前摇, 与立棍4段直接释放的行为一致
+        if (container.getStack() >= 4) {
             executer.playAnimationSynchronized(fengchuanhua.get(), 0F);
             resetConsumption(container, executer);
             super.executeOnServer(container, args);

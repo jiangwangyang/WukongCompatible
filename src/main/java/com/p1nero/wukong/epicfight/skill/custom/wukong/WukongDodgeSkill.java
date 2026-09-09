@@ -190,15 +190,6 @@ public class WukongDodgeSkill extends Skill {
         float yaw = args.readFloat();
         SkillDataManager dataManager = container.getDataManager();
         dataManager.setData(WukongSkillDataKeys.DODGE_PLAYED.get(), false);
-        // 标记闪避后的切手技判定窗口(时长与普攻接重击的切手技判定时间一致), 挂在武器固有技能容器上供戳棍读取
-        SkillContainer weaponInnate = executer.getSkill(SkillSlots.WEAPON_INNATE);
-        if (weaponInnate != null && !weaponInnate.isEmpty()) {
-            weaponInnate
-                    .getDataManager()
-                    .setDataSync(
-                            WukongSkillDataKeys.RECENT_DODGE_TIMER.get(),
-                            Config.DERIVE_CHECK_TIME.get().intValue());
-        }
         int count = Mth.clamp(dataManager.getDataValue(WukongSkillDataKeys.COUNT.get()), 0, 2);
         executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F); // 轮播
         executer.playSound(EpicFightSounds.ROLL.get(), 1.0F, 1.0F);
@@ -230,19 +221,6 @@ public class WukongDodgeSkill extends Skill {
             if (manager.getDataValue(WukongSkillDataKeys.RESET_TIMER.get()) == 1
                     && manager.hasData(WukongSkillDataKeys.COUNT.get())) {
                 manager.setData(WukongSkillDataKeys.COUNT.get(), 0);
-            }
-        }
-        // 递减闪避后的切手技判定窗口(挂在武器固有技能容器上)
-        SkillContainer weaponInnate = container.getExecutor().getSkill(SkillSlots.WEAPON_INNATE);
-        if (weaponInnate != null && !weaponInnate.isEmpty()) {
-            SkillDataManager innateManager = weaponInnate.getDataManager();
-            if (innateManager.hasData(WukongSkillDataKeys.RECENT_DODGE_TIMER.get())
-                    && innateManager.getDataValue(WukongSkillDataKeys.RECENT_DODGE_TIMER.get())
-                            > 0) {
-                innateManager.setData(
-                        WukongSkillDataKeys.RECENT_DODGE_TIMER.get(),
-                        innateManager.getDataValue(WukongSkillDataKeys.RECENT_DODGE_TIMER.get())
-                                - 1);
             }
         }
     }
