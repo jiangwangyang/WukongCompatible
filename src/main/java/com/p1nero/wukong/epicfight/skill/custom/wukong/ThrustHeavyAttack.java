@@ -284,6 +284,23 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             }
                         }));
 
+        // 刷新四蓄计时器：满4星命中敌人时开启/刷新四蓄窗口，窗口结束降回3星(与劈棍/立棍/大圣统一)
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE,
+                        EVENT_UUID,
+                        (event -> {
+                            if (container.isFull()) {
+                                container
+                                        .getDataManager()
+                                        .setDataSync(
+                                                WukongSkillDataKeys.CHARGED4_TIMER.get(),
+                                                Config.CHARGED4_WINDOW_TICKS.get().intValue());
+                            }
+                        }));
+
         super.onInitiate(container);
     }
 
@@ -294,6 +311,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
+        listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
     }
 
     public void createRepelForAttackTarget(
@@ -463,10 +481,10 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 breakProgress(serverPlayerPatch, container);
             }
 
-            int current = dataManager.getDataValue(WukongSkillDataKeys.Thrust_CHARGED4_TIMER.get());
+            // 四蓄的掉棍势时间判断(与劈棍/立棍/大圣共用 CHARGED4_TIMER)
+            int current = dataManager.getDataValue(WukongSkillDataKeys.CHARGED4_TIMER.get());
             if (current > 0) {
-                dataManager.setDataSync(
-                        WukongSkillDataKeys.Thrust_CHARGED4_TIMER.get(), current - 1);
+                dataManager.setDataSync(WukongSkillDataKeys.CHARGED4_TIMER.get(), current - 1);
             }
             float consumption = Config.CHARGING_SPEED.get().floatValue() / 5;
             if (current == 1 && container.isFull()) {

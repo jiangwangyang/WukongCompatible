@@ -61,7 +61,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0242ac114512");
     @NotNull protected final StaticAnimationProvider[] animations; // 0~4共有五种重击
-    public static final int MAX_CHARGED4_TICKS = 300; // 15s
     protected StaticAnimationProvider deriveAnimation1;
     protected StaticAnimationProvider deriveAnimation2;
     protected StaticAnimationProvider deriveAnimation3;
@@ -346,7 +345,9 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                                         .getDataManager()
                                         .setDataSync(
                                                 WukongSkillDataKeys.CHARGED4_TIMER.get(),
-                                                MAX_CHARGED4_TICKS);
+                                                Config.CHARGED4_WINDOW_TICKS
+                                                        .get()
+                                                        .intValue()); // 开启/刷新四蓄窗口，窗口结束降回3星
                             }
                             if (event.getDamageSource()
                                     .getAnimation()
@@ -475,6 +476,18 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         } else {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
+
+            // 铜头铁臂成功格挡后跳2星(与立棍/戳棍行为统一)
+            if (dataManager.getDataValue(WukongSkillDataKeys.SMASH_FASHU_STACK.get())) {
+                if (container.getStack() < 3) {
+                    this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
+                    serverPlayerPatch.playSound(
+                            WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
+                    dataManager.setData(
+                            WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
+                }
+                dataManager.setDataSync(WukongSkillDataKeys.SMASH_FASHU_STACK.get(), false);
+            }
 
             // 层数变化检测以播放音效
             if (container.getStack()

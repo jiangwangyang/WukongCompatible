@@ -134,7 +134,12 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                                             return;
                                         }
                                         if (style.getStyle(containe) == WukongStyles.SMASH) {
-                                            // SMASH 式无铜头铁臂加成
+                                            weaponContainer
+                                                    .getDataManager()
+                                                    .setDataSync(
+                                                            WukongSkillDataKeys.SMASH_FASHU_STACK
+                                                                    .get(),
+                                                            true);
                                         } else if (style.getStyle(containe)
                                                 == WukongStyles.PILLAR) {
                                             weaponContainer
@@ -149,6 +154,15 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                                                     .getDataManager()
                                                     .setDataSync(
                                                             WukongSkillDataKeys.THRUST_FASHU_STACK
+                                                                    .get(),
+                                                            true);
+                                        } else if (style.getStyle(containe)
+                                                == WukongStyles.GREATSAGE) {
+                                            weaponContainer
+                                                    .getDataManager()
+                                                    .setDataSync(
+                                                            WukongSkillDataKeys
+                                                                    .GREATSAGE_FASHU_STACK
                                                                     .get(),
                                                             true);
                                         }

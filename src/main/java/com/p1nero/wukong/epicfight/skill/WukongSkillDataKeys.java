@@ -81,6 +81,15 @@ public class WukongSkillDataKeys {
                                     PillarHeavyAttack.class,
                                     ThrustHeavyAttack.class,
                                     GreatSageHeavyAttack.class)); // 四段棍势持续时间
+    public static final RegistryObject<SkillDataKey<Boolean>> SMASH_FASHU_STACK =
+            DATA_KEYS.register(
+                    "smash_fashu_stack",
+                    () ->
+                            SkillDataKey.createSkillDataKey(
+                                    PacketBufferCodec.BOOLEAN,
+                                    false,
+                                    false,
+                                    SmashHeavyAttack.class)); // 铜头铁臂成功格挡后跳2星标记
     public static final RegistryObject<SkillDataKey<Integer>> RED_TIMER =
             DATA_KEYS.register(
                     "red_timer",
@@ -371,15 +380,6 @@ public class WukongSkillDataKeys {
                                     false,
                                     false,
                                     ThrustHeavyAttack.class)); // 技能键是否按下
-    public static final RegistryObject<SkillDataKey<Integer>> Thrust_CHARGED4_TIMER =
-            DATA_KEYS.register(
-                    "thrust_charged4_timer",
-                    () ->
-                            SkillDataKey.createSkillDataKey(
-                                    PacketBufferCodec.INTEGER,
-                                    0,
-                                    false,
-                                    ThrustHeavyAttack.class)); // 四段棍势持续时间
     public static final RegistryObject<SkillDataKey<Integer>> Thrust_LAST_STACK =
             DATA_KEYS.register(
                     "thrust_last_stack",
@@ -746,15 +746,15 @@ public class WukongSkillDataKeys {
                                     0,
                                     false,
                                     GreatSageHeavyAttack.class)); // 衍生合法时间计时器
-    public static final RegistryObject<SkillDataKey<Integer>> GREATSAGE_CHARGED4_TIMER =
+    public static final RegistryObject<SkillDataKey<Boolean>> GREATSAGE_FASHU_STACK =
             DATA_KEYS.register(
-                    "greatsage_charged4_timer",
+                    "greatsage_fashu_stack",
                     () ->
                             SkillDataKey.createSkillDataKey(
-                                    PacketBufferCodec.INTEGER,
-                                    0,
+                                    PacketBufferCodec.BOOLEAN,
                                     false,
-                                    GreatSageHeavyAttack.class)); // 四段棍势持续时间
+                                    false,
+                                    GreatSageHeavyAttack.class)); // 铜头铁臂成功格挡后跳2星标记
     public static final RegistryObject<SkillDataKey<Integer>> GREATSAGE_RED_TIMER =
             DATA_KEYS.register(
                     "greatsage_red_timer",

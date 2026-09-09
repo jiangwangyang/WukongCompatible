@@ -62,7 +62,6 @@ import java.util.UUID;
 
 public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a02b-0242ac114585");
-    private static final int MAX_CHARGED4_TICKS = 300;
 
     @NotNull private final StaticAnimationProvider[] derivedAttacks1;
     @NotNull private final StaticAnimationProvider[] derivedAttacks2;
@@ -297,7 +296,9 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                                         .getDataManager()
                                         .setDataSync(
                                                 WukongSkillDataKeys.CHARGED4_TIMER.get(),
-                                                MAX_CHARGED4_TICKS);
+                                                Config.CHARGED4_WINDOW_TICKS
+                                                        .get()
+                                                        .intValue()); // 开启/刷新四蓄窗口，窗口结束降回3星
                             }
                         });
 
@@ -376,6 +377,17 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                 data.setData(WukongSkillDataKeys.LAST_STACK.get(), nextStack);
             }
             data.setDataSync(WukongSkillDataKeys.ADD_BEANS.get(), false);
+        }
+
+        // 铜头铁臂成功格挡后跳2星(与劈棍/立棍/戳棍行为统一)
+        if (data.getDataValue(WukongSkillDataKeys.GREATSAGE_FASHU_STACK.get())) {
+            if (container.getStack() < 3) {
+                setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
+                playerPatch.playSound(
+                        WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1.0F, 1.0F);
+                data.setData(WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
+            }
+            data.setDataSync(WukongSkillDataKeys.GREATSAGE_FASHU_STACK.get(), false);
         }
 
         decrementTimer(data, WukongSkillDataKeys.CAN_FIRST_TIMER.get(), player);

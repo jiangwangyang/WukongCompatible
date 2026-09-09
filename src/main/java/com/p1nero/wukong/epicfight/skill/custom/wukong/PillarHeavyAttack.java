@@ -363,6 +363,23 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             }
                         }));
 
+        // 刷新四蓄计时器：满4星命中敌人时开启/刷新四蓄窗口，窗口结束降回3星(与劈棍/大圣统一)
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE,
+                        EVENT_UUID,
+                        (event -> {
+                            if (container.isFull()) {
+                                container
+                                        .getDataManager()
+                                        .setDataSync(
+                                                WukongSkillDataKeys.CHARGED4_TIMER.get(),
+                                                Config.CHARGED4_WINDOW_TICKS.get().intValue());
+                            }
+                        }));
+
         super.onInitiate(container);
     }
 
@@ -374,6 +391,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         listener.removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID);
+        listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
     }
 
     /**

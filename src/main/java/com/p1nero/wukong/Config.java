@@ -21,6 +21,7 @@ public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec.DoubleValue DERIVE_CHECK_TIME;
     public static final ForgeConfigSpec.DoubleValue CHARGING_SPEED;
+    public static final ForgeConfigSpec.DoubleValue CHARGED4_WINDOW_TICKS;
     public static final ForgeConfigSpec.DoubleValue STAFF_FLOWER_STAMINA_CONSUME;
     public static final ForgeConfigSpec.DoubleValue DERIVE_STAMINA_CONSUME;
     public static final ForgeConfigSpec.DoubleValue BASIC_ATTACK_INTERVAL_TICKS;
@@ -37,6 +38,11 @@ public class Config {
                 createDouble("自定义普攻间隔判定时间（原版太长了！）", "basic_attack_time_interval", 16.0);
         DERIVE_CHECK_TIME = createDouble("切手技判定时间", "derive_check_time", 30.0);
         CHARGING_SPEED = createDouble("蓄力时每tick增加的棍势（影响棍势消耗速度！）", "charging_speed", 1.2);
+        CHARGED4_WINDOW_TICKS =
+                createDouble(
+                        "四蓄(4星)窗口时长tick数，窗口内命中敌人会刷新计时，窗口结束时满星降回3星(20 ticks = 1秒)，四种棍式统一",
+                        "charged4_window_ticks",
+                        300.0);
         STAFF_FLOWER_STAMINA_CONSUME =
                 createDouble("棍花每tick耐力消耗", "staff_flower_stamina_consume", 0.1);
         DERIVE_STAMINA_CONSUME = createDouble("立棍和戳棍切手技每tick耐力消耗", "derive_stamina_consume", 2.0);
