@@ -17,7 +17,7 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = 'wukong_compact-forge-' + minecraft_version
+    archivesName = 'wukong-compatible'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -110,6 +110,9 @@ tasks.named('processResources', ProcessResources).configure {
 }
 
 tasks.named('jar', Jar).configure {
+    // Explicit artifact name: wukong-compatible-<mod_version>-mc<minecraft_version>-forge.jar
+    archiveFileName = "wukong-compatible-${mod_version}-mc${minecraft_version}-forge.jar"
+
     manifest {
         attributes([
                 'Specification-Title'     : mod_id,
