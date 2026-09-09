@@ -1,4 +1,5 @@
 package com.p1nero.wukong.epicfight.skill;
+
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
@@ -11,7 +12,8 @@ public class EntitySpeedData {
 
     public static double getOriginalSpeed(LivingEntity entity) {
         var movementSpeed = entity.getAttribute(Attributes.MOVEMENT_SPEED);
-        return entitySpeedMap.getOrDefault(entity.getUUID(), movementSpeed == null ? 0.0D : movementSpeed.getBaseValue());
+        return entitySpeedMap.getOrDefault(
+                entity.getUUID(), movementSpeed == null ? 0.0D : movementSpeed.getBaseValue());
     }
 
     public static void saveOriginalSpeed(LivingEntity entity) {

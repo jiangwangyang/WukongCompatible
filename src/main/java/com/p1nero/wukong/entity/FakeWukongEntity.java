@@ -18,22 +18,29 @@ import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
-import java.util.Objects;
 import java.util.UUID;
+
 public class FakeWukongEntity extends TamableAnimal {
 
-    public FakeWukongEntity(ServerPlayer owner){
+    public FakeWukongEntity(ServerPlayer owner) {
         super(WukongEntities.FAKE_WUKONG_ENTITY.get(), owner.level());
         tame(owner);
         AttributeInstance instance = this.getAttribute(Attributes.MAX_HEALTH);
-        if(instance != null && getOwner() != null){
-            instance.addPermanentModifier(new AttributeModifier(UUID.randomUUID(), "original health", getOwner().getMaxHealth(), AttributeModifier.Operation.ADDITION));
+        if (instance != null && getOwner() != null) {
+            instance.addPermanentModifier(
+                    new AttributeModifier(
+                            UUID.randomUUID(),
+                            "original health",
+                            getOwner().getMaxHealth(),
+                            AttributeModifier.Operation.ADDITION));
         }
     }
 
@@ -57,7 +64,10 @@ public class FakeWukongEntity extends TamableAnimal {
         if (getOwner() != null && source.getEntity() != null && source.getEntity().is(getOwner())) {
             return false;
         }
-        if(!source.isCreativePlayer() && source.getEntity() != null && (source.getEntity() instanceof FakeWukongEntity || (getOwner() != null && source.getEntity().is(getOwner())))){
+        if (!source.isCreativePlayer()
+                && source.getEntity() != null
+                && (source.getEntity() instanceof FakeWukongEntity
+                        || (getOwner() != null && source.getEntity().is(getOwner())))) {
             return false;
         }
 
@@ -77,9 +87,9 @@ public class FakeWukongEntity extends TamableAnimal {
         this.goalSelector.addGoal(1, new WaterAvoidingRandomStrollGoal(this, 1.0));
     }
 
-
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(EpicFightAttributes.WEIGHT.get())
+        return Mob.createMobAttributes()
+                .add(EpicFightAttributes.WEIGHT.get())
                 .add(Attributes.MOVEMENT_SPEED, 0.4F)
                 .add(EpicFightAttributes.ARMOR_NEGATION.get())
                 .add(EpicFightAttributes.IMPACT.get())
@@ -94,14 +104,15 @@ public class FakeWukongEntity extends TamableAnimal {
 
     @Nullable
     @Override
-    public AgeableMob getBreedOffspring(@NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
+    public AgeableMob getBreedOffspring(
+            @NotNull ServerLevel serverLevel, @NotNull AgeableMob ageableMob) {
         return null;
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.getOwner()==null){
+        if (this.getOwner() == null) {
             this.remove(Entity.RemovalReason.DISCARDED);
         }
         if (this.getTarget() instanceof CloudStepLeftEntity) {
@@ -118,9 +129,15 @@ public class FakeWukongEntity extends TamableAnimal {
             this.remove(Entity.RemovalReason.DISCARDED);
             this.discard();
             level().addParticle(ParticleTypes.POOF, getX(), getY() + 2, getZ(), 0, 0, 0);
-            level().playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE, getSoundSource(), 1.0F, 1.0F);
+            level().playSound(
+                            null,
+                            getX(),
+                            getY(),
+                            getZ(),
+                            SoundEvents.GENERIC_EXPLODE,
+                            getSoundSource(),
+                            1.0F,
+                            1.0F);
         }
-
     }
-
 }

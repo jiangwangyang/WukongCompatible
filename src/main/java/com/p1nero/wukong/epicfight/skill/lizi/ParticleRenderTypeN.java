@@ -6,31 +6,37 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 
 public interface ParticleRenderTypeN {
-    ParticleRenderType PARTICLE_SHEET_LIT_NO_CULL = new ParticleRenderType() {
-        public void begin(BufferBuilder p_107462_, TextureManager p_107463_) {
-            RenderSystem.depthMask(true);
-            RenderSystem.enableBlend();
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            RenderSystem.disableCull();
-            RenderSystem.setShader(GameRenderer::getParticleShader);
-            // 弃用API迁移: TextureAtlas.LOCATION_PARTICLES已被原版标记废弃, 1.20.1无替代常量, 按其常量值(反编译核实为minecraft:textures/atlas/particles.png)等价内联
-            RenderSystem.setShaderTexture(0, ResourceLocation.withDefaultNamespace("textures/atlas/particles.png"));
-            p_107462_.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-        }
+    ParticleRenderType PARTICLE_SHEET_LIT_NO_CULL =
+            new ParticleRenderType() {
+                public void begin(BufferBuilder p_107462_, TextureManager p_107463_) {
+                    RenderSystem.depthMask(true);
+                    RenderSystem.enableBlend();
+                    RenderSystem.blendFunc(
+                            GlStateManager.SourceFactor.SRC_ALPHA,
+                            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                    RenderSystem.disableCull();
+                    RenderSystem.setShader(GameRenderer::getParticleShader);
+                    // 弃用API迁移: TextureAtlas.LOCATION_PARTICLES已被原版标记废弃, 1.20.1无替代常量,
+                    // 按其常量值(反编译核实为minecraft:textures/atlas/particles.png)等价内联
+                    RenderSystem.setShaderTexture(
+                            0,
+                            ResourceLocation.withDefaultNamespace("textures/atlas/particles.png"));
+                    p_107462_.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+                }
 
+                public void end(Tesselator p_107465_) {
+                    p_107465_.end();
+                }
 
-        public void end(Tesselator p_107465_) {
-            p_107465_.end();
-        }
-
-        public String toString() {
-            return "PARTICLE_SHEET_LIT_NO_CULL";
-        }
-    };
+                public String toString() {
+                    return "PARTICLE_SHEET_LIT_NO_CULL";
+                }
+            };
 }

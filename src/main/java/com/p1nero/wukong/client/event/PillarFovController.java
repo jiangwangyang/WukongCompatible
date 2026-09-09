@@ -1,6 +1,7 @@
 package com.p1nero.wukong.client.event;
 
 import com.p1nero.wukong.WukongMoveset;
+
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -16,8 +17,7 @@ public final class PillarFovController {
     private static int holdTicks;
     private static boolean active;
 
-    private PillarFovController() {
-    }
+    private PillarFovController() {}
 
     public static void start(float increaseAmount, int legacyTransitionTicks, int repeatTimes) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -54,7 +54,11 @@ public final class PillarFovController {
         } else if (elapsedTicks <= restoreStart) {
             fov = targetFov;
         } else if (elapsedTicks <= totalTicks) {
-            fov = lerp(targetFov, originalFov, (float) (elapsedTicks - restoreStart) / transitionTicks);
+            fov =
+                    lerp(
+                            targetFov,
+                            originalFov,
+                            (float) (elapsedTicks - restoreStart) / transitionTicks);
         } else {
             restore(minecraft);
             return;

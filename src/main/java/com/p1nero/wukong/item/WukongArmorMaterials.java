@@ -1,22 +1,27 @@
 package com.p1nero.wukong.item;
 
-
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraftforge.common.util.Lazy;
 
 import java.util.function.Supplier;
 
-import net.minecraftforge.common.util.Lazy;
-
 public enum WukongArmorMaterials implements ArmorMaterial {
-    DA_SHENG("da_sheng", 237, new int[]{6, 10, 10, 5}, 15, SoundEvents.ARMOR_EQUIP_NETHERITE, 3.0F, 0.1F, () -> Ingredient.of(Items.NETHERITE_INGOT));
+    DA_SHENG(
+            "da_sheng",
+            237,
+            new int[] {6, 10, 10, 5},
+            15,
+            SoundEvents.ARMOR_EQUIP_NETHERITE,
+            3.0F,
+            0.1F,
+            () -> Ingredient.of(Items.NETHERITE_INGOT));
 
-    private static final int[] HEALTH_PER_SLOT = new int[]{13, 15, 16, 11};
+    private static final int[] HEALTH_PER_SLOT = new int[] {13, 15, 16, 11};
     private final String name;
     private final int durabilityMultiplier;
     private final int[] slotProtections;
@@ -27,7 +32,15 @@ public enum WukongArmorMaterials implements ArmorMaterial {
     // 弃用API迁移: LazyLoadedValue已被原版标记废弃, 等价替换为Forge的Lazy(同为懒加载Supplier, get()用法不变)
     private final Lazy<Ingredient> repairIngredient;
 
-    WukongArmorMaterials(String p_40474_, int p_40475_, int[] p_40476_, int p_40477_, SoundEvent p_40478_, float p_40479_, float p_40480_, Supplier p_40481_) {
+    WukongArmorMaterials(
+            String p_40474_,
+            int p_40475_,
+            int[] p_40476_,
+            int p_40477_,
+            SoundEvent p_40478_,
+            float p_40479_,
+            float p_40480_,
+            Supplier p_40481_) {
         this.name = p_40474_;
         this.durabilityMultiplier = p_40475_;
         this.slotProtections = p_40476_;
@@ -38,12 +51,10 @@ public enum WukongArmorMaterials implements ArmorMaterial {
         this.repairIngredient = Lazy.of(p_40481_);
     }
 
-
     @Override
     public int getDurabilityForType(ArmorItem.Type type) {
         return HEALTH_PER_SLOT[type.ordinal()] * this.durabilityMultiplier;
     }
-
 
     @Override
     public int getDefenseForType(ArmorItem.Type type) {

@@ -4,9 +4,11 @@ import com.p1nero.wukong.epicfight.WukongSkillSlots;
 import com.p1nero.wukong.epicfight.skill.WukongSkills;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.network.packet.BasePacket;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.skill.Skill;
@@ -16,26 +18,29 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
-/**
- * 同步数据
- */
+/** 同步数据 */
 public record UpdateWeaponInnatePacket(int styleIndex) implements BasePacket {
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeVarInt(styleIndex);
     }
-    public static UpdateWeaponInnatePacket decode(FriendlyByteBuf buf){
+
+    public static UpdateWeaponInnatePacket decode(FriendlyByteBuf buf) {
         return new UpdateWeaponInnatePacket(buf.readVarInt());
     }
+
     @Override
     public void execute(Player player) {
         if (player == null || !player.isAlive()) {
             return;
         }
 
-        ServerPlayerPatch patch = EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
+        ServerPlayerPatch patch =
+                EpicFightCapabilities.getEntityPatch(player, ServerPlayerPatch.class);
         Skill selectedStyle = getStyle(styleIndex);
-        if (patch == null || selectedStyle == null || !WukongWeaponCategories.isWeaponValid(patch)) {
+        if (patch == null
+                || selectedStyle == null
+                || !WukongWeaponCategories.isWeaponValid(patch)) {
             return;
         }
 
@@ -59,14 +64,17 @@ public record UpdateWeaponInnatePacket(int styleIndex) implements BasePacket {
 
         SkillContainer refreshedWeaponContainer = patch.getSkill(SkillSlots.WEAPON_INNATE);
         if (refreshedWeaponContainer != null && !refreshedWeaponContainer.isEmpty()) {
-            refreshedWeaponContainer.getSkill().setStackSynchronize(refreshedWeaponContainer, stack);
-            refreshedWeaponContainer.getSkill().setConsumptionSynchronize(refreshedWeaponContainer, resource);
+            refreshedWeaponContainer
+                    .getSkill()
+                    .setStackSynchronize(refreshedWeaponContainer, stack);
+            refreshedWeaponContainer
+                    .getSkill()
+                    .setConsumptionSynchronize(refreshedWeaponContainer, resource);
         }
 
         EpicFightNetworkManager.sendToAllPlayerTrackingThisEntityWithSelf(
                 new SPChangeSkill(WukongSkillSlots.STAFF_STYLE, player.getId(), selectedStyle),
-                patch.getOriginal()
-        );
+                patch.getOriginal());
     }
 
     private static Skill getStyle(int index) {

@@ -2,13 +2,13 @@ package com.p1nero.wukong.epicfight.skill.custom.wukong;
 
 import com.p1nero.wukong.epicfight.WukongSkillCategories;
 import com.p1nero.wukong.epicfight.WukongStyles;
+
 import net.minecraft.world.item.CreativeModeTab;
+
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategory;
 import yesman.epicfight.skill.SkillContainer;
-
-
 
 public class StaffStance extends Skill {
 
@@ -24,10 +24,10 @@ public class StaffStance extends Skill {
         super.onInitiate(container);
     }
 
-
-
     public static Builder createStaffStyle() {
-        return new Builder().setCategory(WukongSkillCategories.STAFF_STYLE).setResource(Resource.NONE);
+        return new Builder()
+                .setCategory(WukongSkillCategories.STAFF_STYLE)
+                .setResource(Resource.NONE);
     }
 
     @Override
@@ -35,14 +35,10 @@ public class StaffStance extends Skill {
         super.onRemoved(container);
     }
 
-
-    /**
-     * 得根据key返回，不然客户端不同步。很奇怪，onInitiate里面setDataSync会出错。
-     */
+    /** 得根据key返回，不然客户端不同步。很奇怪，onInitiate里面setDataSync会出错。 */
     public WukongStyles getStyle(SkillContainer container) {
         return style == null ? WukongStyles.SMASH : style;
     }
-
 
     public static class Builder extends SkillBuilder<StaffStance> {
         protected WukongStyles style;

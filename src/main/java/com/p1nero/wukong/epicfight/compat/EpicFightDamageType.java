@@ -6,8 +6,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 
 public final class EpicFightDamageType {
-    public static final TagKey<DamageType> PARTIAL_DAMAGE = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("epicfight", "partial_damage"));
+    public static final TagKey<DamageType> PARTIAL_DAMAGE =
+            TagKey.create(
+                    Registries.DAMAGE_TYPE,
+                    ResourceLocation.fromNamespaceAndPath("epicfight", "partial_damage"));
 
-    private EpicFightDamageType() {
-    }
+    private EpicFightDamageType() {}
 }

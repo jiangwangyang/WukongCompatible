@@ -2,10 +2,12 @@ package com.p1nero.wukong.network.packet.client;
 
 import com.p1nero.wukong.client.event.PillarFovController;
 import com.p1nero.wukong.network.packet.BasePacket;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
-public record PillarFovPacket(float increaseAmount, int transitionTicks, int repeatTimes) implements BasePacket {
+public record PillarFovPacket(float increaseAmount, int transitionTicks, int repeatTimes)
+        implements BasePacket {
     @Override
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeFloat(increaseAmount);

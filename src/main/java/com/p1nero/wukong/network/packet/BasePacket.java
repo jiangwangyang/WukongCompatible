@@ -10,9 +10,11 @@ public interface BasePacket {
     void encode(FriendlyByteBuf var1);
 
     default boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> {
-            this.execute(context.get().getSender());
-        });
+        context.get()
+                .enqueueWork(
+                        () -> {
+                            this.execute(context.get().getSender());
+                        });
         return true;
     }
 

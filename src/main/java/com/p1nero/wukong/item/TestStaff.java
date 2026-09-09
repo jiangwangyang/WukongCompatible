@@ -1,6 +1,7 @@
 package com.p1nero.wukong.item;
 
 import net.minecraft.world.item.Tier;
+
 import yesman.epicfight.world.item.WeaponItem;
 
 public class TestStaff extends WeaponItem {

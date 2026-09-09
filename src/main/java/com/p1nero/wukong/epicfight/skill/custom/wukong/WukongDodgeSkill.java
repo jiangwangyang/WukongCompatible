@@ -1,14 +1,16 @@
 package com.p1nero.wukong.epicfight.skill.custom.wukong;
 
-import yesman.epicfight.skill.SkillBuilder;
+import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
 
 import com.p1nero.wukong.Config;
 import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.WuKongSounds;
+import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.network.PacketHandler;
 import com.p1nero.wukong.network.PacketRelay;
 import com.p1nero.wukong.network.packet.client.AddEntityAfterImageParticle;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,16 +23,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
+
+import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.MovementDirection;
-import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.*;
+import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
@@ -39,18 +42,17 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
 import java.util.UUID;
 
-import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
-
-/**
- * 完美闪避回棍势
- */
+/** 完美闪避回棍势 */
 public class WukongDodgeSkill extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("d2d011cc-f30f-11ed-a05b-0242ac114515");
-      public static final int RESET_TICKS = 100;
+    public static final int RESET_TICKS = 100;
     protected final StaticAnimationProvider[][] animations;
 
     public static WukongDodgeSkill.Builder createDodgeBuilder() {
-        return (new WukongDodgeSkill.Builder()).setCategory(SkillCategories.DODGE).setActivateType(ActivateType.ONE_SHOT).setResource(Resource.STAMINA);
+        return (new WukongDodgeSkill.Builder())
+                .setCategory(SkillCategories.DODGE)
+                .setActivateType(ActivateType.ONE_SHOT)
+                .setResource(Resource.STAMINA);
     }
 
     public WukongDodgeSkill(WukongDodgeSkill.Builder builder) {
@@ -61,35 +63,78 @@ public class WukongDodgeSkill extends Skill {
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
-        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DODGE_SUCCESS_EVENT, EVENT_UUID, (event -> {
-            Player player = event.getPlayerPatch().getOriginal();
-            if(!container.getDataManager().getDataValue(WukongSkillDataKeys.DODGE_PLAYED.get())){
-                // 标记完美闪避, 供蓄力保留棍势判定使用
-                player.getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> wkPlayer.setPerfectDodge(true));
-                event.getPlayerPatch().playSound(WuKongSounds.PERFECT_DODGE.get(), 1, 1);
-                if(player.level() instanceof ServerLevel){
-                    PacketRelay.sendToAll(PacketHandler.INSTANCE, new AddEntityAfterImageParticle(player.getId()));//下面那行无效，手动发包解决//                serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
-                }
-                SkillContainer weaponInnateContainer = event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
-                if (weaponInnateContainer != null && !weaponInnateContainer.isEmpty()) {
-                    weaponInnateContainer.getSkill().setConsumptionSynchronize(weaponInnateContainer, weaponInnateContainer.getResource() + Config.CHARGING_SPEED.get().floatValue() * 20);
-                }
-                modifyStamina(event.getPlayerPatch().getOriginal(), 3.0F);
-                container.getDataManager().setData(WukongSkillDataKeys.DODGE_PLAYED.get(), true);
-                int direction = Mth.clamp(container.getDataManager().getDataValue(WukongSkillDataKeys.DIRECTION.get()), 0, 3);
-                event.getPlayerPatch().playAnimationSynchronized(this.animations[3][direction].get(), 0.0F);
-            }
-        }));
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.DODGE_SUCCESS_EVENT,
+                        EVENT_UUID,
+                        (event -> {
+                            Player player = event.getPlayerPatch().getOriginal();
+                            if (!container
+                                    .getDataManager()
+                                    .getDataValue(WukongSkillDataKeys.DODGE_PLAYED.get())) {
+                                // 标记完美闪避, 供蓄力保留棍势判定使用
+                                player.getCapability(WKCapabilityProvider.WK_PLAYER)
+                                        .ifPresent(wkPlayer -> wkPlayer.setPerfectDodge(true));
+                                event.getPlayerPatch()
+                                        .playSound(WuKongSounds.PERFECT_DODGE.get(), 1, 1);
+                                if (player.level() instanceof ServerLevel) {
+                                    PacketRelay.sendToAll(
+                                            PacketHandler.INSTANCE,
+                                            new AddEntityAfterImageParticle(
+                                                    player
+                                                            .getId())); // 下面那行无效，手动发包解决//
+                                                                        //
+                                                                        // serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
+                                }
+                                SkillContainer weaponInnateContainer =
+                                        event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
+                                if (weaponInnateContainer != null
+                                        && !weaponInnateContainer.isEmpty()) {
+                                    weaponInnateContainer
+                                            .getSkill()
+                                            .setConsumptionSynchronize(
+                                                    weaponInnateContainer,
+                                                    weaponInnateContainer.getResource()
+                                                            + Config.CHARGING_SPEED
+                                                                            .get()
+                                                                            .floatValue()
+                                                                    * 20);
+                                }
+                                modifyStamina(event.getPlayerPatch().getOriginal(), 3.0F);
+                                container
+                                        .getDataManager()
+                                        .setData(WukongSkillDataKeys.DODGE_PLAYED.get(), true);
+                                int direction =
+                                        Mth.clamp(
+                                                container
+                                                        .getDataManager()
+                                                        .getDataValue(
+                                                                WukongSkillDataKeys.DIRECTION
+                                                                        .get()),
+                                                0,
+                                                3);
+                                event.getPlayerPatch()
+                                        .playAnimationSynchronized(
+                                                this.animations[3][direction].get(), 0.0F);
+                            }
+                        }));
     }
+
     public void modifyStamina(LivingEntity livingentity, float staminaChange) {
         float currentStamina = livingentity.getEntityData().get(STAMINA);
         float newStamina = Math.max(0.0F, currentStamina + staminaChange);
         livingentity.getEntityData().set(STAMINA, newStamina);
     }
+
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DODGE_SUCCESS_EVENT, EVENT_UUID);
+        container
+                .getExecutor()
+                .getEventListener()
+                .removeListener(PlayerEventListener.EventType.DODGE_SUCCESS_EVENT, EVENT_UUID);
     }
 
     @Override
@@ -105,19 +150,27 @@ public class WukongDodgeSkill extends Skill {
         boolean left = minecraft.options.keyLeft.isDown();
         boolean right = minecraft.options.keyRight.isDown();
 
-        float pulse = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(executer.getOriginal()), 0.0F, 1.0F);
+        float pulse =
+                Mth.clamp(
+                        0.3F + EnchantmentHelper.getSneakingSpeedBonus(executer.getOriginal()),
+                        0.0F,
+                        1.0F);
         InputUtils.sneakingTick(executer.getOriginal(), false, pulse);
 
         int vertic = forward == backward ? 0 : (forward ? 1 : -1);
         int horizon = left == right ? 0 : (left ? 1 : -1);
         if (!forward && !backward && !left && !right) {
-            MovementDirection direction = MovementDirection.fromInputState(InputManager.getInputState(input));
+            MovementDirection direction =
+                    MovementDirection.fromInputState(InputManager.getInputState(input));
             vertic = direction.vertical();
             horizon = direction.horizontal();
         }
 
         float yRot = EpicFightCameraAPI.getInstance().getForwardYRot();
-        float degree = Mth.wrapDegrees((float)(-(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon)) + yRot);
+        float degree =
+                Mth.wrapDegrees(
+                        (float) (-(90 * horizon * (1 - Math.abs(vertic)) + 45 * vertic * horizon))
+                                + yRot);
         CPSkillRequest packet = new CPSkillRequest(container.getSlot());
         packet.getBuffer().writeInt(vertic < 0 ? 1 : 0);
         packet.getBuffer().writeFloat(degree);
@@ -139,29 +192,35 @@ public class WukongDodgeSkill extends Skill {
         SkillDataManager dataManager = container.getDataManager();
         dataManager.setData(WukongSkillDataKeys.DODGE_PLAYED.get(), false);
         int count = Mth.clamp(dataManager.getDataValue(WukongSkillDataKeys.COUNT.get()), 0, 2);
-        executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F);//轮播
+        executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F); // 轮播
         executer.playSound(EpicFightSounds.ROLL.get(), 1.0F, 1.0F);
-        dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i);//完美闪避方向
-        if(count != 0){
+        dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i); // 完美闪避方向
+        if (count != 0) {
             dataManager.setDataSync(WukongSkillDataKeys.RESET_TIMER.get(), RESET_TICKS);
-            BasicAttack.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
-                    executer, executer.getSkill(SkillSlots.BASIC_ATTACK), this.animations[count][i].get(), 0);
+            BasicAttack.setComboCounterWithEvent(
+                    ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
+                    executer,
+                    executer.getSkill(SkillSlots.BASIC_ATTACK),
+                    this.animations[count][i].get(),
+                    0);
         }
         dataManager.setDataSync(WukongSkillDataKeys.COUNT.get(), ++count % 3);
 
         executer.setModelYRot(yaw, true);
     }
 
-    /**
-     * 太久则复原第一段
-     */
+    /** 太久则复原第一段 */
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
         SkillDataManager manager = container.getDataManager();
-        if(manager.hasData(WukongSkillDataKeys.RESET_TIMER.get()) && manager.getDataValue(WukongSkillDataKeys.RESET_TIMER.get()) > 0){
-            manager.setData(WukongSkillDataKeys.RESET_TIMER.get(), manager.getDataValue(WukongSkillDataKeys.RESET_TIMER.get()) - 1);
-            if(manager.getDataValue(WukongSkillDataKeys.RESET_TIMER.get()) == 1 && manager.hasData(WukongSkillDataKeys.COUNT.get())){
+        if (manager.hasData(WukongSkillDataKeys.RESET_TIMER.get())
+                && manager.getDataValue(WukongSkillDataKeys.RESET_TIMER.get()) > 0) {
+            manager.setData(
+                    WukongSkillDataKeys.RESET_TIMER.get(),
+                    manager.getDataValue(WukongSkillDataKeys.RESET_TIMER.get()) - 1);
+            if (manager.getDataValue(WukongSkillDataKeys.RESET_TIMER.get()) == 1
+                    && manager.hasData(WukongSkillDataKeys.COUNT.get())) {
                 manager.setData(WukongSkillDataKeys.COUNT.get(), 0);
             }
         }
@@ -169,14 +228,18 @@ public class WukongDodgeSkill extends Skill {
 
     public boolean isExecutableState(PlayerPatch<?> executer) {
         EntityState playerState = executer.getEntityState();
-        return !executer.isInAir() && playerState.canUseSkill() && !executer.getOriginal().isInWater() && !executer.getOriginal().onClimbable() && executer.getOriginal().getVehicle() == null;
+        return !executer.isInAir()
+                && playerState.canUseSkill()
+                && !executer.getOriginal().isInWater()
+                && !executer.getOriginal().onClimbable()
+                && executer.getOriginal().getVehicle() == null;
     }
 
     public static class Builder extends SkillBuilder<WukongDodgeSkill> {
-        protected StaticAnimationProvider[][] animations = new StaticAnimationProvider[4][4];//第一个参数分别是1~3段和完美闪避，第二个是前、后、左、右
+        protected StaticAnimationProvider[][] animations =
+                new StaticAnimationProvider[4][4]; // 第一个参数分别是1~3段和完美闪避，第二个是前、后、左、右
 
-        public Builder() {
-        }
+        public Builder() {}
 
         public WukongDodgeSkill.Builder setCategory(SkillCategory category) {
             this.category = category;
@@ -212,7 +275,9 @@ public class WukongDodgeSkill extends Skill {
             this.animations[2] = animations;
             return this;
         }
-        public WukongDodgeSkill.Builder setPerfectAnimations(StaticAnimationProvider... animations) {
+
+        public WukongDodgeSkill.Builder setPerfectAnimations(
+                StaticAnimationProvider... animations) {
             this.animations[3] = animations;
             return this;
         }

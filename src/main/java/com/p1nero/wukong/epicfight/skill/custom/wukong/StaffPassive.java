@@ -1,16 +1,17 @@
 package com.p1nero.wukong.epicfight.skill.custom.wukong;
 
+import static com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys.PLAYING_STAFF_SPIN;
+
 import com.p1nero.wukong.Config;
-import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.keymapping.WukongKeyMappings;
 import com.p1nero.wukong.epicfight.animation.WukongAnimations;
-import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.skill.WukongSkills;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.network.PacketHandler;
 import com.p1nero.wukong.network.PacketRelay;
 import com.p1nero.wukong.network.packet.server.PlayStaffFlowerPacket;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
@@ -20,12 +21,13 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
-import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.api.animation.types.MainFrameAnimation;
+
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.MainFrameAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSounds;
@@ -41,26 +43,22 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys.MAGICARTS_CFDA;
-import static com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys.PLAYING_STAFF_SPIN;
-
-/**
- * 棍花和闪避
- */
+/** 棍花和闪避 */
 public class StaffPassive extends Skill {
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0242ac191981");
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static <A extends StaticAnimation> AnimationManager.AnimationAccessor<A> typed(AnimationManager.AnimationAccessor accessor) {
+    private static <A extends StaticAnimation> AnimationManager.AnimationAccessor<A> typed(
+            AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static <A extends MainFrameAnimation> AnimationManager.AnimationAccessor<A> typedMain(AnimationManager.AnimationAccessor accessor) {
+    private static <A extends MainFrameAnimation> AnimationManager.AnimationAccessor<A> typedMain(
+            AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
@@ -71,145 +69,268 @@ public class StaffPassive extends Skill {
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
-        //自动学闪避
+        // 自动学闪避
         Skill dodge = container.getExecutor().getSkill(SkillSlots.DODGE).getSkill();
-        if(dodge != WukongSkills.WUKONG_DODGE){
+        if (dodge != WukongSkills.WUKONG_DODGE) {
             container.getExecutor().getSkill(SkillSlots.DODGE).setSkill(WukongSkills.WUKONG_DODGE);
-            container.getExecutor().getOriginal().getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> wkPlayer.setLastDodgeSkill(dodge == null ? "" : dodge.toString()));
+            container
+                    .getExecutor()
+                    .getOriginal()
+                    .getCapability(WKCapabilityProvider.WK_PLAYER)
+                    .ifPresent(
+                            wkPlayer ->
+                                    wkPlayer.setLastDodgeSkill(
+                                            dodge == null ? "" : dodge.toString()));
         }
-        //棍花期间禁止移动
-        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, (event -> {
-            if (event.getPlayerPatch().isEpicFightMode() && WukongKeyMappings.STAFF_FLOWER.isDown()) {
-                // 弃用API迁移: getMovementInput()改为getInputState(), 通过InputManager.setInputState应用回原版输入(已核实与直接改Input字段等价, shiftKeyDown对应sneaking); 并以KeyMapping.setDown替代已弃用的ControlEngine.setKeyBind
-                InputManager.setInputState(event.getInputState()
-                        .withForwardImpulse(0.0F)
-                        .withLeftImpulse(0.0F)
-                        .withDown(false)
-                        .withUp(false)
-                        .withLeft(false)
-                        .withRight(false)
-                        .withJumping(false)
-                        .withSneaking(false));
-                LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
-                clientPlayer.setSprinting(false);
-                clientPlayer.sprintTriggerTime = -1;
-                Minecraft mc = Minecraft.getInstance();
-                mc.options.keySprint.setDown(false);
-            }
-        }));
+        // 棍花期间禁止移动
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT,
+                        EVENT_UUID,
+                        (event -> {
+                            if (event.getPlayerPatch().isEpicFightMode()
+                                    && WukongKeyMappings.STAFF_FLOWER.isDown()) {
+                                // 弃用API迁移: getMovementInput()改为getInputState(),
+                                // 通过InputManager.setInputState应用回原版输入(已核实与直接改Input字段等价,
+                                // shiftKeyDown对应sneaking);
+                                // 并以KeyMapping.setDown替代已弃用的ControlEngine.setKeyBind
+                                InputManager.setInputState(
+                                        event.getInputState()
+                                                .withForwardImpulse(0.0F)
+                                                .withLeftImpulse(0.0F)
+                                                .withDown(false)
+                                                .withUp(false)
+                                                .withLeft(false)
+                                                .withRight(false)
+                                                .withJumping(false)
+                                                .withSneaking(false));
+                                LocalPlayer clientPlayer = event.getPlayerPatch().getOriginal();
+                                clientPlayer.setSprinting(false);
+                                clientPlayer.sprintTriggerTime = -1;
+                                Minecraft mc = Minecraft.getInstance();
+                                mc.options.keySprint.setDown(false);
+                            }
+                        }));
 
-        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID, (event -> {
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK,
+                        EVENT_UUID,
+                        (event -> {
+                            if (event.getDamageSource().is(DamageTypes.LIGHTNING_BOLT)
+                                    && WukongAnimations.STAFF_AUTO4.equals(
+                                            event.getPlayerPatch()
+                                                    .getAnimator()
+                                                    .getPlayerFor(null)
+                                                    .getAnimation())) {
+                                event.setCanceled(true);
+                            }
 
-            if(event.getDamageSource().is(DamageTypes.LIGHTNING_BOLT) && WukongAnimations.STAFF_AUTO4.equals(event.getPlayerPatch().getAnimator().getPlayerFor(null).getAnimation())){
-                event.setCanceled(true);
-            }
+                            if (container.getDataManager().getDataValue(PLAYING_STAFF_SPIN.get())
+                                    && (canBeBlocked(event.getDamageSource().getDirectEntity())
+                                            || event.getDamageSource()
+                                                    .is(DamageTypes.MOB_PROJECTILE))) {
+                                if (!isBlocked(
+                                        event.getDamageSource(),
+                                        event.getPlayerPatch().getOriginal())) {
+                                    return;
+                                }
+                                event.setCanceled(true);
+                                event.setResult(AttackResult.ResultType.BLOCKED);
+                                LivingEntityPatch<?> attackerPatch =
+                                        (LivingEntityPatch<?>)
+                                                EpicFightCapabilities.getEntityPatch(
+                                                        event.getDamageSource().getEntity(),
+                                                        LivingEntityPatch.class);
+                                if (attackerPatch != null) {
+                                    attackerPatch.setLastAttackEntity(
+                                            event.getPlayerPatch().getOriginal());
+                                }
+                                Entity directEntity = event.getDamageSource().getDirectEntity();
+                                LivingEntityPatch<?> entityPatch =
+                                        (LivingEntityPatch<?>)
+                                                EpicFightCapabilities.getEntityPatch(
+                                                        directEntity, LivingEntityPatch.class);
+                                if (entityPatch != null) {
+                                    entityPatch.onAttackBlocked(
+                                            event.getDamageSource(), event.getPlayerPatch());
+                                }
+                                showBlockedEffect(
+                                        event.getPlayerPatch(),
+                                        event.getDamageSource().getDirectEntity());
+                                SkillContainer skillContainer =
+                                        event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
+                                if (skillContainer != null && !skillContainer.isEmpty()) {
+                                    // 成功格挡回能量
+                                    skillContainer
+                                            .getSkill()
+                                            .setConsumptionSynchronize(
+                                                    skillContainer,
+                                                    skillContainer.getResource()
+                                                            + Config.CHARGING_SPEED
+                                                                    .get()
+                                                                    .floatValue());
+                                }
+                            }
+                        }));
 
-            if(container.getDataManager().getDataValue(PLAYING_STAFF_SPIN.get()) && (canBeBlocked(event.getDamageSource().getDirectEntity()) || event.getDamageSource().is(DamageTypes.MOB_PROJECTILE))){
-                if(!isBlocked(event.getDamageSource(), event.getPlayerPatch().getOriginal())){
-                    return;
-                }
-                event.setCanceled(true);
-                event.setResult(AttackResult.ResultType.BLOCKED);
-                LivingEntityPatch<?> attackerPatch = (LivingEntityPatch<?>)EpicFightCapabilities.getEntityPatch(event.getDamageSource().getEntity(), LivingEntityPatch.class);
-                if (attackerPatch != null) {
-                    attackerPatch.setLastAttackEntity(event.getPlayerPatch().getOriginal());
-                }
-                Entity directEntity = event.getDamageSource().getDirectEntity();
-                LivingEntityPatch<?> entityPatch = (LivingEntityPatch<?>)EpicFightCapabilities.getEntityPatch(directEntity, LivingEntityPatch.class);
-                if (entityPatch != null) {
-                    entityPatch.onAttackBlocked(event.getDamageSource(), event.getPlayerPatch());
-                }
-                showBlockedEffect(event.getPlayerPatch(), event.getDamageSource().getDirectEntity());
-                SkillContainer skillContainer = event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
-                if(skillContainer != null && !skillContainer.isEmpty()){
-                    //成功格挡回能量
-                    skillContainer.getSkill().setConsumptionSynchronize(skillContainer, skillContainer.getResource() + Config.CHARGING_SPEED.get().floatValue());
-                }
-            }
-        }));
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE,
+                        EVENT_UUID,
+                        (dealtDamageEvent -> {
+                            AnimationManager.AnimationAccessor<?> animation =
+                                    dealtDamageEvent.getDamageSource().getAnimation();
+                            if (WukongAnimations.JUMP_ATTACK_LIGHT.equals(animation)) {
+                                dealtDamageEvent
+                                        .getPlayerPatch()
+                                        .playAnimationSynchronized(
+                                                typed(WukongAnimations.JUMP_ATTACK_LIGHT_HIT),
+                                                0.0F);
+                                BasicAttack.setComboCounterWithEvent(
+                                        ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
+                                        dealtDamageEvent.getPlayerPatch(),
+                                        dealtDamageEvent
+                                                .getPlayerPatch()
+                                                .getSkill(SkillSlots.BASIC_ATTACK),
+                                        typedMain(WukongAnimations.JUMP_ATTACK_LIGHT_HIT),
+                                        1);
+                                return;
+                            }
+                            if (WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP.equals(animation)
+                                    || WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP.equals(
+                                            animation)) {
+                                // 打中加棍势（因为加的要比造成的伤害多）
+                                SkillContainer skillContainer =
+                                        dealtDamageEvent
+                                                .getPlayerPatch()
+                                                .getSkill(SkillSlots.WEAPON_INNATE);
+                                if (skillContainer != null && !skillContainer.isEmpty()) {
+                                    skillContainer
+                                            .getSkill()
+                                            .setConsumptionSynchronize(
+                                                    skillContainer,
+                                                    skillContainer.getResource()
+                                                            + Config.CHARGING_SPEED
+                                                                            .get()
+                                                                            .floatValue()
+                                                                    * 3);
+                                }
+                            }
+                        }));
 
-        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID, (dealtDamageEvent -> {
-            AnimationManager.AnimationAccessor<?> animation = dealtDamageEvent.getDamageSource().getAnimation();
-            if(WukongAnimations.JUMP_ATTACK_LIGHT.equals(animation)){
-                dealtDamageEvent.getPlayerPatch().playAnimationSynchronized(typed(WukongAnimations.JUMP_ATTACK_LIGHT_HIT), 0.0F);
-                BasicAttack.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
-                        dealtDamageEvent.getPlayerPatch(),
-                        dealtDamageEvent.getPlayerPatch().getSkill(SkillSlots.BASIC_ATTACK),
-                        typedMain(WukongAnimations.JUMP_ATTACK_LIGHT_HIT),
-                        1);
-                return;
-            }
-            if(WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP.equals(animation) || WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP.equals(animation)){
-                //打中加棍势（因为加的要比造成的伤害多）
-                SkillContainer skillContainer = dealtDamageEvent.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
-                if(skillContainer != null && !skillContainer.isEmpty()){
-                    skillContainer.getSkill().setConsumptionSynchronize(skillContainer, skillContainer.getResource() + Config.CHARGING_SPEED.get().floatValue() * 3);
-                }
-            }
-        }));
-
-        //拦截闪避事件，替换为自己的闪避并执行，算是保险
-        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID, (event -> {
-            PlayerPatch<?> executer = event.getPlayerPatch();
-            Skill ordinalSkill = event.getSkillContainer().getSkill();
-            if(!ordinalSkill.getCategory().equals(SkillCategories.DODGE) || ordinalSkill.equals(WukongSkills.WUKONG_DODGE)){
-                return;
-            }
-            if(executer.isLogicalClient()){
-                //临时替换为悟空闪避
-                if(!ordinalSkill.equals(WukongSkills.WUKONG_DODGE) && executer.hasStamina(this.getConsumption())){
-                    executer.getSkill(SkillSlots.DODGE).setSkill(WukongSkills.WUKONG_DODGE);
-                    EpicFightNetworkManager.sendToServer(new CPChangeSkill(SkillSlots.DODGE, -1, WukongSkills.WUKONG_DODGE));
-                    executer.getSkill(SkillSlots.DODGE).sendCastRequest((LocalPlayerPatch) executer, ClientEngine.getInstance().controlEngine);
-                    executer.getOriginal().getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> {
-                        wkPlayer.setLastDodgeSkill(ordinalSkill.toString());
-                        PacketRelay.syncPlayer(((LocalPlayer) executer.getOriginal()));
-                    });
-                    event.setCanceled(true);
-                }
-            }
-        }));
-
+        // 拦截闪避事件，替换为自己的闪避并执行，算是保险
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.SKILL_CAST_EVENT,
+                        EVENT_UUID,
+                        (event -> {
+                            PlayerPatch<?> executer = event.getPlayerPatch();
+                            Skill ordinalSkill = event.getSkillContainer().getSkill();
+                            if (!ordinalSkill.getCategory().equals(SkillCategories.DODGE)
+                                    || ordinalSkill.equals(WukongSkills.WUKONG_DODGE)) {
+                                return;
+                            }
+                            if (executer.isLogicalClient()) {
+                                // 临时替换为悟空闪避
+                                if (!ordinalSkill.equals(WukongSkills.WUKONG_DODGE)
+                                        && executer.hasStamina(this.getConsumption())) {
+                                    executer.getSkill(SkillSlots.DODGE)
+                                            .setSkill(WukongSkills.WUKONG_DODGE);
+                                    EpicFightNetworkManager.sendToServer(
+                                            new CPChangeSkill(
+                                                    SkillSlots.DODGE,
+                                                    -1,
+                                                    WukongSkills.WUKONG_DODGE));
+                                    executer.getSkill(SkillSlots.DODGE)
+                                            .sendCastRequest(
+                                                    (LocalPlayerPatch) executer,
+                                                    ClientEngine.getInstance().controlEngine);
+                                    executer.getOriginal()
+                                            .getCapability(WKCapabilityProvider.WK_PLAYER)
+                                            .ifPresent(
+                                                    wkPlayer -> {
+                                                        wkPlayer.setLastDodgeSkill(
+                                                                ordinalSkill.toString());
+                                                        PacketRelay.syncPlayer(
+                                                                ((LocalPlayer)
+                                                                        executer.getOriginal()));
+                                                    });
+                                    event.setCanceled(true);
+                                }
+                            }
+                        }));
     }
 
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
-        //把技能还原回去
-        if(!container.getExecutor().isLogicalClient()){
+        // 把技能还原回去
+        if (!container.getExecutor().isLogicalClient()) {
             PacketRelay.syncPlayer(((ServerPlayer) container.getExecutor().getOriginal()));
         }
-        container.getExecutor().getOriginal().getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(wkPlayer -> {
-            if(wkPlayer.getLastDodgeSkill().isEmpty()){
-                container.getExecutor().getSkill(SkillSlots.DODGE).setSkill(null);
-            } else {
-                container.getExecutor().getSkill(SkillSlots.DODGE).setSkill(SkillManager.getSkill(wkPlayer.getLastDodgeSkill()));
-            }
-        });
+        container
+                .getExecutor()
+                .getOriginal()
+                .getCapability(WKCapabilityProvider.WK_PLAYER)
+                .ifPresent(
+                        wkPlayer -> {
+                            if (wkPlayer.getLastDodgeSkill().isEmpty()) {
+                                container.getExecutor().getSkill(SkillSlots.DODGE).setSkill(null);
+                            } else {
+                                container
+                                        .getExecutor()
+                                        .getSkill(SkillSlots.DODGE)
+                                        .setSkill(
+                                                SkillManager.getSkill(
+                                                        wkPlayer.getLastDodgeSkill()));
+                            }
+                        });
 
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
-
+        container
+                .getExecutor()
+                .getEventListener()
+                .removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
+        container
+                .getExecutor()
+                .getEventListener()
+                .removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
+        container
+                .getExecutor()
+                .getEventListener()
+                .removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
+        container
+                .getExecutor()
+                .getEventListener()
+                .removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
     }
 
-    public static boolean canBeBlocked(Entity entity){
-        if(entity == null){
+    public static boolean canBeBlocked(Entity entity) {
+        if (entity == null) {
             return false;
         }
-        if(Config.entities_can_be_blocked.isEmpty()){
-            Config.entities_can_be_blocked = Config.ENTITIES_CAN_BE_BLOCKED_BY_STAFF_FLOWER.get().stream()
-                    .map( entityName -> ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(entityName)))
-                    .collect(Collectors.toSet());
+        if (Config.entities_can_be_blocked.isEmpty()) {
+            Config.entities_can_be_blocked =
+                    Config.ENTITIES_CAN_BE_BLOCKED_BY_STAFF_FLOWER.get().stream()
+                            .map(
+                                    entityName ->
+                                            ForgeRegistries.ENTITY_TYPES.getValue(
+                                                    ResourceLocation.parse(entityName)))
+                            .collect(Collectors.toSet());
         }
         return Config.entities_can_be_blocked.contains(entity.getType());
     }
 
-    /**
-     * 判断是否是正面且可被格挡
-     */
-    private boolean isBlocked(DamageSource damageSource, ServerPlayer player){
+    /** 判断是否是正面且可被格挡 */
+    private boolean isBlocked(DamageSource damageSource, ServerPlayer player) {
         Vec3 sourceLocation = damageSource.getSourcePosition();
         if (sourceLocation != null) {
             Vec3 viewVector = player.getViewVector(1.0F);
@@ -219,26 +340,40 @@ public class StaffPassive extends Skill {
         return false;
     }
 
-    public static void showBlockedEffect(ServerPlayerPatch playerPatch, Entity directEntity){
+    public static void showBlockedEffect(ServerPlayerPatch playerPatch, Entity directEntity) {
         playerPatch.playSound(EpicFightSounds.CLASH.get(), -0.05F, 0.1F);
         ServerPlayer serverPlayer = playerPatch.getOriginal();
-        EpicFightParticles.HIT_BLUNT.get().spawnParticleWithArgument(serverPlayer.serverLevel(), HitParticleType.FRONT_OF_EYES, HitParticleType.ZERO, serverPlayer, directEntity);
+        EpicFightParticles.HIT_BLUNT
+                .get()
+                .spawnParticleWithArgument(
+                        serverPlayer.serverLevel(),
+                        HitParticleType.FRONT_OF_EYES,
+                        HitParticleType.ZERO,
+                        serverPlayer,
+                        directEntity);
     }
 
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
-        if(!container.getExecutor().isLogicalClient() || !WukongWeaponCategories.isWeaponValid(container.getExecutor()) || !container.getExecutor().isEpicFightMode() || !container.getExecutor().getOriginal().onGround()){
+        if (!container.getExecutor().isLogicalClient()
+                || !WukongWeaponCategories.isWeaponValid(container.getExecutor())
+                || !container.getExecutor().isEpicFightMode()
+                || !container.getExecutor().getOriginal().onGround()) {
             return;
         }
 
-        if(WukongKeyMappings.STAFF_FLOWER.isDown() && container.getExecutor().hasStamina(Config.STAFF_FLOWER_STAMINA_CONSUME.get().floatValue())){
-            if(!container.getDataManager().getDataValue(PLAYING_STAFF_SPIN.get()) && Minecraft.getInstance().player != null){
-                PacketRelay.sendToServer(PacketHandler.INSTANCE, new PlayStaffFlowerPacket(WukongKeyMappings.W.isDown()));//按w可变双手棍花
+        if (WukongKeyMappings.STAFF_FLOWER.isDown()
+                && container
+                        .getExecutor()
+                        .hasStamina(Config.STAFF_FLOWER_STAMINA_CONSUME.get().floatValue())) {
+            if (!container.getDataManager().getDataValue(PLAYING_STAFF_SPIN.get())
+                    && Minecraft.getInstance().player != null) {
+                PacketRelay.sendToServer(
+                        PacketHandler.INSTANCE,
+                        new PlayStaffFlowerPacket(WukongKeyMappings.W.isDown())); // 按w可变双手棍花
                 container.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), true);
             }
         }
-
-
     }
 }

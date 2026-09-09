@@ -1,10 +1,12 @@
 package com.p1nero.wukong.entity.client;
 
 import com.p1nero.wukong.client.event.DingEndEvent;
+
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+
 import org.jetbrains.annotations.NotNull;
 
 public class Ding extends MobEffect {
@@ -23,10 +25,9 @@ public class Ding extends MobEffect {
     }
 
     @Override
-    public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int amplifier) {
+    public void removeAttributeModifiers(
+            LivingEntity entity, AttributeMap attributeMap, int amplifier) {
         super.removeAttributeModifiers(entity, attributeMap, amplifier);
-         DingEndEvent.execute(entity.level(), entity);
+        DingEndEvent.execute(entity.level(), entity);
     }
-
-
 }

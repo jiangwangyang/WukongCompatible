@@ -1,19 +1,15 @@
 package com.p1nero.wukong.epicfight.skill.custom.fashu;
 
-import yesman.epicfight.skill.SkillBuilder;
-
-
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.WukongSkillCategories;
-import com.p1nero.wukong.epicfight.WukongSkillSlots;
+import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
-
-import com.p1nero.wukong.epicfight.skill.custom.wukong.ThrustHeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.particles.ParticleTypes;
@@ -29,23 +25,17 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
-import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
+
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.*;
-import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.List;
 
-/**
- * 法术：安身法
- */
+/** 法术：安身法 */
 public class FashuAnshenfaSkill extends Skill {
 
     private static final String ORIGIN_X = "wukong_anshen_origin_x";
@@ -60,30 +50,29 @@ public class FashuAnshenfaSkill extends Skill {
     protected StaticAnimationProvider deriveAnimation1;
 
     public static Builder create() {
-        return new Builder().setCategory(WukongSkillCategories.FASHU_STYLE).setResource(Resource.NONE);
+        return new Builder()
+                .setCategory(WukongSkillCategories.FASHU_STYLE)
+                .setResource(Resource.NONE);
     }
-
 
     public FashuAnshenfaSkill(Builder builder) {
         super(builder);
         deriveAnimation1 = builder.derive;
-
     }
 
-    /**
-     *  {@link FashuAnshenfaSkill#updateContainer(SkillContainer)}
-     */
+    /** {@link FashuAnshenfaSkill#updateContainer(SkillContainer)} */
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
         if (executer == null) {
             return;
         }
-        //WukongMoveset.LOGGER.info("安身 {}", "executeOnServer");
+        // WukongMoveset.LOGGER.info("安身 {}", "executeOnServer");
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
 
-        if (dataManager.getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get()) && dataManager.getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
+        if (dataManager.getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get())
+                && dataManager.getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
             executer.playSound(WuKongSounds.FASHU_ASS.get(), 0.0F, 0.0F);
             executer.playAnimationSynchronized(deriveAnimation1.get(), 0F);
             dataManager.setDataSync(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get(), false);
@@ -105,6 +94,7 @@ public class FashuAnshenfaSkill extends Skill {
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
     }
+
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
@@ -123,11 +113,15 @@ public class FashuAnshenfaSkill extends Skill {
     private void createRepelCircle(ServerPlayer player, Vec3 position) {
         double knockbackStrength = 0.24D;
         AABB area = new AABB(position, position).inflate(EFFECT_RADIUS);
-        List<LivingEntity> nearbyEntities = player.level().getEntitiesOfClass(
-                LivingEntity.class,
-                area,
-                entity -> entity != player && entity.isAlive() && entity instanceof Monster
-        );
+        List<LivingEntity> nearbyEntities =
+                player.level()
+                        .getEntitiesOfClass(
+                                LivingEntity.class,
+                                area,
+                                entity ->
+                                        entity != player
+                                                && entity.isAlive()
+                                                && entity instanceof Monster);
         for (LivingEntity entity : nearbyEntities) {
             Vec3 offset = entity.position().subtract(position);
             double horizontalDistance = Math.sqrt(offset.x * offset.x + offset.z * offset.z);
@@ -136,25 +130,28 @@ public class FashuAnshenfaSkill extends Skill {
                 entity.push(
                         offset.x / horizontalDistance * knockbackStrength,
                         0.05D,
-                        offset.z / horizontalDistance * knockbackStrength
-                );
+                        offset.z / horizontalDistance * knockbackStrength);
             }
         }
     }
 
-    private void restoreHealthAndFocus(ServerPlayer player, Vec3 position, ServerPlayerPatch serverPlayerPatch) {
+    private void restoreHealthAndFocus(
+            ServerPlayer player, Vec3 position, ServerPlayerPatch serverPlayerPatch) {
         if (player.distanceToSqr(position) <= EFFECT_RADIUS * EFFECT_RADIUS) {
             SkillContainer weaponContainer = serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE);
-            if (weaponContainer != null && !weaponContainer.isEmpty() && weaponContainer.getSkill() != null) {
+            if (weaponContainer != null
+                    && !weaponContainer.isEmpty()
+                    && weaponContainer.getSkill() != null) {
                 Skill weaponSkill = weaponContainer.getSkill();
                 weaponSkill.setConsumptionSynchronize(
                         weaponContainer,
-                        weaponContainer.getResource() + Config.CHARGING_SPEED.get().floatValue() * PULSE_INTERVAL
-                );
+                        weaponContainer.getResource()
+                                + Config.CHARGING_SPEED.get().floatValue() * PULSE_INTERVAL);
             }
             player.heal(0.2F * PULSE_INTERVAL);
         }
     }
+
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
@@ -163,14 +160,18 @@ public class FashuAnshenfaSkill extends Skill {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
             if (!dataManager.getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
-                int remaining = Math.max(dataManager.getDataValue(WukongSkillDataKeys.ASF_DERIVE_TIMER.get()) - 1, 0);
+                int remaining =
+                        Math.max(
+                                dataManager.getDataValue(WukongSkillDataKeys.ASF_DERIVE_TIMER.get())
+                                        - 1,
+                                0);
                 dataManager.setDataSync(WukongSkillDataKeys.ASF_DERIVE_TIMER.get(), remaining);
                 if (remaining <= ACTIVE_TICKS - WARMUP_TICKS && remaining % PULSE_INTERVAL == 0) {
-                    Vec3 origin = new Vec3(
-                            serverPlayer.getPersistentData().getDouble(ORIGIN_X),
-                            serverPlayer.getPersistentData().getDouble(ORIGIN_Y),
-                            serverPlayer.getPersistentData().getDouble(ORIGIN_Z)
-                    );
+                    Vec3 origin =
+                            new Vec3(
+                                    serverPlayer.getPersistentData().getDouble(ORIGIN_X),
+                                    serverPlayer.getPersistentData().getDouble(ORIGIN_Y),
+                                    serverPlayer.getPersistentData().getDouble(ORIGIN_Z));
                     createFireCircle(serverPlayer, origin);
                     createRepelCircle(serverPlayer, origin);
                     restoreHealthAndFocus(serverPlayer, origin, serverPlayerPatch);
@@ -184,7 +185,12 @@ public class FashuAnshenfaSkill extends Skill {
             }
 
             if (!dataManager.getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get())) {
-                int cooldown = Math.max(dataManager.getDataValue(WukongSkillDataKeys.ASF_COOLING_TIMER.get()) - 1, 0);
+                int cooldown =
+                        Math.max(
+                                dataManager.getDataValue(
+                                                WukongSkillDataKeys.ASF_COOLING_TIMER.get())
+                                        - 1,
+                                0);
                 dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_TIMER.get(), cooldown);
                 if (cooldown == 0) {
                     dataManager.setDataSync(WukongSkillDataKeys.ASF_COOLING_ATTACK.get(), true);
@@ -192,52 +198,74 @@ public class FashuAnshenfaSkill extends Skill {
             }
         }
     }
+
     @Override
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
+
     @Override
     public Skill registerPropertiesToAnimation() {
         return this;
     }
-    /**
-     * 根据技能状态绘制自定义技能图标与冷却显示
-     * 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面
-     */
+
+    /** 根据技能状态绘制自定义技能图标与冷却显示 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面 */
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
+    public void drawOnGui(
+            BattleModeGui gui,
+            SkillContainer container,
+            GuiGraphics guiGraphics,
+            float x,
+            float y,
+            float partialTick) {
         Window sr = Minecraft.getInstance().getWindow();
         int width = sr.getGuiScaledWidth();
         int height = sr.getGuiScaledHeight();
         int alpha = 128; // 50% 透明度
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_asf.png");
-        if (container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get()) && container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
+        ResourceLocation styleTexture =
+                ResourceLocation.fromNamespaceAndPath(
+                        WukongMoveset.MOD_ID, "textures/gui/skills/spell_asf.png");
+        if (container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get())
+                && container
+                        .getDataManager()
+                        .getDataValue(WukongSkillDataKeys.ASF_YINGSHEN_ZT.get())) {
             alpha = 255;
         }
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-        guiGraphics.blit(styleTexture, pos.x - 32, pos.y -20, 20, 20, 0.0f, 0f, 1, 1, 1, 1);
-        if (!container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get()) ) {
-            float second = (container.getDataManager().getDataValue(WukongSkillDataKeys.ASF_COOLING_TIMER.get()) / 20.0F);
+        guiGraphics.blit(styleTexture, pos.x - 32, pos.y - 20, 20, 20, 0.0f, 0f, 1, 1, 1, 1);
+        if (!container
+                .getDataManager()
+                .getDataValue(WukongSkillDataKeys.ASF_COOLING_ATTACK.get())) {
+            float second =
+                    (container
+                                    .getDataManager()
+                                    .getDataValue(WukongSkillDataKeys.ASF_COOLING_TIMER.get())
+                            / 20.0F);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 255.0f);
             guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     String.format("%.1f", second),
-                    pos.x - 32 + (20 -  Minecraft.getInstance().font.width(String.format("%.1f", second))) / 2,pos.y - 20 + (20 -  Minecraft.getInstance().font.lineHeight) / 2,
-                    16777215
-            );
+                    pos.x
+                            - 32
+                            + (20
+                                            - Minecraft.getInstance()
+                                                    .font
+                                                    .width(String.format("%.1f", second)))
+                                    / 2,
+                    pos.y - 20 + (20 - Minecraft.getInstance().font.lineHeight) / 2,
+                    16777215);
         }
     }
-
 
     public static class Builder extends SkillBuilder<FashuAnshenfaSkill> {
         protected StaticAnimationProvider[] animationProviders;
         protected StaticAnimationProvider derive;
-        public Builder() {
-        }
+
+        public Builder() {}
 
         public Builder setCategory(SkillCategory category) {
             this.category = category;
@@ -263,10 +291,10 @@ public class FashuAnshenfaSkill extends Skill {
             this.animationProviders = animationProviders;
             return this;
         }
+
         public Builder setDeriveAnimations(StaticAnimationProvider derive) {
             this.derive = derive;
             return this;
         }
-
     }
 }

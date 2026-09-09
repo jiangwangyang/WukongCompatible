@@ -1,50 +1,42 @@
 package com.p1nero.wukong.epicfight.skill.custom.fashu;
 
-import yesman.epicfight.skill.SkillBuilder;
-
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.client.WuKongSounds;
+import com.p1nero.wukong.client.particle.WuKongEffect;
 import com.p1nero.wukong.epicfight.WukongSkillCategories;
-import com.p1nero.wukong.epicfight.WukongSkillSlots;
+import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.EntitySpeedData;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
-import com.p1nero.wukong.client.particle.WuKongEffect;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
+
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.*;
-import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
+import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+
 import java.util.List;
 
-/**
- * 法术：定身术
- */
-
+/** 法术：定身术 */
 public class FashuDingshenfaSkill extends Skill {
 
     private static final String TRACKED_TARGET = "wukong_dingshen_target";
@@ -53,18 +45,17 @@ public class FashuDingshenfaSkill extends Skill {
     protected StaticAnimationProvider deriveAnimation1;
 
     public static Builder create() {
-        return new Builder().setCategory(WukongSkillCategories.FASHU_STYLE).setResource(Resource.NONE);
+        return new Builder()
+                .setCategory(WukongSkillCategories.FASHU_STYLE)
+                .setResource(Resource.NONE);
     }
 
     public FashuDingshenfaSkill(Builder builder) {
         super(builder);
         deriveAnimation1 = builder.derive1;
-
     }
 
-    /**
-     *  {@link FashuDingshenfaSkill#updateContainer(SkillContainer)}
-     */
+    /** {@link FashuDingshenfaSkill#updateContainer(SkillContainer)} */
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
@@ -73,17 +64,16 @@ public class FashuDingshenfaSkill extends Skill {
         }
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
-        if(dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get()) ){
+        if (dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get())) {
             executer.playSound(WuKongSounds.FASHU_DSS.get(), 0.0F, 0.0F);
             executer.playAnimationSynchronized(deriveAnimation1.get(), 0F);
 
-        }else{
+        } else {
             player.sendSystemMessage(Component.literal("Dingshenfa state updated."));
         }
 
         super.executeOnServer(container, args);
     }
-
 
     @Override
     public void onInitiate(SkillContainer container) {
@@ -98,7 +88,8 @@ public class FashuDingshenfaSkill extends Skill {
         if (!player.getPersistentData().hasUUID(TRACKED_TARGET)) {
             return null;
         }
-        if (player.serverLevel().getEntity(player.getPersistentData().getUUID(TRACKED_TARGET)) instanceof LivingEntity target) {
+        if (player.serverLevel().getEntity(player.getPersistentData().getUUID(TRACKED_TARGET))
+                instanceof LivingEntity target) {
             return target;
         }
         return null;
@@ -107,17 +98,17 @@ public class FashuDingshenfaSkill extends Skill {
     private void showDingParticles(ServerPlayer player) {
         LivingEntity target = getTrackedTarget(player);
         if (target != null && target.isAlive() && target.getTags().contains("ding")) {
-            player.serverLevel().sendParticles(
-                    ParticleTypes.WAX_OFF,
-                    target.getX(),
-                    target.getY() + target.getBbHeight() * 0.5D,
-                    target.getZ(),
-                    3,
-                    0.15D,
-                    0.25D,
-                    0.15D,
-                    0.02D
-            );
+            player.serverLevel()
+                    .sendParticles(
+                            ParticleTypes.WAX_OFF,
+                            target.getX(),
+                            target.getY() + target.getBbHeight() * 0.5D,
+                            target.getZ(),
+                            3,
+                            0.15D,
+                            0.25D,
+                            0.15D,
+                            0.02D);
         }
     }
 
@@ -126,11 +117,13 @@ public class FashuDingshenfaSkill extends Skill {
         if (trackedTarget != null) {
             releaseTarget(player, trackedTarget);
         } else {
-            List<LivingEntity> nearbyEntities = player.level().getEntitiesOfClass(
-                    LivingEntity.class,
-                    player.getBoundingBox().inflate(FALLBACK_SEARCH_RADIUS),
-                    entity -> entity.isAlive() && entity.getTags().contains("ding")
-            );
+            List<LivingEntity> nearbyEntities =
+                    player.level()
+                            .getEntitiesOfClass(
+                                    LivingEntity.class,
+                                    player.getBoundingBox().inflate(FALLBACK_SEARCH_RADIUS),
+                                    entity ->
+                                            entity.isAlive() && entity.getTags().contains("ding"));
             nearbyEntities.forEach(entity -> releaseTarget(player, entity));
         }
         player.getPersistentData().remove(TRACKED_TARGET);
@@ -151,9 +144,6 @@ public class FashuDingshenfaSkill extends Skill {
         }
     }
 
-
-
-
     @Override
     public void onRemoved(SkillContainer container) {
         PlayerPatch<?> executer = container.getExecutor();
@@ -162,8 +152,6 @@ public class FashuDingshenfaSkill extends Skill {
         }
         super.onRemoved(container);
     }
-
-
 
     @Override
     public void updateContainer(SkillContainer container) {
@@ -176,77 +164,107 @@ public class FashuDingshenfaSkill extends Skill {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
             if (dataManager.getDataValue(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get())) {
-                dataManager.setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get()) - 1, 0));
+                dataManager.setDataSync(
+                        WukongSkillDataKeys.DSF_DERIVE_TIMER.get(),
+                        Math.max(
+                                dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get())
+                                        - 1,
+                                0));
                 if (dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get()) == 0) {
                     dataManager.setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), false);
                     liftDing(serverPlayer);
                 }
-                if (dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get()) % PARTICLE_INTERVAL == 0) {
+                if (dataManager.getDataValue(WukongSkillDataKeys.DSF_DERIVE_TIMER.get())
+                                % PARTICLE_INTERVAL
+                        == 0) {
                     showDingParticles(serverPlayer);
                 }
             }
             if (!dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get())) {
-                dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), Math.max(dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_TIMER.get()) - 1, 0));
+                dataManager.setDataSync(
+                        WukongSkillDataKeys.DSF_COOLING_TIMER.get(),
+                        Math.max(
+                                dataManager.getDataValue(
+                                                WukongSkillDataKeys.DSF_COOLING_TIMER.get())
+                                        - 1,
+                                0));
                 if (dataManager.getDataValue(WukongSkillDataKeys.DSF_COOLING_TIMER.get()) == 0) {
                     dataManager.setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), true);
                 }
             }
         }
     }
-    /**
-     * 根据技能状态绘制自定义技能图标与冷却显示
-     * 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面
-     */
+
+    /** 根据技能状态绘制自定义技能图标与冷却显示 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面 */
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float partialTick) {
+    public void drawOnGui(
+            BattleModeGui gui,
+            SkillContainer container,
+            GuiGraphics guiGraphics,
+            float x,
+            float y,
+            float partialTick) {
         Window sr = Minecraft.getInstance().getWindow();
         int width = sr.getGuiScaledWidth();
         int height = sr.getGuiScaledHeight();
         int alpha = 128; // 50% 透明度
         Vec2i pos = ClientConfig.getWeaponInnatePosition(width, height);
-        ResourceLocation styleTexture = ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "textures/gui/skills/spell_dsf.png");
+        ResourceLocation styleTexture =
+                ResourceLocation.fromNamespaceAndPath(
+                        WukongMoveset.MOD_ID, "textures/gui/skills/spell_dsf.png");
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get())) {
             alpha = 255;
         }
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc(); // 使用默认的透明度混合模式
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
-        guiGraphics.blit(styleTexture, pos.x - 32, pos.y -20, 20, 20, 0.0f, 0f, 1, 1, 1, 1);
-        if (!container.getDataManager().getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get()) ) {
-            float second = (container.getDataManager().getDataValue(WukongSkillDataKeys.DSF_COOLING_TIMER.get()) / 20.0F);
+        guiGraphics.blit(styleTexture, pos.x - 32, pos.y - 20, 20, 20, 0.0f, 0f, 1, 1, 1, 1);
+        if (!container
+                .getDataManager()
+                .getDataValue(WukongSkillDataKeys.DSF_COOLING_ATTACK.get())) {
+            float second =
+                    (container
+                                    .getDataManager()
+                                    .getDataValue(WukongSkillDataKeys.DSF_COOLING_TIMER.get())
+                            / 20.0F);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 255.0f);
             guiGraphics.drawString(
                     Minecraft.getInstance().font,
                     String.format("%.1f", second),
-                    pos.x - 32 + (20 -  Minecraft.getInstance().font.width(String.format("%.1f", second))) / 2,pos.y - 20 + (20 -  Minecraft.getInstance().font.lineHeight) / 2,
-                    16777215
-            );
+                    pos.x
+                            - 32
+                            + (20
+                                            - Minecraft.getInstance()
+                                                    .font
+                                                    .width(String.format("%.1f", second)))
+                                    / 2,
+                    pos.y - 20 + (20 - Minecraft.getInstance().font.lineHeight) / 2,
+                    16777215);
         }
     }
-
-
 
     @Override
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
+
     @Override
     public Skill registerPropertiesToAnimation() {
         return this;
     }
+
     @Override
     public boolean canExecute(SkillContainer container) {
         return super.canExecute(container);
     }
 
-
     public static class Builder extends SkillBuilder<FashuDingshenfaSkill> {
         protected StaticAnimationProvider[] animationProviders;
         protected StaticAnimationProvider derive1;
         protected StaticAnimationProvider derive2;
-        public Builder() {
-        }
+
+        public Builder() {}
 
         public Builder setCategory(SkillCategory category) {
             this.category = category;
@@ -272,10 +290,10 @@ public class FashuDingshenfaSkill extends Skill {
             this.animationProviders = animationProviders;
             return this;
         }
+
         public Builder setDeriveAnimations(StaticAnimationProvider derive1) {
             this.derive1 = derive1;
             return this;
         }
-
     }
 }

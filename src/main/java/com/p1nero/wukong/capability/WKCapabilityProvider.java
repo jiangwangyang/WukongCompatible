@@ -14,20 +14,22 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
 
-    public static Capability<WKPlayer> WK_PLAYER = CapabilityManager.get(new CapabilityToken<>() {});
+    public static Capability<WKPlayer> WK_PLAYER =
+            CapabilityManager.get(new CapabilityToken<>() {});
 
     private WKPlayer wkPlayer = null;
-    
+
     private final LazyOptional<WKPlayer> optional = LazyOptional.of(this::createWKPlayer);
 
     private WKPlayer createWKPlayer() {
-        if(this.wkPlayer == null){
+        if (this.wkPlayer == null) {
             this.wkPlayer = new WKPlayer();
         }
 
@@ -35,8 +37,9 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
     }
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction direction) {
-        if(capability == WK_PLAYER){
+    public @NotNull <T> LazyOptional<T> getCapability(
+            @NotNull Capability<T> capability, @Nullable Direction direction) {
+        if (capability == WK_PLAYER) {
             return optional.cast();
         }
 
@@ -60,21 +63,30 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         @SubscribeEvent
         public static void attachEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
             if (event.getObject() instanceof Player) {
-               if(!event.getObject().getCapability(WKCapabilityProvider.WK_PLAYER).isPresent()){
-                   event.addCapability(ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "wk_player"), new WKCapabilityProvider());
-               }
+                if (!event.getObject().getCapability(WKCapabilityProvider.WK_PLAYER).isPresent()) {
+                    event.addCapability(
+                            ResourceLocation.fromNamespaceAndPath(
+                                    WukongMoveset.MOD_ID, "wk_player"),
+                            new WKCapabilityProvider());
+                }
             }
         }
 
         @SubscribeEvent
         public static void onPlayerCloned(PlayerEvent.Clone event) {
             event.getOriginal().reviveCaps();
-            if(event.isWasDeath()) {
-                event.getOriginal().getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(oldStore -> {
-                    event.getEntity().getCapability(WKCapabilityProvider.WK_PLAYER).ifPresent(newStore -> {
-                        newStore.copyFrom(oldStore);
-                    });
-                });
+            if (event.isWasDeath()) {
+                event.getOriginal()
+                        .getCapability(WKCapabilityProvider.WK_PLAYER)
+                        .ifPresent(
+                                oldStore -> {
+                                    event.getEntity()
+                                            .getCapability(WKCapabilityProvider.WK_PLAYER)
+                                            .ifPresent(
+                                                    newStore -> {
+                                                        newStore.copyFrom(oldStore);
+                                                    });
+                                });
             }
         }
 
@@ -82,8 +94,5 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
             event.register(WKPlayer.class);
         }
-
     }
-
-
 }

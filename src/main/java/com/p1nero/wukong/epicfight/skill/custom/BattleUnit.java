@@ -1,22 +1,18 @@
 package com.p1nero.wukong.epicfight.skill.custom;
 
-import com.p1nero.wukong.WukongMoveset;
-import com.p1nero.wukong.capability.WKCapabilityProvider;
-import com.p1nero.wukong.capability.WKPlayer;
-import com.p1nero.wukong.entity.CloudStepLeftEntity;
 import com.p1nero.wukong.client.particle.WuKongEffect;
+import com.p1nero.wukong.entity.CloudStepLeftEntity;
 import com.p1nero.wukong.entity.FakeWukongEntity;
 import com.p1nero.wukong.entity.client.DingAfterImageParticle;
 import com.p1nero.wukong.epicfight.WukongSkillSlots;
-
 import com.p1nero.wukong.epicfight.skill.EntitySpeedData;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.skill.WukongSkills;
-import com.p1nero.wukong.epicfight.skill.custom.avatar.FakeWukongEntityRegistry;
 import com.p1nero.wukong.epicfight.skill.custom.fashu.FashuDingshenfaSkill;
 import com.p1nero.wukong.epicfight.skill.custom.wukong.UpdateWeaponInnatePacket;
 import com.p1nero.wukong.network.PacketHandler;
 import com.p1nero.wukong.network.PacketRelay;
+
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -25,11 +21,10 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.api.animation.AnimationPlayer;
+
 import yesman.epicfight.api.animation.types.DodgeAnimation;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -40,14 +35,14 @@ import java.util.List;
 
 public class BattleUnit {
 
-    public BattleUnit() {
-    }
+    public BattleUnit() {}
+
     public static void fenshen(LivingEntityPatch<?> entitypatch) {
         if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
             ServerPlayer player = serverPlayerPatch.getOriginal();
             Vec3 position = player.position(); // 获取玩家位置
             Vec3 particleOrigin = position.subtract(0, 1, 0);
-            if(entitypatch.getOriginal() instanceof ServerPlayer serverPlayer){
+            if (entitypatch.getOriginal() instanceof ServerPlayer serverPlayer) {
                 ServerLevel serverLevel = (ServerLevel) serverPlayer.level();
                 int particleCount = 7;
                 float radius = 5F;
@@ -57,16 +52,22 @@ public class BattleUnit {
                     float xOffset = radius * (float) Math.cos(angle);
                     float zOffset = radius * (float) Math.sin(angle);
                     Vec3 particlePos = particleOrigin.add(xOffset, 0, zOffset);
-                    serverLevel.sendParticles(ParticleTypes.POOF, particlePos.x, particlePos.y + 2, particlePos.z, 20, 0, 0, 0, 0.1);
-                    FakeWukongEntity fakeWukongEntity = new FakeWukongEntity(serverPlayerPatch.getOriginal());
-                    fakeWukongEntity.setPos(particleOrigin.add(xOffset, 1, zOffset));  // 设置位置
+                    serverLevel.sendParticles(
+                            ParticleTypes.POOF,
+                            particlePos.x,
+                            particlePos.y + 2,
+                            particlePos.z,
+                            20,
+                            0,
+                            0,
+                            0,
+                            0.1);
+                    FakeWukongEntity fakeWukongEntity =
+                            new FakeWukongEntity(serverPlayerPatch.getOriginal());
+                    fakeWukongEntity.setPos(particleOrigin.add(xOffset, 1, zOffset)); // 设置位置
                     serverLevel.getLevel().addFreshEntity(fakeWukongEntity);
-
-
                 }
             }
-
-
         }
     }
 
@@ -78,21 +79,30 @@ public class BattleUnit {
         ServerPlayer player = serverPlayerPatch.getOriginal();
         new UpdateWeaponInnatePacket(3).execute(player);
         player.displayClientMessage(
-                Component.translatable("tips.wukong.style_change").append(WukongSkills.GREATSAGE_STYLE.getDisplayName()),
-                true
-        );
+                Component.translatable("tips.wukong.style_change")
+                        .append(WukongSkills.GREATSAGE_STYLE.getDisplayName()),
+                true);
     }
-
 
     public static void ding(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
-        if (attackTarget==null){
+        if (attackTarget == null) {
             if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
                 ServerPlayer player = serverPlayerPatch.getOriginal();
                 Vec3 position = player.position(); // 获取玩家位置
                 LivingEntity closestMonster = null;
                 double closestDistance = Double.MAX_VALUE;
-                 List<LivingEntity> nearbyEntities = player.level().getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(50), entity -> entity != player && entity.isAlive() && !isFakeWukong(entity) && !(entity instanceof CloudStepLeftEntity));
+                List<LivingEntity> nearbyEntities =
+                        player.level()
+                                .getEntitiesOfClass(
+                                        LivingEntity.class,
+                                        player.getBoundingBox().inflate(50),
+                                        entity ->
+                                                entity != player
+                                                        && entity.isAlive()
+                                                        && !isFakeWukong(entity)
+                                                        && !(entity
+                                                                instanceof CloudStepLeftEntity));
                 for (LivingEntity entity : nearbyEntities) {
                     double distance = calculateDistance(position, entity.position());
                     if (distance < closestDistance) {
@@ -101,22 +111,29 @@ public class BattleUnit {
                     }
                 }
                 if (closestMonster != null) {
-                    PacketRelay.sendToAll(PacketHandler.INSTANCE, new DingAfterImageParticle(closestMonster.getId()));
+                    PacketRelay.sendToAll(
+                            PacketHandler.INSTANCE,
+                            new DingAfterImageParticle(closestMonster.getId()));
                     applyDingEffect(closestMonster);
                     updatePlayerSkillData(serverPlayerPatch, closestMonster);
                 }
-
             }
         }
         if (attackTarget != null) {
             EntityType<?> entityType = attackTarget.getType();
-            LivingEntityPatch<?> ep = EpicFightCapabilities.getEntityPatch(attackTarget, LivingEntityPatch.class);
-            if (ep != null && ep.getAnimator().getPlayerFor(null).getAnimation() instanceof DodgeAnimation) return;
+            LivingEntityPatch<?> ep =
+                    EpicFightCapabilities.getEntityPatch(attackTarget, LivingEntityPatch.class);
+            if (ep != null
+                    && ep.getAnimator().getPlayerFor(null).getAnimation() instanceof DodgeAnimation)
+                return;
             // 进行定身操作
 
-            if (isFakeWukong(attackTarget)) {return;}
+            if (isFakeWukong(attackTarget)) {
+                return;
+            }
             if (attackTarget.level() instanceof ServerLevel serverLevel) {
-                PacketRelay.sendToAll(PacketHandler.INSTANCE, new DingAfterImageParticle(attackTarget.getId()));
+                PacketRelay.sendToAll(
+                        PacketHandler.INSTANCE, new DingAfterImageParticle(attackTarget.getId()));
                 applyDingEffect(attackTarget);
             }
             if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
@@ -124,26 +141,39 @@ public class BattleUnit {
             }
         }
     }
+
     private static boolean isFakeWukong(LivingEntity entity) {
         return entity.getType().toString().equals("entity.wukong.fake_wukong_entity");
     }
+
     private static double calculateDistance(Vec3 position, Vec3 monsterPos) {
         double deltaX = monsterPos.x - position.x;
         double deltaY = monsterPos.y - position.y;
         double deltaZ = monsterPos.z - position.z;
         return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ; // 使用平方距离避免开根号
     }
-    private static void updatePlayerSkillData(ServerPlayerPatch serverPlayerPatch, LivingEntity target) {
+
+    private static void updatePlayerSkillData(
+            ServerPlayerPatch serverPlayerPatch, LivingEntity target) {
         var spellContainer = serverPlayerPatch.getSkill(WukongSkillSlots.FASHU_SKILL_SLOT);
         if (spellContainer == null || spellContainer.isEmpty()) {
             return;
         }
         FashuDingshenfaSkill.trackTarget(serverPlayerPatch.getOriginal(), target);
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), true);
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), false);
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), 192);
-        spellContainer.getDataManager().setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), 1000);
+        spellContainer
+                .getDataManager()
+                .setDataSync(WukongSkillDataKeys.DSF_YINGSHEN_ZT.get(), true);
+        spellContainer
+                .getDataManager()
+                .setDataSync(WukongSkillDataKeys.DSF_COOLING_ATTACK.get(), false);
+        spellContainer
+                .getDataManager()
+                .setDataSync(WukongSkillDataKeys.DSF_DERIVE_TIMER.get(), 192);
+        spellContainer
+                .getDataManager()
+                .setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), 1000);
     }
+
     private static void applyDingEffect(LivingEntity attackTarget) {
         if (attackTarget != null) {
             EntityType<?> entityType = attackTarget.getType();
@@ -151,40 +181,44 @@ public class BattleUnit {
             attackTarget.addEffect(new MobEffectInstance(MobEffects.GLOWING, 192, 0));
             EntitySpeedData.saveOriginalSpeed(attackTarget);
 
-
             attackTarget.addTag("ding");
 
-            if (entityType == EntityType.ENDER_DRAGON) {  // 针对末影龙
+            if (entityType == EntityType.ENDER_DRAGON) { // 针对末影龙
                 EnderDragon enderDragon = (EnderDragon) attackTarget;
                 enderDragon.setNoAi(true);
                 enderDragon.setAggressive(false);
-            } else if (attackTarget instanceof Monster monster) {  // 针对怪物类实体
+            } else if (attackTarget instanceof Monster monster) { // 针对怪物类实体
                 monster.setNoAi(true);
                 monster.setAggressive(false);
-
             }
         }
     }
+
     public static void CUNTUI_JIESUO(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
-        if(entitypatch instanceof ServerPlayerPatch serverPlayerPatch){
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), true);
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), 30);
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30);
-
-
+        if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
+            serverPlayerPatch
+                    .getSkill(SkillSlots.WEAPON_INNATE)
+                    .getDataManager()
+                    .setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), true);
+            serverPlayerPatch
+                    .getSkill(SkillSlots.WEAPON_INNATE)
+                    .getDataManager()
+                    .setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), 30);
+            serverPlayerPatch
+                    .getSkill(SkillSlots.WEAPON_INNATE)
+                    .getDataManager()
+                    .setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30);
         }
     }
+
     public static void CUNTUI_SHANGSUO(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
-        if(entitypatch instanceof ServerPlayerPatch serverPlayerPatch){
-            serverPlayerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager().setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), false);
-
+        if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
+            serverPlayerPatch
+                    .getSkill(SkillSlots.WEAPON_INNATE)
+                    .getDataManager()
+                    .setDataSync(WukongSkillDataKeys.Thrust_STEOP_BACK.get(), false);
         }
     }
-
-
-
-
-
 }
