@@ -642,7 +642,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
         if (container.isFull()) {
             for (Vec2i lightPos : lightList) {
-                drawLightTexture(guiGraphics, goldenLightTexture, lightPos.x, lightPos.y);
+                drawTexture(guiGraphics, goldenLightTexture, lightPos.x, lightPos.y);
             }
         }
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.RED_TIMER.get()) > 0) {
@@ -655,7 +655,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             if (star > 0) {
                 for (int i = 0; i < star; i++) {
                     Vec2i lightPos = lightList.get(i);
-                    drawLightTexture(guiGraphics, redLightTexture, lightPos.x, lightPos.y);
+                    drawTexture(guiGraphics, redLightTexture, lightPos.x, lightPos.y);
                 }
             }
         }
@@ -663,7 +663,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         if (stack > 0) {
             for (int i = 0; i < Math.min(stack, 3); i++) {
                 Vec2i lightPos = lightList.get(i);
-                drawLightTexture(guiGraphics, whiteLightTexture, lightPos.x, lightPos.y);
+                drawTexture(guiGraphics, whiteLightTexture, lightPos.x, lightPos.y);
             }
             drawTexture(guiGraphics, stackTexture, pos.x - 12, pos.y - 12);
         }
@@ -671,14 +671,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
     public void drawTexture(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y) {
         guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
-    }
-
-    /** 光晕以星点为中心缩小绘制(星点位于 48x48 贴图中心, 即入参偏移 +24), 避免光斑过大溢出圆环 */
-    public void drawLightTexture(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y) {
-        int size = 20;
-        int offset = (48 - size) / 2;
-        guiGraphics.blit(
-                texture, x + offset, y + offset, size, size, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
     @Override

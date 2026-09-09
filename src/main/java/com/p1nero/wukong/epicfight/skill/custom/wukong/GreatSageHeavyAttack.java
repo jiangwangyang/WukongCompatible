@@ -563,7 +563,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                         new Vec2i(pos.x + 4, pos.y - 5));
 
         if (container.isFull()) {
-            lights.forEach(light -> drawLightTexture(graphics, gold, light.x, light.y));
+            lights.forEach(light -> drawTexture(graphics, gold, light.x, light.y));
         }
         if (container.getDataManager().getDataValue(WukongSkillDataKeys.RED_TIMER.get()) > 0) {
             int consumed =
@@ -573,11 +573,11 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                                     .getDataValue(WukongSkillDataKeys.STARS_CONSUMED.get()),
                             lights.size());
             for (int i = 0; i < consumed; i++) {
-                drawLightTexture(graphics, red, lights.get(i).x, lights.get(i).y);
+                drawTexture(graphics, red, lights.get(i).x, lights.get(i).y);
             }
         }
         for (int i = 0; i < Math.min(stack, lights.size()); i++) {
-            drawLightTexture(graphics, white, lights.get(i).x, lights.get(i).y);
+            drawTexture(graphics, white, lights.get(i).x, lights.get(i).y);
         }
         if (stack > 0) {
             drawTexture(graphics, stackTexture, pos.x - 12, pos.y - 12);
@@ -586,14 +586,6 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
 
     private static void drawTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y) {
         graphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
-    }
-
-    /** 光晕以星点为中心缩小绘制(星点位于 48x48 贴图中心, 即入参偏移 +24), 避免光斑过大溢出圆环 */
-    private static void drawLightTexture(
-            GuiGraphics graphics, ResourceLocation texture, int x, int y) {
-        int size = 20;
-        int offset = (48 - size) / 2;
-        graphics.blit(texture, x + offset, y + offset, size, size, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
     @Override
