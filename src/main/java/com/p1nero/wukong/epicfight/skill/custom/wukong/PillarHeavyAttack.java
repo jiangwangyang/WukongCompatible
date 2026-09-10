@@ -32,7 +32,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -70,8 +69,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
     // 立棍增高(升星)动画
     protected final StaticAnimationProvider[] up;
     // 立棍起手动画
-    protected final StaticAnimationProvider[]
-            start; // 立起
+    protected final StaticAnimationProvider[] start; // 立起
     // 0~4星立棍重击动画
     protected final StaticAnimationProvider[] heavy;
 
@@ -376,7 +374,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             }
                         }));
 
-        // 刷新四蓄计时器: 满4星命中敌人时开启/刷新四蓄窗口, 窗口结束降回3星(与劈棍/大圣统一)
+        // 刷新四蓄计时器: 命中敌人即开启/刷新四蓄窗口, 窗口内不掉棍势, 窗口结束满4星降回3星并开始衰减(与劈棍/戳棍/大圣统一)
         container
                 .getExecutor()
                 .getEventListener()
@@ -384,13 +382,11 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                         PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE,
                         EVENT_UUID,
                         (event -> {
-                            if (container.isFull()) {
-                                container
-                                        .getDataManager()
-                                        .setDataSync(
-                                                WukongSkillDataKeys.CHARGED4_TIMER.get(),
-                                                Config.CHARGED4_WINDOW_TICKS.get().intValue());
-                            }
+                            container
+                                    .getDataManager()
+                                    .setDataSync(
+                                            WukongSkillDataKeys.CHARGED4_TIMER.get(),
+                                            Config.CHARGED4_WINDOW_TICKS.get().intValue());
                         }));
 
         super.onInitiate(container);

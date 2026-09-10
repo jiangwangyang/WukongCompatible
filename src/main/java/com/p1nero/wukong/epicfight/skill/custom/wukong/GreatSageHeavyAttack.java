@@ -301,15 +301,12 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                         PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE,
                         EVENT_UUID,
                         event -> {
-                            if (container.isFull()) {
-                                container
-                                        .getDataManager()
-                                        .setDataSync(
-                                                WukongSkillDataKeys.CHARGED4_TIMER.get(),
-                                                Config.CHARGED4_WINDOW_TICKS
-                                                        .get()
-                                                        .intValue()); // 开启/刷新四蓄窗口, 窗口结束降回3星
-                            }
+                            // 命中敌人即开启/刷新四蓄窗口, 窗口内不掉棍势, 窗口结束满4星降回3星并开始衰减
+                            container
+                                    .getDataManager()
+                                    .setDataSync(
+                                            WukongSkillDataKeys.CHARGED4_TIMER.get(),
+                                            Config.CHARGED4_WINDOW_TICKS.get().intValue());
                         });
 
         super.onInitiate(container);

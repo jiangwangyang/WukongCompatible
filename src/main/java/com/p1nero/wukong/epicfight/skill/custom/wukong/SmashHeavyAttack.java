@@ -27,7 +27,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -331,7 +330,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                             }
                         }));
 
-        // 刷新四蓄计时器, 识破打中则可接二段
+        // 命中敌人刷新四蓄计时器, 识破打中则可接二段
         container
                 .getExecutor()
                 .getEventListener()
@@ -340,15 +339,12 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                         EVENT_UUID,
                         (event -> {
                             ServerPlayer player = event.getPlayerPatch().getOriginal();
-                            if (container.isFull()) {
-                                container
-                                        .getDataManager()
-                                        .setDataSync(
-                                                WukongSkillDataKeys.CHARGED4_TIMER.get(),
-                                                Config.CHARGED4_WINDOW_TICKS
-                                                        .get()
-                                                        .intValue()); // 开启/刷新四蓄窗口, 窗口结束降回3星
-                            }
+                            // 命中敌人即开启/刷新四蓄窗口, 窗口内不掉棍势, 窗口结束满4星降回3星并开始衰减
+                            container
+                                    .getDataManager()
+                                    .setDataSync(
+                                            WukongSkillDataKeys.CHARGED4_TIMER.get(),
+                                            Config.CHARGED4_WINDOW_TICKS.get().intValue());
                             if (event.getDamageSource()
                                     .getAnimation()
                                     .equals(deriveAnimation1.get())) {
