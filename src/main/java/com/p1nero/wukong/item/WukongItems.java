@@ -9,9 +9,12 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+// 悟空模组物品注册表: 注册棍类武器/大圣套装护甲以及创造模式标签页
 public class WukongItems {
+    // 物品注册器
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, WukongMoveset.MOD_ID);
+    // 棍(测试用武器, 高耐久)
     public static final RegistryObject<Item> STAFF =
             ITEMS.register(
                     "staff",
@@ -23,6 +26,7 @@ public class WukongItems {
                                     (new Item.Properties())
                                             .defaultDurability(114514)
                                             .rarity(Rarity.COMMON)));
+    // 亢金(备用棍武器, uncommon品质)
     public static final RegistryObject<Item> KANG_JIN =
             ITEMS.register(
                     "kang_jin",
@@ -34,6 +38,7 @@ public class WukongItems {
                                     (new Item.Properties())
                                             .defaultDurability(2777)
                                             .rarity(Rarity.UNCOMMON)));
+    // 金箍棒(史诗品质武器, 不可堆叠不可修复)
     public static final RegistryObject<Item> JIN_GU_BANG =
             ITEMS.register(
                     "jingubang",
@@ -46,6 +51,7 @@ public class WukongItems {
                                             .stacksTo(1)
                                             .setNoRepair()
                                             .rarity(Rarity.EPIC)));
+    // 大圣头盔
     public static final RegistryObject<Item> DASHENG_H =
             ITEMS.register(
                     "dasheng_h",
@@ -56,6 +62,7 @@ public class WukongItems {
                                     (new Item.Properties())
                                             .defaultDurability(2777)
                                             .rarity(Rarity.EPIC)));
+    // 大圣胸甲
     public static final RegistryObject<Item> DASHENG_C =
             ITEMS.register(
                     "dasheng_c",
@@ -66,6 +73,7 @@ public class WukongItems {
                                     (new Item.Properties())
                                             .defaultDurability(2777)
                                             .rarity(Rarity.EPIC)));
+    // 大圣护腿
     public static final RegistryObject<Item> DASHENG_L =
             ITEMS.register(
                     "dasheng_l",
@@ -76,6 +84,7 @@ public class WukongItems {
                                     (new Item.Properties())
                                             .defaultDurability(2777)
                                             .rarity(Rarity.EPIC)));
+    // 大圣靴子
     public static final RegistryObject<Item> DASHENG_F =
             ITEMS.register(
                     "dasheng_f",
@@ -87,8 +96,10 @@ public class WukongItems {
                                             .defaultDurability(2777)
                                             .rarity(Rarity.EPIC)));
 
+    // 创造模式标签页注册器
     public static final DeferredRegister<CreativeModeTab> ITEM_TAB =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, WukongMoveset.MOD_ID);
+    // 悟空模组创造模式标签页, 图标为金箍棒, 收录本模组全部物品
     public static final RegistryObject<CreativeModeTab> WK =
             ITEM_TAB.register(
                     "wukong_items",

@@ -13,10 +13,11 @@ import yesman.epicfight.skill.*;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 
+// Mixin 注入到 EpicFight 的 BasicAttack, 重写普攻连击计数器的过期逻辑
 @Mixin(value = BasicAttack.class, remap = false)
 public class BasicAttackMixin {
 
-    /** 修改普攻有效间隔时间 */
+    // 拦截 updateContainer 并取消原逻辑: 当距离上次行动已超过配置的普攻间隔且连击数大于 0 时, 以 TIME_EXPIRED 原因将连击计数清零
     @Inject(method = "updateContainer", at = @At("HEAD"), cancellable = true)
     private void modifyExpiredTicks(SkillContainer container, CallbackInfo ci) {
         if (!container.getExecutor().isLogicalClient()

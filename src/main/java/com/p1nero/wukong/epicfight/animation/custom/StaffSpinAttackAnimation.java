@@ -22,9 +22,10 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
-/** 尝试修改动画播放的move lock 后面直接监听输入事件取消input了 */
+// 尝试修改动画播放时的移动锁定, 后续改为直接监听输入事件来取消 input (棍花旋转攻击)
 public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
 
+    // 构造棍花旋转攻击: 4 段相位按 damageMultiplier 加伤, 不可被移动取消, 播放速度固定 1.5 倍, 双手时开局拉近镜头
     public StaffSpinAttackAnimation(
             float end,
             AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor,
@@ -68,6 +69,7 @@ public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
                                 AnimationEvent.Side.CLIENT));
     }
 
+    // 动画开始: 若玩家武器合法, 标记正在播放棍花旋转(PLAYING_STAFF_SPIN)
     @Override
     public void begin(LivingEntityPatch<?> entityPatch) {
         super.begin(entityPatch);
@@ -78,6 +80,7 @@ public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
         }
     }
 
+    // 动画结束: 取消播放棍花旋转标记, 客户端若仍在瞄准则复位镜头
     @Override
     public void end(
             LivingEntityPatch<?> entityPatch,

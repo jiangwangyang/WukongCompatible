@@ -42,23 +42,25 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
 import java.util.UUID;
 
-/** 法术：聚气化形 */
+// 法术: 聚形散气(聚气化形)技能, 进入隐身并周期结算法阵效果
 public class ShenfaJuxingsanqiSkill extends Skill {
 
-    private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0252ac114513");
+    private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0252ac114513"); // 事件监听器注册用唯一UUID
     public static final int MAX_TIME = 200; // 10s
-    protected StaticAnimationProvider deriveAnimation1;
-    protected StaticAnimationProvider deriveAnimation2;
-    protected StaticAnimationProvider deriveAnimation3;
-    public static final int MAX_TRANSPARENT_TIMER = 200;
-    ItemStack currentWeapon;
+    protected StaticAnimationProvider deriveAnimation1; // 第一衍生动画(施法)
+    protected StaticAnimationProvider deriveAnimation2; // 第二衍生动画(破隐-有敌)
+    protected StaticAnimationProvider deriveAnimation3; // 第三衍生动画(破隐-无敌)
+    public static final int MAX_TRANSPARENT_TIMER = 200; // 隐身/生效最大时长(帧)
+    ItemStack currentWeapon; // 施法前记录的主手武器, 用于解除隐身时恢复
 
+    // 创建技能构建器并设置分类与资源类型
     public static Builder create() {
         return new Builder()
                 .setCategory(WukongSkillCategories.SHENFA_STYLE)
                 .setResource(Resource.NONE);
     }
 
+    // 构造聚形散气技能, 记录三段衍生(施法/破隐)动画
     public ShenfaJuxingsanqiSkill(Builder builder) {
         super(builder);
         deriveAnimation1 = builder.derive1;
@@ -66,7 +68,8 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         deriveAnimation3 = builder.derive3;
     }
 
-    /** {@link ShenfaJuxingsanqiSkill#updateContainer(SkillContainer)} */
+    // 服务端执行: 冷却完毕时进入隐身并播放施法动画, 记录原点/触发残影, 否则提示冷却中
+    // 参见 ShenfaJuxingsanqiSkill#updateContainer(SkillContainer)
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
@@ -92,6 +95,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     }
 
     @Override
+    // 技能初始化: 注册施法/受击/攻击结束三类事件监听, 用于破隐与计时重置
     public void onInitiate(SkillContainer container) {
 
         container
@@ -105,13 +109,13 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                                 PlayerPatch<?> executer = event.getPlayerPatch();
                                 ServerPlayer player =
                                         (ServerPlayer) executer.getOriginal(); // 获取玩家的位置
-                                Vec3 playerPos = player.position(); // 设置探测范围，比如一个半径为 10 的球形范围
+                                Vec3 playerPos = player.position(); // 设置探测范围, 比如一个半径为 10 的球形范围
                                 double radius = 10.0;
                                 AABB range =
                                         new AABB(
                                                 playerPos.subtract(radius, radius, radius),
                                                 playerPos.add(
-                                                        radius, radius, radius)); // 获取周围的实体（怪物、动物等）
+                                                        radius, radius, radius)); // 获取周围的实体(怪物, 动物等)
                                 List<Entity> nearbyEntities =
                                         player.level()
                                                 .getEntitiesOfClass(
@@ -120,7 +124,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                                                         entity ->
                                                                 entity
                                                                         instanceof
-                                                                        Monster); // 只获取物// 打印找到的物数量
+                                                                        Monster); // 只获取怪物类实体
                                 //  WukongMoveset.LOGGER.info("聚气化形: {}", nearbyEntities.size());
 
                                 // 平A换成破隐
@@ -215,6 +219,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     }
 
     @Override
+    // 技能移除: 注销注册的所有事件监听器
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
 
@@ -226,6 +231,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                 PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID);
     }
 
+    // 将记录的主手武器与四件护甲写回玩家(解除隐身时恢复装备)
     public void restoreArmor(ServerPlayer player, ItemStack[] savedArmor) {
         player.setItemInHand(InteractionHand.MAIN_HAND, currentWeapon);
         for (int i = 0; i < 4; i++) {
@@ -239,6 +245,7 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     }
 
     @Override
+    // 每帧更新: 递减隐身/冷却计时, 归零时复位可释放状态
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
         SkillDataManager dataManager = container.getDataManager();
@@ -268,16 +275,18 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     }
 
     @Override
+    // 仅当装备合法武器时绘制该技能
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
     @Override
+    // 注册技能属性到动画(此处直接返回自身)
     public Skill registerPropertiesToAnimation() {
         return this;
     }
 
-    /** 根据技能状态绘制自定义技能图标与冷却显示 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面 */
+    // 根据技能状态绘制自定义技能图标与冷却显示; 完全重写Epic Fight默认绘制, 战斗模式HUD仅显示此自定义画面
     @OnlyIn(Dist.CLIENT)
     @Override
     public void drawOnGui(
@@ -328,40 +337,47 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         }
     }
 
-    // 构建器，用于创建技能实例
+    // 聚形散气技能构建器
+    // 聚形散气技能构建器
     public static class Builder extends SkillBuilder<ShenfaJuxingsanqiSkill> {
-        protected StaticAnimationProvider[] animationProviders;
-        protected StaticAnimationProvider derive1;
-        protected StaticAnimationProvider derive2;
-        protected StaticAnimationProvider derive3;
+        protected StaticAnimationProvider[] animationProviders; // 普通动画列表
+        protected StaticAnimationProvider derive1; // 第一衍生动画(施法)
+        protected StaticAnimationProvider derive2; // 第二衍生动画(破隐-有敌)
+        protected StaticAnimationProvider derive3; // 第三衍生动画(破隐-无敌)
 
         public Builder() {}
 
+        // 设置技能分类
         public Builder setCategory(SkillCategory category) {
             this.category = category;
             return this;
         }
 
+        // 设置激活类型
         public Builder setActivateType(Skill.ActivateType activateType) {
             this.activateType = activateType;
             return this;
         }
 
+        // 设置技能资源类型
         public Builder setResource(Skill.Resource resource) {
             this.resource = resource;
             return this;
         }
 
+        // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
             return this;
         }
 
+        // 设置普通动画
         public Builder setAnimations(StaticAnimationProvider... animationProviders) {
             this.animationProviders = animationProviders;
             return this;
         }
 
+        // 设置三段衍生(施法/破隐-有敌/破隐-无敌)动画
         public Builder setDeriveAnimations(
                 StaticAnimationProvider derive1,
                 StaticAnimationProvider derive2,

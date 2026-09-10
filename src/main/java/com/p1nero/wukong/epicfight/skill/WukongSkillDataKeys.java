@@ -12,8 +12,10 @@ import yesman.epicfight.api.utils.PacketBufferCodec;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.SkillDataKey;
 
+// 悟空技能数据键定义: 集中声明并注册各技能运行时使用的 SkillDataKey(棍式/重击/闪避/法术等)
 public class WukongSkillDataKeys {
 
+    // 技能数据键注册表: 在 FORGE 注册表中登记全部数据键
     public static final DeferredRegister<SkillDataKey<?>> DATA_KEYS =
             DeferredRegister.create(
                     ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill_data_keys"),
@@ -25,10 +27,10 @@ public class WukongSkillDataKeys {
                     "stance",
                     () ->
                             SkillDataKey.createSkillDataKey(
-                                    PacketBufferCodec.INTEGER, 0, false, SmashHeavyAttack.class));
+                                    PacketBufferCodec.INTEGER, 0, false, SmashHeavyAttack.class)); // 当前棍式(武器天赋)编号
     public static final RegistryObject<SkillDataKey<Boolean>> IS_ATTACK_KEY_DOWN =
             DATA_KEYS.register(
-                    "is_attack_key_down",
+                    "is_attack_key_down", // 戳棍重击: 攻击键是否按下
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -37,7 +39,7 @@ public class WukongSkillDataKeys {
                                     ThrustHeavyAttack.class));
     public static final RegistryObject<SkillDataKey<Boolean>> IS_REPEATING_DERIVE =
             DATA_KEYS.register(
-                    "is_repeating_derive",
+                    "is_repeating_derive", // 戳棍重击: 是否处于连续衍生状态
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -113,7 +115,7 @@ public class WukongSkillDataKeys {
                                     SmashHeavyAttack.class,
                                     PillarHeavyAttack.class,
                                     ThrustHeavyAttack.class,
-                                    GreatSageHeavyAttack.class)); // 上一次的层数，用于判断是否加层
+                                    GreatSageHeavyAttack.class)); // 上一次的层数, 用于判断是否加层
     public static final RegistryObject<SkillDataKey<Integer>> STARS_CONSUMED =
             DATA_KEYS.register(
                     "stars_consumed",
@@ -125,7 +127,7 @@ public class WukongSkillDataKeys {
                                     SmashHeavyAttack.class,
                                     PillarHeavyAttack.class,
                                     ThrustHeavyAttack.class,
-                                    GreatSageHeavyAttack.class)); // 本次攻击是否消耗星（是否强化）
+                                    GreatSageHeavyAttack.class)); // 本次攻击是否消耗星(是否强化)
     public static final RegistryObject<SkillDataKey<Boolean>> IS_IN_SPECIAL_ATTACK =
             DATA_KEYS.register(
                     "is_in_special_attack",
@@ -137,7 +139,7 @@ public class WukongSkillDataKeys {
                                     SmashHeavyAttack.class,
                                     PillarHeavyAttack.class,
                                     ThrustHeavyAttack.class,
-                                    GreatSageHeavyAttack.class)); // 是否正在切手技（用来判断无敌时间）
+                                    GreatSageHeavyAttack.class)); // 是否正在切手技(用来判断无敌时间)
     public static final RegistryObject<SkillDataKey<Boolean>> IS_SPECIAL_SUCCESS =
             DATA_KEYS.register(
                     "is_special_success",
@@ -149,7 +151,7 @@ public class WukongSkillDataKeys {
                                     SmashHeavyAttack.class,
                                     PillarHeavyAttack.class,
                                     ThrustHeavyAttack.class,
-                                    GreatSageHeavyAttack.class)); // 是否正在切手技（用来判断无敌时间）
+                                    GreatSageHeavyAttack.class)); // 切手技是否成功
     public static final RegistryObject<SkillDataKey<Boolean>> IS_CHARGING =
             DATA_KEYS.register(
                     "is_charging",
@@ -258,10 +260,10 @@ public class WukongSkillDataKeys {
                                     false,
                                     SmashHeavyAttack.class,
                                     PillarHeavyAttack.class,
-                                    GreatSageHeavyAttack.class)); // 防止坠机
+                                    GreatSageHeavyAttack.class)); // 伤害减免值(-1表示未激活)
     public static final RegistryObject<SkillDataKey<Boolean>> ADD_BEANS =
             DATA_KEYS.register(
-                    "add_beans",
+                    "add_beans", // 大圣重击: 是否在本段连招中回复豆(资源)标记
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -289,7 +291,7 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.INTEGER,
                                     0,
                                     false,
-                                    WukongDodgeSkill.class)); // 方向，用于播放完美闪避
+                                    WukongDodgeSkill.class)); // 方向, 用于播放完美闪避
     public static final RegistryObject<SkillDataKey<Integer>> RESET_TIMER =
             DATA_KEYS.register(
                     "reset_timer",
@@ -307,11 +309,11 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.BOOLEAN,
                                     false,
                                     false,
-                                    WukongDodgeSkill.class)); // 是否播过完美闪避，防止重复播放
+                                    WukongDodgeSkill.class)); // 是否播过完美闪避, 防止重复播放
     // 棍花
     public static final RegistryObject<SkillDataKey<Boolean>> PLAYING_STAFF_SPIN =
             DATA_KEYS.register(
-                    "playing_staff_spin",
+                    "playing_staff_spin", // 棍花: 是否正在播放旋转(棍花)动画
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN, false, false, StaffPassive.class));
@@ -319,7 +321,7 @@ public class WukongSkillDataKeys {
     // 聚形散气
     public static final RegistryObject<SkillDataKey<Boolean>> MAGICARTS_CFDA =
             DATA_KEYS.register(
-                    "magicarts_cfda",
+                    "magicarts_cfda", // 棍花被动: 聚形散气相关法术标记
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN, false, false, StaffPassive.class));
@@ -362,7 +364,7 @@ public class WukongSkillDataKeys {
                                     PillarHeavyAttack.class)); // 派生重击时间
     public static final RegistryObject<SkillDataKey<Boolean>> PILLAR_FASHU_STACK =
             DATA_KEYS.register(
-                    "pillar_fashu_stack",
+                    "pillar_fashu_stack", // 立棍: 铜头铁臂成功格挡后跳星标记
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -388,7 +390,7 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.INTEGER,
                                     0,
                                     false,
-                                    ThrustHeavyAttack.class)); // 上一次的层数，用于判断是否加层
+                                    ThrustHeavyAttack.class)); // 上一次的层数, 用于判断是否加层
 
     public static final RegistryObject<SkillDataKey<Boolean>> Thrust_IS_CHARGING =
             DATA_KEYS.register(
@@ -501,7 +503,7 @@ public class WukongSkillDataKeys {
                                     ThrustHeavyAttack.class)); // 派生重击时间
     public static final RegistryObject<SkillDataKey<Boolean>> THRUST_FASHU_STACK =
             DATA_KEYS.register(
-                    "thrust_fashu_stack",
+                    "thrust_fashu_stack", // 戳棍: 铜头铁臂成功格挡后跳星标记
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -535,16 +537,16 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.INTEGER,
                                     0,
                                     false,
-                                    ShenfaTongtoutiebiSkill.class)); // 铜头铁臂效果时间时间
+                                    ShenfaTongtoutiebiSkill.class)); // 铜头铁臂效果持续时间
     public static final RegistryObject<SkillDataKey<Boolean>> TTTB_RESTORE_ZT =
             DATA_KEYS.register(
-                    "tttb_restore_zt",
+                    "tttb_restore_zt", // 铜头铁臂: 格挡反弹/恢复激活状态标记(受击时触发无敌)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
                                     false,
                                     false,
-                                    ShenfaTongtoutiebiSkill.class)); //
+                                    ShenfaTongtoutiebiSkill.class)); // 铜头铁臂: 受击反弹窗口激活标记
     public static final RegistryObject<SkillDataKey<Integer>> TTTB_COOLING_TIMER =
             DATA_KEYS.register(
                     "tttb_cooling_timer",
@@ -556,7 +558,7 @@ public class WukongSkillDataKeys {
                                     ShenfaTongtoutiebiSkill.class)); // 冷却时间
     public static final RegistryObject<SkillDataKey<Boolean>> TTTB_COOLING_ATTACK =
             DATA_KEYS.register(
-                    "tttb_cooling_attack",
+                    "tttb_cooling_attack", // 铜头铁臂: 冷却是否结束(是否可再次释放)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -572,7 +574,7 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.FLOAT,
                                     -1.0F,
                                     false,
-                                    ShenfaTongtoutiebiSkill.class)); // 防止坠机
+                                    ShenfaTongtoutiebiSkill.class)); // 铜头铁臂伤害减免值(-1表示未激活)
 
     public static final RegistryObject<SkillDataKey<Integer>> JXSQ_YINGSHEN_TIMER =
             DATA_KEYS.register(
@@ -585,13 +587,13 @@ public class WukongSkillDataKeys {
                                     ShenfaJuxingsanqiSkill.class)); // 聚形散气隐身时间
     public static final RegistryObject<SkillDataKey<Boolean>> JXSQ_YINGSHEN_ZT =
             DATA_KEYS.register(
-                    "jxsq_yingshen_zt",
+                    "jxsq_yingshen_zt", // 聚形散气: 隐身状态是否结束(为true时方可再次释放)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
                                     true,
                                     false,
-                                    ShenfaJuxingsanqiSkill.class)); //
+                                    ShenfaJuxingsanqiSkill.class)); // 聚形散气: 隐身状态标记(与上方内联说明一致)
     public static final RegistryObject<SkillDataKey<Integer>> JXSQ_COOLING_TIMER =
             DATA_KEYS.register(
                     "jxsq_cooling_timer",
@@ -603,7 +605,7 @@ public class WukongSkillDataKeys {
                                     ShenfaJuxingsanqiSkill.class)); // 冷却时间
     public static final RegistryObject<SkillDataKey<Boolean>> JXSQ_COOLING_ATTACK =
             DATA_KEYS.register(
-                    "jxsq_cooling_attack",
+                    "jxsq_cooling_attack", // 聚形散气: 冷却是否结束(是否可再次释放)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -613,7 +615,7 @@ public class WukongSkillDataKeys {
 
     public static final RegistryObject<SkillDataKey<Boolean>> ASF_YINGSHEN_ZT =
             DATA_KEYS.register(
-                    "asf_yingshen_zt",
+                    "asf_yingshen_zt", // 安身法: 状态是否结束(为true时方可再次释放)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -622,7 +624,7 @@ public class WukongSkillDataKeys {
                                     FashuAnshenfaSkill.class));
     public static final RegistryObject<SkillDataKey<Integer>> ASF_DERIVE_TIMER =
             DATA_KEYS.register(
-                    "asf_derive_timer",
+                    "asf_derive_timer", // 安身法: 生效持续时间(帧)计时器
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.INTEGER, 0, false, FashuAnshenfaSkill.class));
@@ -637,7 +639,7 @@ public class WukongSkillDataKeys {
                                     FashuAnshenfaSkill.class)); // 冷却时间
     public static final RegistryObject<SkillDataKey<Boolean>> ASF_COOLING_ATTACK =
             DATA_KEYS.register(
-                    "asf_cooling_attack",
+                    "asf_cooling_attack", // 安身法: 冷却是否结束(是否可再次释放)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -647,7 +649,7 @@ public class WukongSkillDataKeys {
 
     public static final RegistryObject<SkillDataKey<Boolean>> DSF_YINGSHEN_ZT =
             DATA_KEYS.register(
-                    "dsf_yingshen_zt",
+                    "dsf_yingshen_zt", // 定身术: 定身效果是否生效中
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -656,7 +658,7 @@ public class WukongSkillDataKeys {
                                     FashuDingshenfaSkill.class));
     public static final RegistryObject<SkillDataKey<Integer>> DSF_DERIVE_TIMER =
             DATA_KEYS.register(
-                    "dsf_derive_timer",
+                    "dsf_derive_timer", // 定身术: 定身持续时间(帧)计时器
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.INTEGER,
@@ -674,7 +676,7 @@ public class WukongSkillDataKeys {
                                     FashuDingshenfaSkill.class)); // 冷却时间
     public static final RegistryObject<SkillDataKey<Boolean>> DSF_COOLING_ATTACK =
             DATA_KEYS.register(
-                    "dsf_cooling_attack",
+                    "dsf_cooling_attack", // 定身术: 冷却是否结束(是否可再次释放)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -683,7 +685,7 @@ public class WukongSkillDataKeys {
                                     FashuDingshenfaSkill.class));
     public static final RegistryObject<SkillDataKey<Boolean>> DSF_ENEMY_ATTACK =
             DATA_KEYS.register(
-                    "dsf_enemy_attack",
+                    "dsf_enemy_attack", // 定身术: 是否对敌人发动攻击的标记
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -693,7 +695,7 @@ public class WukongSkillDataKeys {
 
     public static final RegistryObject<SkillDataKey<Boolean>> SWSF_COOLING_ATTACK =
             DATA_KEYS.register(
-                    "swsf_cooling_attack",
+                    "swsf_cooling_attack", // 身外身法: 冷却是否结束(是否可再次释放)
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -772,7 +774,7 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.INTEGER,
                                     0,
                                     false,
-                                    GreatSageHeavyAttack.class)); // 本次攻击是否消耗星（是否强化）
+                                    GreatSageHeavyAttack.class)); // 本次攻击是否消耗星(是否强化)
     public static final RegistryObject<SkillDataKey<Integer>> GREATSAGE_NUMBER =
             DATA_KEYS.register(
                     "greatsage_number",
@@ -784,7 +786,7 @@ public class WukongSkillDataKeys {
                                     GreatSageHeavyAttack.class)); // 连招计数
     public static final RegistryObject<SkillDataKey<Boolean>> GREATSAGE_PILLAR =
             DATA_KEYS.register(
-                    "greatsage_pillar",
+                    "greatsage_pillar", // 大圣重击: 是否处于立棍(劈棒)变招状态
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,

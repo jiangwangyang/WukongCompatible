@@ -14,8 +14,9 @@ import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-/** 在造成伤害的时间节点给物品添加nbt标签，方便做棍子的人操作缩放 根据棍势加伤，但是还没实现 */
+// 蓄力攻击动画: 在造成伤害的时间节点给物品写入 nbt 标签, 方便做棍子的人操作缩放; 按棍势加伤尚未实现
 public class WukongChargedAttackAnimation extends BasicAttackAnimation {
+    // 构造蓄力攻击: 播放速度固定 1.5 倍, 期间锁定基础攻击与技能, 并在前摇/接触时刻写/清 playing_wk_charged 标记
     public WukongChargedAttackAnimation(
             float convertTime,
             float antic,
@@ -54,6 +55,7 @@ public class WukongChargedAttackAnimation extends BasicAttackAnimation {
                         AnimationEvent.Side.SERVER));
     }
 
+    // 设置本次攻击的冲击力(impact)修正值
     public WukongChargedAttackAnimation setImpact(float impact) {
         this.addProperty(
                 AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER,
@@ -61,7 +63,7 @@ public class WukongChargedAttackAnimation extends BasicAttackAnimation {
         return this;
     }
 
-    /** TODO */
+    // TODO
     @Override
     protected void hurtCollidingEntities(
             LivingEntityPatch<?> entitypatch,

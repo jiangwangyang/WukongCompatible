@@ -12,8 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+// Mixin 注入到 EpicFight 的 AttackAnimation (并发链接动画), 覆盖播放速度以处理发光与定身效果
 @Mixin(value = yesman.epicfight.api.animation.types.AttackAnimation.class, remap = false)
 public class ConcurrentLinkAnimationMixin {
+    // 在 getPlaySpeed 头部拦截: 发光效果将播放速度降到 0.05, 定身效果 (DING) 将播放速度设为 0
     @Inject(method = "getPlaySpeed", at = @At("HEAD"), cancellable = true)
     public void getPlaySpeed(
             LivingEntityPatch<?> entitypatch,

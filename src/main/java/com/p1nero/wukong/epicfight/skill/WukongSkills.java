@@ -21,24 +21,26 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+// 悟空技能注册类: 在MOD事件总线上注册全部技能(棍式/重击/闪避/法术), 并提供可选项列表
 public class WukongSkills {
-    public static Skill SMASH_STYLE;
-    public static Skill THRUST_STYLE;
-    public static Skill PILLAR_STYLE;
-    public static Skill GREATSAGE_STYLE;
-    public static Skill SMASH_HEAVY_ATTACK;
-    public static Skill THRUST_HEAVY_ATTACK;
-    public static Skill PILLAR_HEAVY_ATTACK;
-    public static Skill GREATSAGE_HEAVY_ATTACK;
+    public static Skill SMASH_STYLE; // 劈棍式技能实例
+    public static Skill THRUST_STYLE; // 戳棍式技能实例
+    public static Skill PILLAR_STYLE; // 立棍式技能实例
+    public static Skill GREATSAGE_STYLE; // 大圣式技能实例
+    public static Skill SMASH_HEAVY_ATTACK; // 劈棍重击技能实例
+    public static Skill THRUST_HEAVY_ATTACK; // 戳棍重击技能实例
+    public static Skill PILLAR_HEAVY_ATTACK; // 立棍重击技能实例
+    public static Skill GREATSAGE_HEAVY_ATTACK; // 大圣重击技能实例
 
-    public static Skill STAFF_SPIN;
-    public static Skill WUKONG_DODGE;
+    public static Skill STAFF_SPIN; // 棍花被动技能实例
+    public static Skill WUKONG_DODGE; // 悟空闪避技能实例
     public static Skill SPELL_JUXINGSANQI; // 聚形散气
     public static Skill SPELL_TONGTOUTIEBI; // 铜头铁臂
     public static Skill MAGI_ANSHENFA; // 安身术
     public static Skill MAGI_DINGSHENFA; // 定身术
     public static Skill SHEN_WAI_SHEN_FA; // 身外身法
 
+    // 返回可在技能栏选择的技能列表(棍式/聚形散气/铜头铁臂/安身/定身/身外身法)
     public static Skill[] getSelectableSkills() {
         return new Skill[] {
             SMASH_STYLE,
@@ -53,6 +55,7 @@ public class WukongSkills {
         };
     }
 
+    // 获取玩家当前武器天赋(棍式)的星级层数
     public static int getCurrentStack(Player player) {
         AtomicInteger stack = new AtomicInteger(0);
         player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY)
@@ -66,6 +69,7 @@ public class WukongSkills {
     }
 
     @SubscribeEvent
+    // 技能构建事件处理: 注册并装配所有悟空技能及其对应动画
     public static void BuildSkills(SkillBuildEvent event) {
         SkillBuildEvent.ModRegistryWorker registryWorker =
                 event.createRegistryWorker(WukongMoveset.MOD_ID);

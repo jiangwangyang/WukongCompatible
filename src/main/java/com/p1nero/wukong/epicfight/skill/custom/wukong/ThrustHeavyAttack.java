@@ -58,21 +58,23 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
 import java.util.UUID;
 
-/** 戳棍重击 */
+// 戳棍重击技能: 处理戳棍棍式的重击/蓄力/衍生(退寸/进尺/搅棍)与棍势管理, 含击退与HUD绘制
 public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
+    // 本技能事件监听器的唯一标识
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a02b-0242ac114515");
-    @NotNull protected final StaticAnimationProvider[] animations; // 0~4共有五种重击
-    @NotNull protected StaticAnimationProvider xuli_start;
-    protected StaticAnimationProvider stepinch;
-    protected StaticAnimationProvider footage;
-    protected StaticAnimationProvider fengchuanhua;
-    protected StaticAnimationProvider chargePre;
-    protected StaticAnimationProvider juesick_start;
-    protected StaticAnimationProvider juesick_loop;
-    protected StaticAnimationProvider juesick_end;
-    protected StaticAnimationProvider jumpAttackHeavy;
+    @NotNull protected final StaticAnimationProvider[] animations; // 0~4星戳棍重击动画
+    @NotNull protected StaticAnimationProvider xuli_start; // 蓄力起手(蓄力)动画
+    protected StaticAnimationProvider stepinch; // 退寸技动画
+    protected StaticAnimationProvider footage; // 进尺(收棍)动画
+    protected StaticAnimationProvider fengchuanhua; // 凤穿花动画
+    protected StaticAnimationProvider chargePre; // 蓄力前摇动画
+    protected StaticAnimationProvider juesick_start; // 搅棍起手动画
+    protected StaticAnimationProvider juesick_loop; // 搅棍循环动画
+    protected StaticAnimationProvider juesick_end; // 搅棍收尾动画
+    protected StaticAnimationProvider jumpAttackHeavy; // 跳跃重击动画
 
+    // 返回重击动画列表(含进尺/凤穿花), 用于判断当前是否处于重击状态
     @Override
     public List<StaticAnimationProvider> getHeavyAttacks() {
         List<StaticAnimationProvider> staticAnimations =
@@ -82,10 +84,12 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         return staticAnimations;
     }
 
+    // 创建技能构建器, 设为武器固有技能且无需消耗资源
     public static Builder createChargedAttack() {
         return new Builder().setCategory(SkillCategories.WEAPON_INNATE).setResource(Resource.NONE);
     }
 
+    // 构造方法, 保存各类重击/衍生动画提供者
     public ThrustHeavyAttack(Builder builder) {
         super(builder);
         chargePre = builder.pre;
@@ -102,10 +106,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         jumpAttackHeavy = builder.jumpAttackHeavy;
     }
 
-    /**
-     * 在计时周期内使用技能才算使用衍生，否则视为重击 长按循环第一段衍生的判断在{@link
-     * ThrustHeavyAttack#updateContainer(SkillContainer)}
-     */
+    // 在计时周期内使用技能才算使用衍生, 否则视为重击; 长按循环第一段衍生的判断在updateContainer
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
@@ -135,6 +136,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         super.executeOnServer(container, args);
     }
 
+    // 注册各类事件监听: 命中加棍势/击退/退寸受击/四蓄窗口等
     @Override
     public void onInitiate(SkillContainer container) {
         SkillDataManager dataManager = container.getDataManager();
@@ -284,7 +286,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             }
                         }));
 
-        // 刷新四蓄计时器：满4星命中敌人时开启/刷新四蓄窗口，窗口结束降回3星(与劈棍/立棍/大圣统一)
+        // 刷新四蓄计时器: 满4星命中敌人时开启/刷新四蓄窗口, 窗口结束降回3星(与劈棍/立棍/大圣统一)
         container
                 .getExecutor()
                 .getEventListener()
@@ -304,6 +306,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         super.onInitiate(container);
     }
 
+    // 移除本技能注册的所有事件监听
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
@@ -314,6 +317,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
     }
 
+    // 对攻击目标施加按距离归一化的击退(并点燃), 实现戳棍的击退效果
     public void createRepelForAttackTarget(
             ServerPlayer player, Entity target, double knockbackStrength) {
         Vec3 playerPos = player.position();
@@ -331,12 +335,14 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
+    // 修改实体耐力值(最低为0), 用于完美闪避/退寸等回复体力
     public void modifyStamina(LivingEntity livingentity, float staminaChange) {
         float currentStamina = livingentity.getEntityData().get(STAMINA);
         float newStamina = Math.max(0.0F, currentStamina + staminaChange);
         livingentity.getEntityData().set(STAMINA, newStamina);
     }
 
+    // 每tick更新: 棍势/音效/蓄力释放/退寸/搅棍/四蓄掉棍势等
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
@@ -499,12 +505,13 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
+    // 破条时增加1星并清空耐力
     public void breakProgress(ServerPlayerPatch serverPlayerPatch, SkillContainer container) {
         this.setConsumptionSynchronize(container, 0.1F);
         this.setStackSynchronize(container, container.getStack() + 1);
     }
 
-    /** copy from {@link yesman.epicfight.events.EntityEvents#attackEvent(LivingAttackEvent)} */
+    // 复制自yesman.epicfight.events.EntityEvents#attackEvent, 将伤害以部分伤害标签反弹给攻击者
     public void processDamage(
             PlayerPatch<?> playerPatch,
             DamageSource damageSource,
@@ -528,7 +535,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
-    /** 清空耐力并播红光和音效 */
+    // 清空耐力并播红光和音效
     private void resetConsumption(SkillContainer container, ServerPlayerPatch executer) {
         if (container.getStack() > 0) {
             int soundIndex = Math.min(container.getStack(), WuKongSounds.stackSounds.size()) - 1;
@@ -547,13 +554,14 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         this.setConsumptionSynchronize(container, 1);
     }
 
+    // 仅在持有有效棍武器时绘制技能图标
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
-    /** 根据棍式和星级画图 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面 */
+    // 根据棍式和星级绘制自定义战斗HUD, 完全重写Epic Fight默认技能图标绘制
     @OnlyIn(Dist.CLIENT)
     @Override
     public void drawOnGui(
@@ -646,61 +654,70 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
+    // 按48x48尺寸绘制指定贴图
     public void drawTexture(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y) {
         guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
+    // 返回自身, 将技能属性绑定到动画
     public WeaponInnateSkill registerPropertiesToAnimation() {
         return this;
     }
 
+    // 技能构建器, 收集各类重击/衍生动画提供者
     public static class Builder extends SkillBuilder<ThrustHeavyAttack> {
-        protected StaticAnimationProvider[] animationProviders;
-        protected StaticAnimationProvider stepinch;
-        protected StaticAnimationProvider footage;
-        protected StaticAnimationProvider fengchuanhua;
-        protected StaticAnimationProvider jumpAttackHeavy;
-        protected StaticAnimationProvider juesick_start;
-        protected StaticAnimationProvider juesick_loop;
-        protected StaticAnimationProvider juesick_end;
-        StaticAnimationProvider chargingAnimation;
-        protected StaticAnimationProvider start;
+        protected StaticAnimationProvider[] animationProviders; // 戳棍重击动画
+        protected StaticAnimationProvider stepinch; // 退寸技动画
+        protected StaticAnimationProvider footage; // 进尺(收棍)动画
+        protected StaticAnimationProvider fengchuanhua; // 凤穿花动画
+        protected StaticAnimationProvider jumpAttackHeavy; // 跳跃重击动画
+        protected StaticAnimationProvider juesick_start; // 搅棍起手动画
+        protected StaticAnimationProvider juesick_loop; // 搅棍循环动画
+        protected StaticAnimationProvider juesick_end; // 搅棍收尾动画
+        StaticAnimationProvider chargingAnimation; // 蓄力动画(占位, 当前未使用)
+        protected StaticAnimationProvider start; // 蓄力起手动画
 
-        StaticAnimationProvider pre;
+        StaticAnimationProvider pre; // 蓄力前摇动画
 
         public Builder() {}
 
+        // 设置技能分类
         public Builder setCategory(SkillCategory category) {
             this.category = category;
             return this;
         }
 
+        // 设置激活类型
         public Builder setActivateType(Skill.ActivateType activateType) {
             this.activateType = activateType;
             return this;
         }
 
+        // 设置消耗资源
         public Builder setResource(Skill.Resource resource) {
             this.resource = resource;
             return this;
         }
 
+        // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
             return this;
         }
 
+        // 设置蓄力动画
         public Builder setChargingAnimation(StaticAnimationProvider chargingAnimation) {
             this.chargingAnimation = chargingAnimation;
             return this;
         }
 
+        // 设置蓄力前摇动画
         public Builder setChargePreAnimation(StaticAnimationProvider pre) {
             this.pre = pre;
             return this;
         }
 
-        /** 如果是可长按的衍生则derive1就是pre动画，具体逻辑在动画那里判断 */
+        // 设置退寸/进尺/凤穿花/搅棍等衍生动画(可长按衍生的首个即起手, 具体在动画处判断)
         public Builder setDeriveAnimations(
                 StaticAnimationProvider stepinch,
                 StaticAnimationProvider footage,
@@ -717,17 +734,19 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             return this;
         }
 
-        /** 0~4星重击 */
+        // 设置0~4星戳棍重击动画
         public Builder setHeavyAttacks(StaticAnimationProvider... animationProviders) {
             this.animationProviders = animationProviders;
             return this;
         }
 
+        // 设置蓄力起手动画
         public Builder setStartAttacks(StaticAnimationProvider start) {
             this.start = start;
             return this;
         }
 
+        // 设置跳跃重击动画
         public Builder setJumpAttackHeavy(StaticAnimationProvider jumpAttackHeavy) {
             this.jumpAttackHeavy = jumpAttackHeavy;
             return this;

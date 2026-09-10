@@ -36,26 +36,29 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.List;
 
-/** 法术：定身术 */
+// 法术: 定身术技能
 public class FashuDingshenfaSkill extends Skill {
 
-    private static final String TRACKED_TARGET = "wukong_dingshen_target";
-    private static final double FALLBACK_SEARCH_RADIUS = 64.0D;
-    private static final int PARTICLE_INTERVAL = 5;
-    protected StaticAnimationProvider deriveAnimation1;
+    private static final String TRACKED_TARGET = "wukong_dingshen_target"; // 锁定目标UUID持久化键名
+    private static final double FALLBACK_SEARCH_RADIUS = 64.0D; // 解除定身时未锁定目标, 按此半径搜索范围内被定身实体
+    private static final int PARTICLE_INTERVAL = 5; // 定身粒子播放的帧间隔
+    protected StaticAnimationProvider deriveAnimation1; // 记录的衍生(施法)动画
 
+    // 创建技能构建器并设置分类与资源类型
     public static Builder create() {
         return new Builder()
                 .setCategory(WukongSkillCategories.FASHU_STYLE)
                 .setResource(Resource.NONE);
     }
 
+    // 构造定身术技能, 记录衍生(施法)动画
     public FashuDingshenfaSkill(Builder builder) {
         super(builder);
         deriveAnimation1 = builder.derive1;
     }
 
-    /** {@link FashuDingshenfaSkill#updateContainer(SkillContainer)} */
+    // 服务端执行: 冷却完毕时播放衍生(施法)动画, 否则提示冷却中
+    // 参见 FashuDingshenfaSkill#updateContainer(SkillContainer)
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
@@ -76,14 +79,17 @@ public class FashuDingshenfaSkill extends Skill {
     }
 
     @Override
+    // 技能初始化(此处仅调用父类逻辑)
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
     }
 
+    // 记录被定身术锁定的目标实体UUID
     public static void trackTarget(ServerPlayer player, LivingEntity target) {
         player.getPersistentData().putUUID(TRACKED_TARGET, target.getUUID());
     }
 
+    // 读取并返回当前锁定的目标实体(已失效则返回null)
     private LivingEntity getTrackedTarget(ServerPlayer player) {
         if (!player.getPersistentData().hasUUID(TRACKED_TARGET)) {
             return null;
@@ -95,6 +101,7 @@ public class FashuDingshenfaSkill extends Skill {
         return null;
     }
 
+    // 向锁定的目标播放定身粒子效果
     private void showDingParticles(ServerPlayer player) {
         LivingEntity target = getTrackedTarget(player);
         if (target != null && target.isAlive() && target.getTags().contains("ding")) {
@@ -112,6 +119,7 @@ public class FashuDingshenfaSkill extends Skill {
         }
     }
 
+    // 解除定身: 释放锁定目标, 或解除范围内所有被定身实体
     private void liftDing(ServerPlayer player) {
         LivingEntity trackedTarget = getTrackedTarget(player);
         if (trackedTarget != null) {
@@ -129,6 +137,7 @@ public class FashuDingshenfaSkill extends Skill {
         player.getPersistentData().remove(TRACKED_TARGET);
     }
 
+    // 解除单个实体的定身效果并恢复状态(末影龙/怪物恢复AI与仇恨)
     private void releaseTarget(ServerPlayer player, LivingEntity entity) {
         EntitySpeedData.restoreOriginalSpeed(entity);
         entity.removeTag("ding");
@@ -145,6 +154,7 @@ public class FashuDingshenfaSkill extends Skill {
     }
 
     @Override
+    // 技能移除时解除定身效果(客户端跳过)
     public void onRemoved(SkillContainer container) {
         PlayerPatch<?> executer = container.getExecutor();
         if (!executer.isLogicalClient() && executer.getOriginal() instanceof ServerPlayer player) {
@@ -154,6 +164,7 @@ public class FashuDingshenfaSkill extends Skill {
     }
 
     @Override
+    // 每帧更新: 递减定身/冷却计时, 生效期间周期播放粒子, 倒计时归零则解除定身
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
         SkillDataManager dataManager = container.getDataManager();
@@ -195,7 +206,7 @@ public class FashuDingshenfaSkill extends Skill {
         }
     }
 
-    /** 根据技能状态绘制自定义技能图标与冷却显示 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面 */
+    // 根据技能状态绘制自定义技能图标与冷却显示; 完全重写Epic Fight默认绘制, 战斗模式HUD仅显示此自定义画面
     @OnlyIn(Dist.CLIENT)
     @Override
     public void drawOnGui(
@@ -245,52 +256,62 @@ public class FashuDingshenfaSkill extends Skill {
     }
 
     @Override
+    // 仅当装备合法武器时绘制该技能
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
     @Override
+    // 注册技能属性到动画(此处直接返回自身)
     public Skill registerPropertiesToAnimation() {
         return this;
     }
 
     @Override
+    // 是否可执行的判定(此处直接调用父类逻辑)
     public boolean canExecute(SkillContainer container) {
         return super.canExecute(container);
     }
 
+    // 定身术技能构建器
     public static class Builder extends SkillBuilder<FashuDingshenfaSkill> {
-        protected StaticAnimationProvider[] animationProviders;
-        protected StaticAnimationProvider derive1;
-        protected StaticAnimationProvider derive2;
+        protected StaticAnimationProvider[] animationProviders; // 普通动画列表
+        protected StaticAnimationProvider derive1; // 第一衍生(施法)动画
+        protected StaticAnimationProvider derive2; // 第二衍生动画(预留)
 
         public Builder() {}
 
+        // 设置技能分类
         public Builder setCategory(SkillCategory category) {
             this.category = category;
             return this;
         }
 
+        // 设置激活类型
         public Builder setActivateType(ActivateType activateType) {
             this.activateType = activateType;
             return this;
         }
 
+        // 设置技能资源类型
         public Builder setResource(Resource resource) {
             this.resource = resource;
             return this;
         }
 
+        // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
             return this;
         }
 
+        // 设置普通动画
         public Builder setAnimations(StaticAnimationProvider... animationProviders) {
             this.animationProviders = animationProviders;
             return this;
         }
 
+        // 设置第一衍生(施法)动画
         public Builder setDeriveAnimations(StaticAnimationProvider derive1) {
             this.derive1 = derive1;
             return this;

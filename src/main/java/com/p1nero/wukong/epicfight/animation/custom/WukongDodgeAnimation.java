@@ -15,9 +15,10 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
-/** 无敌时间缩短到后摇结束 */
+// 悟空闪避动画: 缩短无敌(可闪避)时间至后摇结束, 并根据是否完美闪避决定是否保留棍势
 public class WukongDodgeAnimation extends DodgeAnimation {
 
+    // 构造悟空闪避动画: 在后摇结束(delayTime)处处理蓄力/突刺蓄力清除, 非完美闪避清空棍势, 并配置状态谱
     public WukongDodgeAnimation(
             float convertTime,
             float delayTime,
@@ -111,6 +112,7 @@ public class WukongDodgeAnimation extends DodgeAnimation {
                 .addState(EntityState.ATTACK_RESULT, DODGEABLE_SOURCE_VALIDATOR);
     }
 
+    // 构造悟空闪避动画, 默认按非完美闪避处理
     public WukongDodgeAnimation(
             float convertTime,
             float delayTime,
@@ -121,7 +123,7 @@ public class WukongDodgeAnimation extends DodgeAnimation {
         this(convertTime, delayTime, accessor, width, height, armature, false);
     }
 
-    /** 触发完美闪避才改状态 */
+    // 动画开始: 复位完美闪避标记, 只有本次实际触发完美闪避时能力侧才会重新置为 true
     @Override
     public void begin(LivingEntityPatch<?> entityPatch) {
         super.begin(entityPatch);

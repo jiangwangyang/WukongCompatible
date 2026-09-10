@@ -58,22 +58,33 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
 import java.util.UUID;
 
-/** 立棍重击 */
+// 立棍重击技能: 处理立棍棍式的重击/蓄力/衍生(风云转/江海翻)与棍势管理, 含FOV动画与HUD绘制
 public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
+    // 本技能事件监听器的唯一标识
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0242ac114513");
+    // 立棍蓄力时视野(FOV)最大增加角度
     public static final int MAX_ANGLE_FOV = 74;
+    // 立棍蓄力时视野最小角度(占位, 当前未使用)
     public static final int MAX_FOVLJ = 0;
+    // 立棍增高(升星)动画
     protected final StaticAnimationProvider[] up;
+    // 立棍起手动画
     protected final StaticAnimationProvider[]
-            start; // 立起     protected final StaticAnimationProvider[] up;//增高，即0到1、1到2
+            start; // 立起
+    // 0~4星立棍重击动画
     protected final StaticAnimationProvider[] heavy;
 
+    // 一段衍生(风云转)动画
     protected StaticAnimationProvider deriveAnimation1;
+    // 二段衍生(江海翻)动画
     protected StaticAnimationProvider deriveAnimation2;
+    // 风火轮衍生动画
     protected StaticAnimationProvider hotwheel;
+    // 衍生收尾动画
     protected StaticAnimationProvider deriveEnd;
 
+    // 返回重击动画列表(含二段衍生), 用于判断当前是否处于重击状态
     @Override
     public List<StaticAnimationProvider> getHeavyAttacks() {
         List<StaticAnimationProvider> staticAnimations = new java.util.ArrayList<>(List.of(heavy));
@@ -81,10 +92,12 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         return staticAnimations;
     }
 
+    // 创建技能构建器, 设为武器固有技能且无需消耗资源
     public static Builder createChargedAttack() {
         return new Builder().setCategory(SkillCategories.WEAPON_INNATE).setResource(Resource.NONE);
     }
 
+    // 构造方法, 保存各类重击/衍生动画提供者
     public PillarHeavyAttack(Builder builder) {
         super(builder);
         this.start = builder.start;
@@ -97,10 +110,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         deriveEnd = builder.deriveEnd;
     }
 
-    /**
-     * 在计时周期内使用技能才算使用衍生，否则视为重击 长按循环第一段衍生的判断在{@link
-     * PillarHeavyAttack#updateContainer(SkillContainer)}
-     */
+    // 在计时周期内使用技能才算使用衍生, 否则视为重击; 长按循环第一段衍生的判断在updateContainer
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
@@ -147,6 +157,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         super.executeOnServer(container, args);
     }
 
+    // 向玩家发送立棍蓄力FOV(视野)变化动画数据包
     private static void sendFovAnimation(
             ServerPlayer player, float increaseAmount, int durationTicks, int repeatTimes) {
         PacketRelay.sendToPlayer(
@@ -155,6 +166,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 player);
     }
 
+    // 释放后清空棍势(星数)并重置耐力
     private void resetConsumption(SkillContainer container, ServerPlayerPatch executer) {
         if (container.getStack() > 0) {
             int cnt = container.getStack();
@@ -163,6 +175,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         this.setConsumptionSynchronize(container, 1);
     }
 
+    // 注册各类事件监听: 风云转加棍势/移动输入禁跳/减伤霸体/坠机保护/衍生计时等
     @Override
     public void onInitiate(SkillContainer container) {
         container
@@ -363,7 +376,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             }
                         }));
 
-        // 刷新四蓄计时器：满4星命中敌人时开启/刷新四蓄窗口，窗口结束降回3星(与劈棍/大圣统一)
+        // 刷新四蓄计时器: 满4星命中敌人时开启/刷新四蓄窗口, 窗口结束降回3星(与劈棍/大圣统一)
         container
                 .getExecutor()
                 .getEventListener()
@@ -383,6 +396,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         super.onInitiate(container);
     }
 
+    // 移除本技能注册的所有事件监听
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
@@ -394,11 +408,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
     }
 
-    /**
-     * 判断空间是否足够
-     *
-     * @param height 以玩家脚底开始往上需要几格
-     */
+    // 判断玩家头顶height格高度内是否均为空气(即空间足够立棍)
     public static boolean checkSpace(ServerPlayer serverPlayer, int height) {
         // 获取玩家所在的服务器世界
         ServerLevel serverLevel = serverPlayer.serverLevel();
@@ -406,16 +416,16 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         for (int i = 1; i <= height; i++) {
             // 检测玩家当前所在位置上 `i` 个单位的方块状态
             if (!serverLevel.getBlockState(serverPlayer.getOnPos().above(i)).is(Blocks.AIR)) {
-                // 如果不是空气，返回 false
+                // 如果不是空气, 返回 false
                 return false;
             }
         }
 
-        // 如果检测完所有高度后都为空气，则返回 true
+        // 如果检测完所有高度后都为空气, 则返回 true
         return true;
     }
 
-    /** copy from {@link yesman.epicfight.events.EntityEvents#attackEvent(LivingAttackEvent)} */
+    // 复制自yesman.epicfight.events.EntityEvents#attackEvent, 将伤害以部分伤害标签反弹给攻击者
     public void processDamage(
             PlayerPatch<?> playerPatch,
             DamageSource damageSource,
@@ -439,6 +449,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
+    // 每tick更新: 棍势/音效/蓄力释放/各类计时器/四蓄掉棍势等
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
@@ -528,7 +539,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             heavy[container.getStack()].get(), 0.0F); // 有几星就几星重击
                     dataManager.setDataSync(
                             WukongSkillDataKeys.STARS_CONSUMED.get(),
-                            container.getStack()); // 设置消星数，方便客户端绘制
+                            container.getStack()); // 设置消星数, 方便客户端绘制
                     resetConsumption(container, serverPlayerPatch);
                 }
             }
@@ -572,18 +583,20 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
+    // 破条时增加1星并清空耐力
     public void breakProgress(ServerPlayerPatch serverPlayerPatch, SkillContainer container) {
         this.setConsumptionSynchronize(container, 0.1F);
         this.setStackSynchronize(container, container.getStack() + 1);
     }
 
+    // 仅在持有有效棍武器时绘制技能图标
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
-    /** 根据棍式和星级画图 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面 */
+    // 根据棍式和星级绘制自定义战斗HUD, 完全重写Epic Fight默认技能图标绘制
     @OnlyIn(Dist.CLIENT)
     @Override
     public void drawOnGui(
@@ -676,72 +689,81 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
+    // 按48x48尺寸绘制指定贴图
     public void drawTexture(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y) {
         guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
+    // 返回自身, 将技能属性绑定到动画
     @Override
     public WeaponInnateSkill registerPropertiesToAnimation() {
         return this;
     }
 
+    // 技能构建器, 收集各类重击/衍生动画提供者
     public static class Builder extends SkillBuilder<PillarHeavyAttack> {
-        protected StaticAnimationProvider[] start;
-        protected StaticAnimationProvider[] up;
-        protected StaticAnimationProvider[] heavy;
-        protected StaticAnimationProvider derive1;
-        protected StaticAnimationProvider derive2;
-        protected StaticAnimationProvider deriveLoop;
-        protected StaticAnimationProvider deriveEnd;
-        protected StaticAnimationProvider hotwheel;
+        protected StaticAnimationProvider[] start; // 立棍起手动画
+        protected StaticAnimationProvider[] up; // 立棍增高(升星)动画
+        protected StaticAnimationProvider[] heavy; // 立棍重击动画
+        protected StaticAnimationProvider derive1; // 一段衍生(风云转)动画
+        protected StaticAnimationProvider derive2; // 二段衍生(江海翻)动画
+        protected StaticAnimationProvider deriveLoop; // 衍生长循环动画(未使用)
+        protected StaticAnimationProvider deriveEnd; // 衍生收尾动画
+        protected StaticAnimationProvider hotwheel; // 风火轮衍生动画
 
-        StaticAnimationProvider pre;
+        StaticAnimationProvider pre; // 蓄力前摇动画
 
         public Builder() {}
 
+        // 设置技能分类
         public Builder setCategory(SkillCategory category) {
             this.category = category;
             return this;
         }
 
+        // 设置激活类型
         public Builder setActivateType(ActivateType activateType) {
             this.activateType = activateType;
             return this;
         }
 
+        // 设置消耗资源
         public Builder setResource(Resource resource) {
             this.resource = resource;
             return this;
         }
 
+        // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
             return this;
         }
 
+        // 设置蓄力前摇动画
         public Builder setChargePreAnimation(StaticAnimationProvider pre) {
             this.pre = pre;
             return this;
         }
 
-        /** 立棍蓄力前摇 */
+        // 设置立棍起手动画
         public Builder setStartAnimations(StaticAnimationProvider... animationProviders) {
             this.start = animationProviders;
             return this;
         }
 
-        /** 立棍蓄力0到4星 */
+        // 设置立棍增高(0~4星)动画
         public Builder setUpAnimations(StaticAnimationProvider... animationProviders) {
             this.up = animationProviders;
             return this;
         }
 
-        /** 0~4星重击 */
+        // 设置0~4星立棍重击动画
         public Builder setHeavyAttacks(StaticAnimationProvider... animationProviders) {
             this.heavy = animationProviders;
             return this;
         }
 
+        // 设置风云转/江海翻等衍生动画
         public Builder setDeriveAnimations(
                 StaticAnimationProvider derivePre,
                 StaticAnimationProvider deriveLoop,

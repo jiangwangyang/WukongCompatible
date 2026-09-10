@@ -17,19 +17,30 @@ import java.util.List;
 import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+// 模组配置文件类, 定义蓄力/格挡/消耗等可调参数, 并注册 wukong 管理命令
 public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    // 切手技判定时间(tick)
     public static final ForgeConfigSpec.DoubleValue DERIVE_CHECK_TIME;
+    // 蓄力时每tick增加的棍势
     public static final ForgeConfigSpec.DoubleValue CHARGING_SPEED;
+    // 四蓄(满星)窗口时长(tick), 窗口内命中会刷新计时
     public static final ForgeConfigSpec.DoubleValue CHARGED4_WINDOW_TICKS;
+    // 棍花每tick耐力消耗
     public static final ForgeConfigSpec.DoubleValue STAFF_FLOWER_STAMINA_CONSUME;
+    // 立棍/戳棍切手技每tick耐力消耗
     public static final ForgeConfigSpec.DoubleValue DERIVE_STAMINA_CONSUME;
+    // 普攻间隔判定时间(tick)
     public static final ForgeConfigSpec.DoubleValue BASIC_ATTACK_INTERVAL_TICKS;
+    // 是否给首个进入游戏的玩家发放指南书
     public static final ForgeConfigSpec.BooleanValue GET_GUILD_BOOK;
+    // 可被棍花格挡的实体类型列表(字符串形式的资源位置)
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>>
             ENTITIES_CAN_BE_BLOCKED_BY_STAFF_FLOWER;
+    // 配置规范对象
     public static final ForgeConfigSpec SPEC;
 
+    // 可被棍花格挡的实体类型集合(运行时缓存, 由配置填充)
     public static Set<? extends EntityType<?>> entities_can_be_blocked = new HashSet<>();
 
     static {
@@ -74,11 +85,13 @@ public class Config {
                 .defineInRange(key, defaultValue, Double.MIN_VALUE, Double.MAX_VALUE);
     }
 
+    // 校验配置值是否为合法的实体类型资源位置字符串
     private static boolean validateEntityName(final Object obj) {
         return obj instanceof final String itemName
                 && ForgeRegistries.ENTITY_TYPES.containsKey(ResourceLocation.parse(itemName));
     }
 
+    // 注册 wukong 命令(需2级权限)
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();

@@ -33,10 +33,13 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.List;
 
+// 战斗单元: 提供分身, 大圣模式切换, 定身施放等战斗相关辅助逻辑
 public class BattleUnit {
 
+    // 空构造器
     public BattleUnit() {}
 
+    // 分身: 在玩家周围环形生成多个假悟空实体, 并播撒poof粒子
     public static void fenshen(LivingEntityPatch<?> entitypatch) {
         if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
             ServerPlayer player = serverPlayerPatch.getOriginal();
@@ -71,6 +74,7 @@ public class BattleUnit {
         }
     }
 
+    // 切换为大圣模式: 将武器天赋槽切换为第4(大圣)式并向玩家发送提示
     public static void greatSageMode(LivingEntityPatch<?> entitypatch) {
         if (!(entitypatch instanceof ServerPlayerPatch serverPlayerPatch)) {
             return;
@@ -84,6 +88,7 @@ public class BattleUnit {
                 true);
     }
 
+    // 定身: 对当前目标或最近怪物施加定身效果, 并同步定身术技能数据
     public static void ding(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
         if (attackTarget == null) {
@@ -142,10 +147,12 @@ public class BattleUnit {
         }
     }
 
+    // 判断实体是否为假悟空实体(按实体类型字符串精确匹配)
     private static boolean isFakeWukong(LivingEntity entity) {
         return entity.getType().toString().equals("entity.wukong.fake_wukong_entity");
     }
 
+    // 计算两点之间的平方距离(避免开根号)
     private static double calculateDistance(Vec3 position, Vec3 monsterPos) {
         double deltaX = monsterPos.x - position.x;
         double deltaY = monsterPos.y - position.y;
@@ -153,6 +160,7 @@ public class BattleUnit {
         return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ; // 使用平方距离避免开根号
     }
 
+    // 更新施法玩家的定身术技能数据: 标记生效状态并写入定身持续时间/冷却计时器
     private static void updatePlayerSkillData(
             ServerPlayerPatch serverPlayerPatch, LivingEntity target) {
         var spellContainer = serverPlayerPatch.getSkill(WukongSkillSlots.FASHU_SKILL_SLOT);
@@ -174,6 +182,7 @@ public class BattleUnit {
                 .setDataSync(WukongSkillDataKeys.DSF_COOLING_TIMER.get(), 1000);
     }
 
+    // 施加定身效果: 添加定身/发光效果并清零移速, 对龙与怪物额外关闭AI
     private static void applyDingEffect(LivingEntity attackTarget) {
         if (attackTarget != null) {
             EntityType<?> entityType = attackTarget.getType();
@@ -194,6 +203,7 @@ public class BattleUnit {
         }
     }
 
+    // 寸退解锁: 标记戳棍退寸状态, 并设置退寸与二段衍生合法计时器
     public static void CUNTUI_JIESUO(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
         if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
@@ -212,6 +222,7 @@ public class BattleUnit {
         }
     }
 
+    // 寸退上锁: 取消戳棍退寸状态标记
     public static void CUNTUI_SHANGSUO(LivingEntityPatch<?> entitypatch) {
         LivingEntity attackTarget = entitypatch.getTarget();
         if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {

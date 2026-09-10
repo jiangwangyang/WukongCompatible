@@ -58,8 +58,10 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         createWKPlayer().loadNBTData(tag);
     }
 
+    // 能力注册事件监听内部类: 处理能力附加与玩家克隆时的数据迁移
     @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID)
     public static class Registration {
+        // 为玩家实体附加 WKPlayer 能力(仅当尚未附加时)
         @SubscribeEvent
         public static void attachEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
             if (event.getObject() instanceof Player) {
@@ -72,6 +74,7 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
             }
         }
 
+        // 玩家克隆(下界传送返回/死亡重生)时, 若为死亡重生则将旧实体的 WKPlayer 数据复制到新实体
         @SubscribeEvent
         public static void onPlayerCloned(PlayerEvent.Clone event) {
             event.getOriginal().reviveCaps();
@@ -91,6 +94,7 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         }
 
         @SubscribeEvent
+        // 注册 WKPlayer 能力类型
         public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
             event.register(WKPlayer.class);
         }

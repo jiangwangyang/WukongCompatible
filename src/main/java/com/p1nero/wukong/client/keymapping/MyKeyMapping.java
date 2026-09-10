@@ -2,7 +2,7 @@ package com.p1nero.wukong.client.keymapping;
 
 import net.minecraft.client.KeyMapping;
 
-/** 方便判断是否是松开状态，并且可以判断是奇次还是偶次按下 */
+// 方便判断是否是松开状态, 并且可以判断是奇次还是偶次按下
 public class MyKeyMapping extends KeyMapping {
     boolean isRelease;
     boolean lock;
@@ -27,7 +27,7 @@ public class MyKeyMapping extends KeyMapping {
         }
     }
 
-    /** 判断是否松开并重置 */
+    // 判断是否松开并重置
     public boolean isRelease() {
         if (isRelease) {
             isRelease = false;
@@ -36,12 +36,12 @@ public class MyKeyMapping extends KeyMapping {
         return false;
     }
 
-    /** 是否是偶数次按下 */
+    // 是否是偶数次按下
     public boolean isEvenNumber() {
         return isEvenNumber;
     }
 
-    /** 返回总的按下的次数 */
+    // 返回总的按下的次数(含当前仍按住的一次)
     public int getPressCnt() {
         if (pressCnt == 0 && isDown()) {
             return 1;

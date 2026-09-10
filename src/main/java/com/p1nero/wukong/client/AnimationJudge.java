@@ -70,36 +70,44 @@ public record AnimationJudge() {
                         WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP);
     }
 
+    // 判断动画是否为棍花循环动画
     public static boolean isGh(StaticAnimation staticAnimation) {
         return contains(GH, staticAnimation);
     }
 
+    // 判断动画是否为带发光特效的蓄力动画
     public static boolean isGlow(StaticAnimation staticAnimation) {
         return contains(Glow, staticAnimation);
     }
 
+    // 判断动画是否为一层蓄力动画
     public static boolean isQie(StaticAnimation staticAnimation) {
         return contains(ONE_STOR, staticAnimation);
     }
 
+    // 判断动画是否为二层蓄力动画
     public static boolean isTwo(StaticAnimation staticAnimation) {
         return contains(TWO_STOR, staticAnimation);
     }
 
+    // 判断动画是否为三层蓄力动画
     public static boolean isThree(StaticAnimation staticAnimation) {
         return contains(THREE_STOR, staticAnimation);
     }
 
+    // 判断动画是否为四层(满层)蓄力动画
     public static boolean isFour(StaticAnimation staticAnimation) {
         return contains(FOUR_STOR, staticAnimation);
     }
 
+    // 判定指定动画是否存在于给定列表中(按实例引用比较)
     private static boolean contains(
             List<AnimationManager.AnimationAccessor> animations, StaticAnimation staticAnimation) {
         return staticAnimation != null
                 && animations.stream().anyMatch(accessor -> accessor.get() == staticAnimation);
     }
 
+    // 判断玩家当前是否处于蓄力状态(劈棍/戳棍)
     public static boolean isCharging(LocalPlayerPatch lpp) {
         return lpp.getSkill(SkillSlots.WEAPON_INNATE) != null
                 && ((lpp.getSkill(SkillSlots.WEAPON_INNATE)

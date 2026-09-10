@@ -13,6 +13,7 @@ import yesman.epicfight.api.client.forgeevent.AnimatedArmorTextureEvent;
 // EpicFight 战斗模式下指定大圣盔甲使用 GeckoLib 贴图 (与 EpicFight GeckolibCompat 的解析结果一致, 双保险)
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, value = Dist.CLIENT)
 public class DaShengArmorTextureHandler {
+    // 当渲染大圣盔甲时, 指定其使用 GeckoLib 贴图
     @SubscribeEvent
     public static void onAnimatedArmorTexture(AnimatedArmorTextureEvent event) {
         if (event.getItemstack().getItem() instanceof DaShengArmorItem) {

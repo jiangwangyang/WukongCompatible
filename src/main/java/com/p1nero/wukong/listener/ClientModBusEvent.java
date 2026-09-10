@@ -21,13 +21,16 @@ import yesman.epicfight.client.renderer.patched.entity.PHumanoidRenderer;
         modid = WukongMoveset.MOD_ID,
         value = Dist.CLIENT,
         bus = Mod.EventBusSubscriber.Bus.MOD)
+// 客户端Mod总线事件监听: 注册假悟空实体的原版渲染器与EpicFight补丁渲染器
 public class ClientModBusEvent {
 
+    // 客户端初始化: 注册假悟空实体的原版实体渲染器
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         EntityRenderers.register(WukongEntities.FAKE_WUKONG_ENTITY.get(), FakeWukongRenderer::new);
     }
 
+    // 注册假悟空实体的EpicFight补丁渲染器(基于Alex人形网格)
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onRenderPatched(PatchedRenderersEvent.Add event) {

@@ -35,32 +35,35 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.List;
 
-/** 法术：安身法 */
+// 法术: 安身法(地面法阵)技能
 public class FashuAnshenfaSkill extends Skill {
 
-    private static final String ORIGIN_X = "wukong_anshen_origin_x";
-    private static final String ORIGIN_Y = "wukong_anshen_origin_y";
-    private static final String ORIGIN_Z = "wukong_anshen_origin_z";
-    private static final int ACTIVE_TICKS = 510;
-    private static final int WARMUP_TICKS = 15;
-    private static final int PULSE_INTERVAL = 5;
-    private static final double EFFECT_RADIUS = 4.7D;
-    private static final int CIRCLE_PARTICLES = 48;
+    private static final String ORIGIN_X = "wukong_anshen_origin_x"; // 施法原点X坐标持久化键名
+    private static final String ORIGIN_Y = "wukong_anshen_origin_y"; // 施法原点Y坐标持久化键名
+    private static final String ORIGIN_Z = "wukong_anshen_origin_z"; // 施法原点Z坐标持久化键名
+    private static final int ACTIVE_TICKS = 510; // 法阵生效总时长(tick)
+    private static final int WARMUP_TICKS = 15; // 开始周期脉冲前的预热时长(tick)
+    private static final int PULSE_INTERVAL = 5; // 脉冲效果触发间隔(tick)
+    private static final double EFFECT_RADIUS = 4.7D; // 法阵作用半径
+    private static final int CIRCLE_PARTICLES = 48; // 火圈粒子数量
 
-    protected StaticAnimationProvider deriveAnimation1;
+    protected StaticAnimationProvider deriveAnimation1; // 记录的衍生(施法)动画
 
+    // 创建技能构建器并设置分类与资源类型
     public static Builder create() {
         return new Builder()
                 .setCategory(WukongSkillCategories.FASHU_STYLE)
                 .setResource(Resource.NONE);
     }
 
+    // 构造安身法技能, 记录衍生(施法)动画
     public FashuAnshenfaSkill(Builder builder) {
         super(builder);
         deriveAnimation1 = builder.derive;
     }
 
-    /** {@link FashuAnshenfaSkill#updateContainer(SkillContainer)} */
+    // 服务端执行: 冷却且可用时播放衍生(施法)动画, 记录施法原点并开启生效/冷却计时
+    // 参见 FashuAnshenfaSkill#updateContainer(SkillContainer)
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         ServerPlayerPatch executer = container.getServerExecutor();
@@ -91,15 +94,18 @@ public class FashuAnshenfaSkill extends Skill {
     }
 
     @Override
+    // 技能初始化(此处仅调用父类逻辑)
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
     }
 
     @Override
+    // 技能移除(此处仅调用父类逻辑)
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
     }
 
+    // 在玩家周围按半径生成一圈火焰粒子
     private void createFireCircle(ServerPlayer player, Vec3 position) {
         ServerLevel level = (ServerLevel) player.getCommandSenderWorld();
         for (int i = 0; i < CIRCLE_PARTICLES; i++) {
@@ -110,6 +116,7 @@ public class FashuAnshenfaSkill extends Skill {
         }
     }
 
+    // 在生效范围内将怪物点燃并沿径向击退
     private void createRepelCircle(ServerPlayer player, Vec3 position) {
         double knockbackStrength = 0.24D;
         AABB area = new AABB(position, position).inflate(EFFECT_RADIUS);
@@ -135,6 +142,7 @@ public class FashuAnshenfaSkill extends Skill {
         }
     }
 
+    // 玩家处于法阵内时回复武器技能资源并治疗
     private void restoreHealthAndFocus(
             ServerPlayer player, Vec3 position, ServerPlayerPatch serverPlayerPatch) {
         if (player.distanceToSqr(position) <= EFFECT_RADIUS * EFFECT_RADIUS) {
@@ -153,6 +161,7 @@ public class FashuAnshenfaSkill extends Skill {
     }
 
     @Override
+    // 每帧更新: 递减生效/冷却计时, 生效期间周期生成火圈/击退/回血, 结束时复位状态
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
         SkillDataManager dataManager = container.getDataManager();
@@ -200,16 +209,18 @@ public class FashuAnshenfaSkill extends Skill {
     }
 
     @Override
+    // 仅当装备合法武器时绘制该技能
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
     @Override
+    // 注册技能属性到动画(此处直接返回自身)
     public Skill registerPropertiesToAnimation() {
         return this;
     }
 
-    /** 根据技能状态绘制自定义技能图标与冷却显示 本方法完全重写 Epic Fight 默认的技能图标绘制, 战斗模式 HUD 仅显示此自定义画面 */
+    // 根据技能状态绘制自定义技能图标与冷却显示; 完全重写Epic Fight默认绘制, 战斗模式HUD仅显示此自定义画面
     @OnlyIn(Dist.CLIENT)
     @Override
     public void drawOnGui(
@@ -261,37 +272,44 @@ public class FashuAnshenfaSkill extends Skill {
         }
     }
 
+    // 安身法技能构建器
     public static class Builder extends SkillBuilder<FashuAnshenfaSkill> {
-        protected StaticAnimationProvider[] animationProviders;
-        protected StaticAnimationProvider derive;
+        protected StaticAnimationProvider[] animationProviders; // 普通动画列表
+        protected StaticAnimationProvider derive; // 衍生(施法)动画
 
         public Builder() {}
 
+        // 设置技能分类
         public Builder setCategory(SkillCategory category) {
             this.category = category;
             return this;
         }
 
+        // 设置激活类型
         public Builder setActivateType(ActivateType activateType) {
             this.activateType = activateType;
             return this;
         }
 
+        // 设置技能资源类型
         public Builder setResource(Resource resource) {
             this.resource = resource;
             return this;
         }
 
+        // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
             return this;
         }
 
+        // 设置普通动画
         public Builder setAnimations(StaticAnimationProvider... animationProviders) {
             this.animationProviders = animationProviders;
             return this;
         }
 
+        // 设置衍生(施法)动画
         public Builder setDeriveAnimations(StaticAnimationProvider derive) {
             this.derive = derive;
             return this;

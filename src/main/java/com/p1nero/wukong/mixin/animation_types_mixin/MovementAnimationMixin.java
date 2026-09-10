@@ -13,8 +13,10 @@ import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.MovementAnimation;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+// Mixin 注入到 EpicFight 的 MovementAnimation (位移动画), 覆盖播放速度以处理发光与定身效果
 @Mixin(value = MovementAnimation.class, remap = false)
 public class MovementAnimationMixin {
+    // 在 getPlaySpeed 头部拦截: 发光效果将播放速度降到 0.05, 定身效果 (DING) 将播放速度设为 0
     @Inject(method = "getPlaySpeed", at = @At("HEAD"), cancellable = true)
     public void getPlaySpeed(
             LivingEntityPatch<?> entitypatch,

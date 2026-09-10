@@ -3,13 +3,13 @@
 # 输出: src/main/resources/assets/wukong/animmodels/armor/dasheng_{h,c,l,f}.json
 #
 # 与旧版的区别 (标定):
-# 1. 坐标不做平移: EF 空间即原版模型空间 (px/16, 脚底 0), glb 坐标天然对齐 (详见 DELTA_Y 注释)。
+# 1. 坐标不做平移: EF 空间即原版模型空间 (px/16, 脚底 0), glb 坐标天然对齐 (详见 DELTA_Y 注释).
 # 2. 关节绑定照抄官方混合曲线 (逐顶点验证自官方 JSON):
 #    头盔 -> Head(9);
 #    躯干 -> Torso(7)/Chest(8) 在 y=0.85~1.40 线性过渡 (官方 chestplate torso);
 #    手臂 -> y<1.125 为 Hand(12/17), y>1.125 为 Arm(11/16) (官方 chestplate 在 1.125 硬切);
-#    腿/靴 -> y<=0.365 为 Leg(2/5), 0.365<y<=0.735 为 Knee(3/6), 之上为 Thigh(1/4) (官方 leggins/boots)。
-# 3. UV 按原版 geo 的 128 基准归一化 (与 256x256 贴图自洽)。
+#    腿/靴 -> y<=0.365 为 Leg(2/5), 0.365<y<=0.735 为 Knee(3/6), 之上为 Thigh(1/4) (官方 leggins/boots).
+# 3. UV 按原版 geo 的 128 基准归一化 (与 256x256 贴图自洽).
 #
 # 几何换算移植自 geckolib-4.8.3:
 #   BakedModelFactory$Builtin.constructCube / VertexSet (方块角点/膨胀/镜像/UV)
@@ -22,9 +22,9 @@ import os
 GEO_PATH = "src/main/resources/assets/wukong/geo/item/armor/dasheng.geo.json"
 OUT_DIR = "src/main/resources/assets/wukong/animmodels/armor"
 
-# 每骨骼垂直标定 (块)。EF 空间 = 原版模型空间 (px/16, 脚底 0), glb 坐标天然对齐, 全部为 0。
-# 依据: 官方头盔顶 2.067 约等于 33px/16 (原版头顶 32px + 1px 膨胀); 本模型头盔冠底 glb 1.99 正好落在 EF 头顶 2.0 上。
-# 若游戏内需要微调, 每 0.0625 约合 1 像素。
+# 每骨骼垂直标定 (块).EF 空间 = 原版模型空间 (px/16, 脚底 0), glb 坐标天然对齐, 全部为 0.
+# 依据: 官方头盔顶 2.067 约等于 33px/16 (原版头顶 32px + 1px 膨胀); 本模型头盔冠底 glb 1.99 正好落在 EF 头顶 2.0 上.
+# 若游戏内需要微调, 每 0.0625 约合 1 像素.
 DELTA_Y = {
     "armorHead": 0.0,
     "armorBody": 0.0,
@@ -123,6 +123,7 @@ PIECES = {
 
 
 def main():
+    # 主流程: 读取 GeckoLib geo 模型, 逐件盔甲生成顶点/UV/法线/蒙皮权重数据, 写出 EpicFight 网格 JSON
     with open(GEO_PATH, encoding="utf-8") as f:
         geo = json.load(f)["minecraft:geometry"][0]
     tex_w = float(geo["description"]["texture_width"])
@@ -234,7 +235,7 @@ def main():
                         quad.append([pi, ui, ni])
                     # 渲染模式为 TRIANGLES, parts 数组必须预三角化: 每个四边形输出 (0,1,2) 与 (0,2,3) 两个三角形
                     # 依据: Mesh$DrawingFunction.NEW_ENTITY 逐顶点写缓冲 + makeTriangulated 将模式改为 TRIANGLES;
-                    # 官方网格 head/hat 部件 30 顶点 = 10 三角形 (原版头盔 12 面去掉 2 个底面) 佐证。
+                    # 官方网格 head/hat 部件 30 顶点 = 10 三角形 (原版头盔 12 面去掉 2 个底面) 佐证.
                     part_arr.extend(quad[0])
                     part_arr.extend(quad[1])
                     part_arr.extend(quad[2])

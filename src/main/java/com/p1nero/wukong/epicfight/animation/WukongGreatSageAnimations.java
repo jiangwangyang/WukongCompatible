@@ -42,7 +42,9 @@ import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+// 大圣形态动画注册类: 持有大圣套动画访问器, 提供基础连段与重击风格的构建逻辑
 public final class WukongGreatSageAnimations {
+    // 大圣套基础连段访问器(冲刺轻击与轻击 1~5)
     public static AnimationManager.AnimationAccessor STAFF_AUTO1_DASH;
     public static AnimationManager.AnimationAccessor STAFF_AUTO1;
     public static AnimationManager.AnimationAccessor STAFF_AUTO2;
@@ -50,6 +52,7 @@ public final class WukongGreatSageAnimations {
     public static AnimationManager.AnimationAccessor STAFF_AUTO4;
     public static AnimationManager.AnimationAccessor STAFF_AUTO5;
 
+    // 大圣套重击风格访问器(断棍/劈棍/风云/扫戳等)与蓄力重击/变身动画
     public static AnimationManager.AnimationAccessor BROKEN_STICK_STYLE;
     public static AnimationManager.AnimationAccessor CHOP_STICK_STYLE;
     public static AnimationManager.AnimationAccessor WIND_CLOUD_STYLE;
@@ -58,23 +61,28 @@ public final class WukongGreatSageAnimations {
     public static AnimationManager.AnimationAccessor XULI_HEAVY_4;
     public static AnimationManager.AnimationAccessor HENSHIN;
 
+    // 旧命名别名, 分别指向风云扫式与扫戳式
     public static AnimationManager.AnimationAccessor FENG_YUN_SAO_STYLE;
     public static AnimationManager.AnimationAccessor SAO_CHUO_SHI_STYLE;
 
+    // 工具类, 禁止实例化
     private WukongGreatSageAnimations() {}
 
+    // 将原始访问器以目标动画类型收窄, 仅为规避泛型检查的桥接方法
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <A extends StaticAnimation> AnimationManager.AnimationAccessor<A> typed(
             AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
+    // 将原始访问器以主帧动画类型收窄, 仅为规避泛型检查的桥接方法
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <A extends MainFrameAnimation> AnimationManager.AnimationAccessor<A> typedMain(
             AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
+    // 构建大圣形态全部动画: 先注册基础连段与重击风格, 再初始化旧命名别名
     static void build(AnimationManager.AnimationBuilder builder) {
         WukongMoveset.LOGGER.info("Registering complete Great Sage animation set");
         HumanoidArmature biped = Armatures.BIPED.get();
@@ -86,8 +94,10 @@ public final class WukongGreatSageAnimations {
         SAO_CHUO_SHI_STYLE = SWEEP_JAB_STYLE;
     }
 
+    // 注册大圣形态的基础连段动画: 冲刺轻击(重置连击数)与轻击 1~5, 各段配置伤害/音效/缩放等事件
     private static void registerBasicCombo(
             AnimationManager.AnimationBuilder builder, HumanoidArmature biped) {
+        // 冲刺轻击: 起手冲刺攻击, 开始时将普攻连击计数重置为 1
         STAFF_AUTO1_DASH =
                 builder.nextAccessor(
                         "biped/greatsage/basic/auto_1_dash",
@@ -135,6 +145,7 @@ public final class WukongGreatSageAnimations {
                                                         },
                                                         AnimationEvent.Side.SERVER)));
 
+        // 轻击 1: 基础攻击, 附带挥棒音效与棍子缩放事件
         STAFF_AUTO1 =
                 builder.nextAccessor(
                         "biped/greatsage/basic/auto_1",
@@ -177,6 +188,7 @@ public final class WukongGreatSageAnimations {
                                                                 0.0F),
                                                         WukongAnimations.ScaleTime.reset(0.2F))));
 
+        // 轻击 2: 基础攻击, 附带挥棒音效与棍子缩放事件
         STAFF_AUTO2 =
                 builder.nextAccessor(
                         "biped/greatsage/basic/auto_2",
@@ -219,6 +231,7 @@ public final class WukongGreatSageAnimations {
                                                                 0.0F),
                                                         WukongAnimations.ScaleTime.reset(0.2F))));
 
+        // 轻击 3: 两段相位多段攻击, 第一段高伤且最多命中 4 次
         STAFF_AUTO3 =
                 builder.nextAccessor(
                         "biped/greatsage/basic/auto_3",
@@ -279,6 +292,7 @@ public final class WukongGreatSageAnimations {
                                                                 0.0F),
                                                         WukongAnimations.ScaleTime.reset(0.2F))));
 
+        // 轻击 4: 五段相位连击, 末段高冲击力并击倒; 持镔金棍时在 1.125s 于目标处生成闪电
         STAFF_AUTO4 =
                 builder.nextAccessor(
                         "biped/greatsage/basic/auto_4",
@@ -428,6 +442,7 @@ public final class WukongGreatSageAnimations {
                                                                 0.0F),
                                                         WukongAnimations.ScaleTime.reset(0.2F))));
 
+        // 轻击 5 的事件列表: 1s 处播放音效/复位缩放, 并叠加客户端地面碎裂特效
         List<AnimationEvent.InTimeEvent> auto5Events =
                 append(
                         AnimationEvent.InTimeEvent.create(
@@ -451,6 +466,7 @@ public final class WukongGreatSageAnimations {
                                 1.5D,
                                 0.01F));
 
+        // 轻击 5: 大范围纵向重击, 全程追踪目标位置与转向, 期间免伤 50%并免疫下一次摔落, 结束时复位免伤
         STAFF_AUTO5 =
                 builder.nextAccessor(
                         "biped/greatsage/basic/auto_5",
@@ -597,8 +613,10 @@ public final class WukongGreatSageAnimations {
                                                         new AnimationEvent.InTimeEvent[0])));
     }
 
+    // 注册大圣形态的重击风格(劈棍/风云扫/扫戳等)动画
     private static void registerHeavyAttacks(
             AnimationManager.AnimationBuilder builder, HumanoidArmature biped) {
+        // 劈棍式事件列表: 0.1s 落地音效与多段缩放, 2.66s 客户端地面碎裂特效
         List<AnimationEvent.InTimeEvent> chopEvents =
                 append(
                         AnimationEvent.InTimeEvent.create(
@@ -620,6 +638,7 @@ public final class WukongGreatSageAnimations {
                                 AnimationEvent.Side.CLIENT)
                         .params(new Vec3f(0.0F, -5.0F, -5.0F), biped.rootJoint, 3.0D, 0.01F));
 
+        // 劈棍式: 变长棍下劈重击, 下落阶段(2.3~2.66s)加速, 追踪目标且允许垂直移动
         CHOP_STICK_STYLE =
                 builder.nextAccessor(
                         "biped/greatsage/heavy/chop_stick_style",
@@ -672,6 +691,7 @@ public final class WukongGreatSageAnimations {
                                                 chopEvents.toArray(
                                                         new AnimationEvent.InTimeEvent[0])));
 
+        // 断棍式: 变长棍重击, 开始时标记处于特殊攻击状态, 结束时解除标记
         BROKEN_STICK_STYLE =
                 builder.nextAccessor(
                         "biped/greatsage/heavy/broken_stick_style",
@@ -761,6 +781,7 @@ public final class WukongGreatSageAnimations {
                                                         },
                                                         AnimationEvent.Side.SERVER)));
 
+        // 扫戳式: 两段多段攻击, 第二段使用大型碰撞体(江河倒转)
         SWEEP_JAB_STYLE =
                 builder.nextAccessor(
                         "biped/greatsage/heavy/sweep_jab_style",
@@ -823,6 +844,7 @@ public final class WukongGreatSageAnimations {
                                                     return 2.0F;
                                                 }));
 
+        // 风云式: 变长棍横扫, 固定 2.5 倍速并追踪目标
         WIND_CLOUD_STYLE =
                 builder.nextAccessor(
                         "biped/greatsage/heavy/wind_cloud_style",
@@ -862,6 +884,7 @@ public final class WukongGreatSageAnimations {
                                                 (animation, patch, speed, previous, elapsed) ->
                                                         2.5F));
 
+        // 轻击 2/3 的蓄力重击: 三段相位, 伤害递增(0.9/1.48/4.48 倍), 中段免重力
         HEAVY_AUTO2_3 =
                 builder.nextAccessor(
                         "biped/greatsage/auto2_3",
@@ -934,6 +957,7 @@ public final class WukongGreatSageAnimations {
                                                     return 2.3F;
                                                 }));
 
+        // 蓄力重击 4 的事件列表: 落地音效/多段缩放, 以及 1.3s/2.566s/2.7s/3.833s 的地面碎裂特效
         List<AnimationEvent.InTimeEvent> xuliEvents =
                 append(
                         AnimationEvent.InTimeEvent.create(
@@ -980,6 +1004,7 @@ public final class WukongGreatSageAnimations {
                                 AnimationEvent.Side.CLIENT)
                         .params(new Vec3f(0.0F, -5.0F, -5.0F), biped.rootJoint, 7.0D, 0.01F));
 
+        // 蓄力重击 4: 三段递进蓄力爆发, 末段 14 倍伤害; 各时间段动态调整播放速度
         XULI_HEAVY_4 =
                 builder.nextAccessor(
                         "biped/greatsage/xuli4",
@@ -1062,6 +1087,7 @@ public final class WukongGreatSageAnimations {
                                                 xuliEvents.toArray(
                                                         new AnimationEvent.InTimeEvent[0])));
 
+        // 变身动画事件列表: 落地音效/多段缩放/地面碎裂特效, 并在 4.6s 触发进入大圣形态
         List<AnimationEvent.InTimeEvent> henshinEvents =
                 append(
                         AnimationEvent.InTimeEvent.create(
@@ -1105,6 +1131,7 @@ public final class WukongGreatSageAnimations {
                         (patch, animation, args) -> BattleUnit.greatSageMode(patch),
                         AnimationEvent.Side.SERVER));
 
+        // 变身动画: 变长棍演出, 4.6s 处通过 BattleUnit.greatSageMode 切换为大圣形态
         HENSHIN =
                 builder.nextAccessor(
                         "biped/greatsage/henshin",

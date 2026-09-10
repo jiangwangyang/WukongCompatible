@@ -66,10 +66,12 @@ public final class PillarFovController {
         minecraft.options.fov().set(Math.round(fov));
     }
 
+    // 线性插值, progress 会被限制在 0 到 1 之间
     private static float lerp(float from, float to, float progress) {
         return from + (to - from) * Math.min(Math.max(progress, 0.0F), 1.0F);
     }
 
+    // 恢复原始FOV并重置所有控制状态
     private static void restore(Minecraft minecraft) {
         if (originalFov >= 0) {
             minecraft.options.fov().set(originalFov);

@@ -46,26 +46,31 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/** 棍花和闪避 */
+// 棍花与闪避被动技能: 自动学习悟空闪避, 处理棍花格挡/减伤与棍势回能, 拦截并替换默认闪避
 public class StaffPassive extends Skill {
+    // 本技能事件监听器的唯一标识
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0242ac191981");
 
+    // 类型擦除辅助: 将动画访问器强制转为指定动画类型(配合棍花命中动画)
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <A extends StaticAnimation> AnimationManager.AnimationAccessor<A> typed(
             AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
+    // 类型擦除辅助: 将动画访问器强制转为MainFrameAnimation类型
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <A extends MainFrameAnimation> AnimationManager.AnimationAccessor<A> typedMain(
             AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
+    // 构造方法
     public StaffPassive(SkillBuilder<? extends Skill> builder) {
         super(builder);
     }
 
+    // 注册各类事件监听: 自动学闪避/棍花禁移/格挡减伤/棍势回能/拦截默认闪避
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
@@ -206,7 +211,7 @@ public class StaffPassive extends Skill {
                             if (WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP.equals(animation)
                                     || WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP.equals(
                                             animation)) {
-                                // 打中加棍势（因为加的要比造成的伤害多）
+                                // 打中加棍势(因为加的要比造成的伤害多)
                                 SkillContainer skillContainer =
                                         dealtDamageEvent
                                                 .getPlayerPatch()
@@ -225,7 +230,7 @@ public class StaffPassive extends Skill {
                             }
                         }));
 
-        // 拦截闪避事件，替换为自己的闪避并执行，算是保险
+        // 拦截闪避事件, 替换为自己的闪避并执行, 算是保险
         container
                 .getExecutor()
                 .getEventListener()
@@ -270,6 +275,7 @@ public class StaffPassive extends Skill {
                         }));
     }
 
+    // 还原闪避技能并移除所有事件监听
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
@@ -313,6 +319,7 @@ public class StaffPassive extends Skill {
                 .removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
     }
 
+    // 判断实体是否在可被棍花格挡的实体集合中(首次调用时懒加载配置)
     public static boolean canBeBlocked(Entity entity) {
         if (entity == null) {
             return false;
@@ -329,7 +336,7 @@ public class StaffPassive extends Skill {
         return Config.entities_can_be_blocked.contains(entity.getType());
     }
 
-    /** 判断是否是正面且可被格挡 */
+    // 判断伤害来源是否位于玩家正面(视线方向点积>0), 即正面且可被格挡
     private boolean isBlocked(DamageSource damageSource, ServerPlayer player) {
         Vec3 sourceLocation = damageSource.getSourcePosition();
         if (sourceLocation != null) {
@@ -340,6 +347,7 @@ public class StaffPassive extends Skill {
         return false;
     }
 
+    // 播放棍花格挡成功的音效与粒子效果
     public static void showBlockedEffect(ServerPlayerPatch playerPatch, Entity directEntity) {
         playerPatch.playSound(EpicFightSounds.CLASH.get(), -0.05F, 0.1F);
         ServerPlayer serverPlayer = playerPatch.getOriginal();
@@ -353,6 +361,7 @@ public class StaffPassive extends Skill {
                         directEntity);
     }
 
+    // 每tick检测: 地面持有效武器时长按棍花键则触发单/双手棍花并通知服务端同步
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);

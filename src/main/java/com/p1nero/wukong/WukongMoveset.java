@@ -34,11 +34,16 @@ import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 @Mod("wukong")
+// 悟空模组主类, 负责注册技能枚举/物品/实体/粒子/音效并初始化配置与事件监听
 public class WukongMoveset {
+    // 模组唯一ID
     public static final String MOD_ID = "wukong";
+    // 武器持有特效计时器的NBT键名
     public static final String ITEM_HAS_EFFECT_TIMER_KEY = "wukong_has_effect_timer";
+    // 模组日志器
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    // 构造器: 注册各类枚举/物品/实体/粒子/音效至事件总线, 并注册配置与玩家登录监听
     // 弃用API迁移: FMLJavaModLoadingContext.get()/ModLoadingContext.get()已标记废弃, 改为构造器注入context(Forge
     // FMLModContainer支持的注入方式)
     public WukongMoveset(FMLJavaModLoadingContext context) {
@@ -63,7 +68,7 @@ public class WukongMoveset {
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
-    /** 给予指南 */
+    // 玩家登录时(若开启配置)发放一本硬编码的游玩指南书
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         // WKPlayer.setFovsz(Minecraft.getInstance().options.fov().get());
 
@@ -99,10 +104,11 @@ public class WukongMoveset {
 
         book.addTagElement("pages", bookPages); // 页数
         book.addTagElement("generation", IntTag.valueOf(3)); // 破损度
-        book.addTagElement("author", StringTag.valueOf("P1nero"));
-        book.addTagElement("title", StringTag.valueOf("史诗战斗：悟空附属游玩指南"));
+        book.addTagElement("author", StringTag.valueOf("P1nero")); // 作者
+        book.addTagElement("title", StringTag.valueOf("史诗战斗：悟空附属游玩指南")); // 标题
 
         event.getEntity().addItem(book);
+        // 发放后关闭该配置项, 避免再次登录时重复发放
         Config.GET_GUILD_BOOK.set(false);
     }
 }

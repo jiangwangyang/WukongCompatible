@@ -60,21 +60,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+// 大圣棍重击技能: 处理大圣棍式的重击/蓄力/衍生与棍势(星数)管理, 并重写战斗HUD绘制
 public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
+    // 本技能事件监听器的唯一标识, 用于统一注册与移除各类事件
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a02b-0242ac114585");
 
-    @NotNull private final StaticAnimationProvider[] derivedAttacks1;
-    @NotNull private final StaticAnimationProvider[] derivedAttacks2;
-    @NotNull private final StaticAnimationProvider[] chargedAttacks;
-    @NotNull private final StaticAnimationProvider[] pillarHeavyAttacks;
-    @NotNull private final StaticAnimationProvider[] pillarStartAttacks;
-    @NotNull private final StaticAnimationProvider pillarUp;
-    @NotNull private final StaticAnimationProvider chargePre;
+    // 各类重击/蓄力动画提供者
+    @NotNull private final StaticAnimationProvider[] derivedAttacks1; // 一段衍生重击动画
+    @NotNull private final StaticAnimationProvider[] derivedAttacks2; // 二段衍生重击动画
+    @NotNull private final StaticAnimationProvider[] chargedAttacks; // 蓄力重击动画(0~4星)
+    @NotNull private final StaticAnimationProvider[] pillarHeavyAttacks; // 立棍重击动画
+    @NotNull private final StaticAnimationProvider[] pillarStartAttacks; // 立棍起手动画
+    @NotNull private final StaticAnimationProvider pillarUp; // 立棍增高(升星)动画
+    @NotNull private final StaticAnimationProvider chargePre; // 蓄力前摇动画
 
+    // 创建技能构建器, 设为武器固有技能且无需消耗资源
     public static Builder createChargedAttack() {
         return new Builder().setCategory(SkillCategories.WEAPON_INNATE).setResource(Resource.NONE);
     }
 
+    // 构造方法, 校验并保存各类重击/蓄力动画提供者
     public GreatSageHeavyAttack(Builder builder) {
         super(builder);
         this.derivedAttacks1 =
@@ -90,6 +95,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         this.chargePre = requireProvider(builder.chargePre, "charge pre animation");
     }
 
+    // 校验动画提供者数组非空且长度达标, 否则抛出异常
     private static StaticAnimationProvider[] requireProviders(
             StaticAnimationProvider[] providers, int minimumLength, String name) {
         if (providers == null || providers.length < minimumLength) {
@@ -98,6 +104,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         return providers;
     }
 
+    // 校验单个动画提供者非空, 否则抛出异常
     private static StaticAnimationProvider requireProvider(
             StaticAnimationProvider provider, String name) {
         if (provider == null) {
@@ -106,6 +113,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         return provider;
     }
 
+    // 返回所有重击动画列表, 用于判断当前是否处于重击状态
     @Override
     public List<StaticAnimationProvider> getHeavyAttacks() {
         List<StaticAnimationProvider> animations = new ArrayList<>();
@@ -119,6 +127,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         return animations;
     }
 
+    // 服务端执行技能: 根据棍势/计时器决定播放的衍生或蓄力动画
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         super.executeOnServer(container, args);
@@ -173,6 +182,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         }
     }
 
+    // 注册各类事件监听: 减伤/霸体/蓄力取消/四蓄窗口等
     @Override
     public void onInitiate(SkillContainer container) {
         container
@@ -298,13 +308,14 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                                                 WukongSkillDataKeys.CHARGED4_TIMER.get(),
                                                 Config.CHARGED4_WINDOW_TICKS
                                                         .get()
-                                                        .intValue()); // 开启/刷新四蓄窗口，窗口结束降回3星
+                                                        .intValue()); // 开启/刷新四蓄窗口, 窗口结束降回3星
                             }
                         });
 
         super.onInitiate(container);
     }
 
+    // 移除本技能注册的所有事件监听
     @Override
     public void onRemoved(SkillContainer container) {
         PlayerEventListener listener = container.getExecutor().getEventListener();
@@ -314,6 +325,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         super.onRemoved(container);
     }
 
+    // 判断玩家当前是否正在播放某个重击动画
     private boolean isHeavyAttackActive(ServerPlayerPatch playerPatch) {
         var activeAnimation = playerPatch.getAnimator().getPlayerFor(null).getAnimation();
         for (StaticAnimationProvider animation : getHeavyAttacks()) {
@@ -324,6 +336,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         return false;
     }
 
+    // 判断动画是否为立棍衔接/循环动画, 用于避免误清蓄力
     private boolean isPillarFlowAnimation(
             AnimationManager.AnimationAccessor<? extends MainFrameAnimation> animation) {
         for (StaticAnimationProvider pillarStart : pillarStartAttacks) {
@@ -337,6 +350,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                 || WukongAnimations.PILLAR_CHARGED_LOOP4.equals(animation);
     }
 
+    // 以部分伤害标签将伤害反弹回攻击者, 完成格挡/减伤处理
     private void processDamage(
             PlayerPatch<?> playerPatch,
             DamageSource damageSource,
@@ -354,6 +368,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         playerPatch.getOriginal().hurt(deflectedDamage, result.damage);
     }
 
+    // 每tick更新: 棍势/音效/蓄力释放/四蓄掉棍势等
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
@@ -471,6 +486,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         }
     }
 
+    // 将指定计时器数据值减1(最低为0)
     private static void decrementTimer(
             SkillDataManager data,
             yesman.epicfight.skill.SkillDataKey<Integer> key,
@@ -481,11 +497,13 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         }
     }
 
+    // 破条时增加1星并清空耐力
     private void breakProgress(SkillContainer container) {
         setConsumptionSynchronize(container, 0.1F);
         setStackSynchronize(container, container.getStack() + 1);
     }
 
+    // 取消蓄力, 清空棍势与耐力
     private void cancelCharge(SkillContainer container, ServerPlayerPatch playerPatch) {
         SkillDataManager data = container.getDataManager();
         data.setDataSync(WukongSkillDataKeys.IS_CHARGING.get(), false);
@@ -494,6 +512,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         setStackSynchronize(container, 0);
     }
 
+    // 释放后播音效并重置棍势(星数)与耐力
     private void resetConsumption(SkillContainer container, ServerPlayerPatch playerPatch) {
         int stack = Math.max(0, Math.min(container.getStack(), WuKongSounds.stackSounds.size()));
         if (stack > 0) {
@@ -508,12 +527,14 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         setConsumptionSynchronize(container, 1.0F);
     }
 
+    // 仅在持有有效棍武器时绘制技能图标
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
+    // 绘制自定义战斗HUD: 棍势进度/风格/星数光点
     @OnlyIn(Dist.CLIENT)
     @Override
     public void drawOnGui(
@@ -596,15 +617,18 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         }
     }
 
+    // 按48x48尺寸绘制指定贴图
     private static void drawTexture(GuiGraphics graphics, ResourceLocation texture, int x, int y) {
         graphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
+    // 返回自身, 将技能属性绑定到动画
     @Override
     public WeaponInnateSkill registerPropertiesToAnimation() {
         return this;
     }
 
+    // 技能构建器, 收集各类重击/蓄力动画提供者
     public static class Builder extends SkillBuilder<GreatSageHeavyAttack> {
         private StaticAnimationProvider[] derivedAttacks1;
         private StaticAnimationProvider[] derivedAttacks2;
@@ -614,60 +638,71 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         private StaticAnimationProvider pillarUp;
         private StaticAnimationProvider chargePre;
 
+        // 设置技能分类
         @Override
         public Builder setCategory(SkillCategory category) {
             this.category = category;
             return this;
         }
 
+        // 设置激活类型
         @Override
         public Builder setActivateType(Skill.ActivateType activateType) {
             this.activateType = activateType;
             return this;
         }
 
+        // 设置消耗资源
         @Override
         public Builder setResource(Skill.Resource resource) {
             this.resource = resource;
             return this;
         }
 
+        // 设置创造模式标签页
         @Override
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
             return this;
         }
 
+        // 设置一段衍生重击动画
         public Builder setDerivedHeavyAttacks1(StaticAnimationProvider... providers) {
             this.derivedAttacks1 = providers;
             return this;
         }
 
+        // 设置二段衍生重击动画
         public Builder setDerivedHeavyAttacks2(StaticAnimationProvider... providers) {
             this.derivedAttacks2 = providers;
             return this;
         }
 
+        // 设置蓄力重击动画
         public Builder setHeavyAttacks(StaticAnimationProvider... providers) {
             this.chargedAttacks = providers;
             return this;
         }
 
+        // 设置立棍重击动画
         public Builder setPillarHeavyAttacks(StaticAnimationProvider... providers) {
             this.pillarHeavyAttacks = providers;
             return this;
         }
 
+        // 设置立棍起手动画
         public Builder setPillarStartAttacks(StaticAnimationProvider... providers) {
             this.pillarStartAttacks = providers;
             return this;
         }
 
+        // 设置立棍增高(升星)动画
         public Builder setUpStartAttack(StaticAnimationProvider provider) {
             this.pillarUp = provider;
             return this;
         }
 
+        // 设置蓄力前摇动画
         public Builder setChargePreAnimation(StaticAnimationProvider provider) {
             this.chargePre = provider;
             return this;

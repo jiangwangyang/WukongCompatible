@@ -36,9 +36,12 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 @Mod.EventBusSubscriber(
         value = {Dist.CLIENT},
         bus = Mod.EventBusSubscriber.Bus.MOD)
+// 模组按键映射定义与客户端按键处理逻辑(棍势切换/身法/法术/毫毛/攻击同步)
 public class WukongKeyMappings {
+    // 移动键W(用于方向输入判断)
     public static final MyKeyMapping W =
             new MyKeyMapping("key.wukong.w", GLFW.GLFW_KEY_W, "key.wukong.category");
+    // 交战(攻击)键, 绑定鼠标左键
     public static final MyKeyMapping JIAO_ZHEN =
             new MyKeyMapping(
                     "key.wukong.jiao_zhen", GLFW.GLFW_MOUSE_BUTTON_1, "key.wukong.category");
@@ -51,18 +54,24 @@ public class WukongKeyMappings {
     public static final MyKeyMapping MAGICARTS_FASHU =
             new MyKeyMapping(
                     "key.wukong.magicarts_fashu", GLFW.GLFW_KEY_DOWN, "key.wukong.category");
+    // 毫毛(分身)技能键, 绑定左方向键
     public static final MyKeyMapping MAGICARTS_HAOMAO =
             new MyKeyMapping(
                     "key.wukong.magicarts_haomao", GLFW.GLFW_KEY_LEFT, "key.wukong.category");
 
+    // 劈棍式切换键
     public static final MyKeyMapping SMASH_STYLE =
             new MyKeyMapping("key.wukong.smash_stance", GLFW.GLFW_KEY_Z, "key.wukong.category");
+    // 立棍式切换键
     public static final MyKeyMapping PILLAR_STYLE =
             new MyKeyMapping("key.wukong.pillar_stance", GLFW.GLFW_KEY_X, "key.wukong.category");
+    // 戳棍式切换键
     public static final MyKeyMapping THRUST_STYLE =
             new MyKeyMapping("key.wukong.thrust_stance", GLFW.GLFW_KEY_C, "key.wukong.category");
+    // 大圣模式切换键
     public static final MyKeyMapping GREATSAGE_STYLE =
             new MyKeyMapping("key.wukong.greatsage_stance", GLFW.GLFW_KEY_G, "key.wukong.category");
+    // 棍花键(战斗键映射)
     public static final KeyMapping STAFF_FLOWER =
             new CombatKeyMapping(
                     "key.wukong.staff_spin",
@@ -86,7 +95,7 @@ public class WukongKeyMappings {
     @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, value = Dist.CLIENT)
     public static class HandleClientTick {
 
-        /** 按键切换棍势，确保学过才可以用按键切换。 */
+        // 按键切换棍势, 确保学过才可以用按键切换
         @SubscribeEvent
         public static void onClientTick(TickEvent.ClientTickEvent event) {
             if (event.phase != TickEvent.Phase.END) {
@@ -229,18 +238,22 @@ public class WukongKeyMappings {
             }
         }
 
+        // 身法键按下时施放身法槽技能
         public static void ShenfaAttackKeyPressed(int action) {
             castSkill(action, WukongSkillSlots.SHENFA_SKILL_SLOT);
         }
 
+        // 法术键按下时施放法术槽技能
         public static void FashuAttackKeyPressed(int action) {
             castSkill(action, WukongSkillSlots.FASHU_SKILL_SLOT);
         }
 
+        // 毫毛键按下时施放毫毛槽技能
         public static void HaoMaoKeyPressed(int action) {
             castSkill(action, WukongSkillSlots.HAO_MAO);
         }
 
+        // 在按下时向服务端请求施放指定槽位的技能
         private static void castSkill(int action, SkillSlot slot) {
             if (action != GLFW.GLFW_PRESS) {
                 return;

@@ -21,20 +21,28 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-/** 抄ef原版的调视角，改了个方向，注意要取消动画的turning lock才不会被打断 */
+// 抄ef原版的调视角, 改了个方向, 注意要取消动画的turning lock才不会被打断
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, value = Dist.CLIENT)
 public class CameraAnim {
+    // 默认的瞄准相机偏移修正量
     public static final Vec3f DEFAULT_AIMING_CORRECTION = new Vec3f(1.5F, 0.0F, 1.25F);
+    // 当前生效的相机偏移修正量
     private static Vec3f AIMING_CORRECTION = DEFAULT_AIMING_CORRECTION;
+    // 缩放过渡的最大tick数
     private static final int zoomMaxCount = 20;
+    // 是否处于瞄准(拉近相机)状态
     private static boolean aiming;
+    // 拉远前的保持计时器, 大于0时延迟拉远
     private static int zoomOutTimer = 0;
+    // 当前缩放进度计数(0到zoomMaxCount之间)
     private static int zoomCount;
 
+    // 查询是否处于瞄准状态
     public static boolean isAiming() {
         return aiming;
     }
 
+    // 开始拉近相机, 指定偏移修正量与拉远前的保持时长
     public static void zoomIn(Vec3f aimingCorrection, int timer) { // TODO int InsuranceTime
         aiming = true;
         zoomCount = zoomCount == 0 ? 1 : zoomCount;
@@ -49,12 +57,13 @@ public class CameraAnim {
         AIMING_CORRECTION = aimingCorrection;
     }
 
+    // 结束瞄准状态, timer 大于0时延迟拉远
     public static void zoomOut(int timer) {
         aiming = false;
         zoomOutTimer = timer;
     }
 
-    /** 实现过渡 */
+    // 实现相机缩放的过渡推进
     @SubscribeEvent
     public static void cameraSetupEvent(ViewportEvent.ComputeCameraAngles event) {
         if (zoomCount > 0) {
@@ -68,6 +77,7 @@ public class CameraAnim {
         }
     }
 
+    // 第三人称下按玩家朝向偏移相机位置, 并做防穿墙处理
     private static void setRangedWeaponThirdPerson(
             ViewportEvent.ComputeCameraAngles event, CameraType pov, double partialTicks) {
         // 弃用API迁移:

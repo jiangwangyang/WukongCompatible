@@ -18,8 +18,11 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.function.Function;
 
+// 网络包注册中心: 维护主通信通道 INSTANCE 并集中注册所有数据包的编解码与处理逻辑
 public class PacketHandler {
+    // 网络协议版本号, 客户端与服务端需一致才能通信
     private static final String PROTOCOL_VERSION = "1";
+    // 主通信通道实例, 所有数据包经此收发
     public static final SimpleChannel INSTANCE =
             NetworkRegistry.newSimpleChannel(
                     ResourceLocation.fromNamespaceAndPath(WukongMoveset.MOD_ID, "main"),
@@ -27,8 +30,10 @@ public class PacketHandler {
                     PROTOCOL_VERSION::equals,
                     PROTOCOL_VERSION::equals);
 
+    // 报文 id 自增计数器, 每注册一个数据包分配一个递增 id
     private static int index;
 
+    // 注册所有数据包: 区分客户端收包与服务端收包, 绑定各自的解码器
     public static synchronized void register() {
 
         // Client
@@ -48,6 +53,7 @@ public class PacketHandler {
         register(UpdateWeaponInnatePacket.class, UpdateWeaponInnatePacket::decode);
     }
 
+    // 注册单个数据包: 分配递增报文 id, 绑定编码/解码与主线程消费逻辑
     private static <MSG extends BasePacket> void register(
             final Class<MSG> packet, Function<FriendlyByteBuf, MSG> decoder) {
         INSTANCE.messageBuilder(packet, index++)

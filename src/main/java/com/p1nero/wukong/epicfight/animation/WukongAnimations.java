@@ -59,8 +59,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+// 悟空动画注册主类: 持有各形态动画访问器, 提供普通/戳棍/立棍/劈棍等动画的构建逻辑, 并附带物品缩放事件与 tick 计时等工具方法
 public class WukongAnimations {
 
+    // 若武器天赋技能数据已注册则写入数据(不同步)
     private static <T> void setWeaponInnateDataIfRegistered(
             ServerPlayerPatch playerPatch, SkillDataKey<T> key, T value) {
         SkillDataManager dataManager =
@@ -70,6 +72,7 @@ public class WukongAnimations {
         }
     }
 
+    // 若武器天赋技能数据已注册则写入数据并同步到客户端
     private static <T> void setWeaponInnateDataSyncIfRegistered(
             ServerPlayerPatch playerPatch, SkillDataKey<T> key, T value) {
         SkillDataManager dataManager =
@@ -189,6 +192,7 @@ public class WukongAnimations {
 
     public static AnimationManager.AnimationAccessor HAOMAO_MAGICARTS_FS; // 分身
 
+    // 监听动画注册事件, 用本模组命名空间下的构建器构建普通形态与大圣形态的全部动画
     @SubscribeEvent
     public static void registerAnimations(AnimationManager.AnimationRegistryEvent event) {
         event.newBuilder(
@@ -199,18 +203,21 @@ public class WukongAnimations {
                 });
     }
 
+    // 将原始访问器以目标动画类型收窄, 仅为规避泛型检查的桥接方法
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <A extends StaticAnimation> AnimationManager.AnimationAccessor<A> typed(
             AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
+    // 将原始访问器以主帧动画类型收窄, 仅为规避泛型检查的桥接方法
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static <A extends MainFrameAnimation> AnimationManager.AnimationAccessor<A> typedMain(
             AnimationManager.AnimationAccessor accessor) {
         return accessor;
     }
 
+    // 构建普通形态的全部动画: 法术/身法/立棍/戳棍/移动/闪避/轻击/跳跃攻击/棍花/劈棍等, 并注册访问器
     private static void build(AnimationManager.AnimationBuilder builder) {
 
         HumanoidArmature biped = Armatures.BIPED.get();
@@ -4204,6 +4211,7 @@ public class WukongAnimations {
 
     }
 
+    // 对目标施加来自玩家的水平方向击退, 强度由 knockbackStrength 控制
     public void applyKnockback(ServerPlayer player, Entity target, double knockbackStrength) {
         if (target instanceof LivingEntity) {
             double directionX = target.getX() - player.getX();
@@ -4218,6 +4226,7 @@ public class WukongAnimations {
         }
     }
 
+    // 通过后台调度线程平滑调整客户端视野(FOV), 每 10ms 一帧, 在 durationTicks 内从当前 FOV 插值到目标 FOV, 重复 repeatTimes 次, 上限 97
     public static void CameraOperationFov(
             float increaseAmount, int durationTicks, int repeatTimes) {
         Minecraft MC = Minecraft.getInstance();
@@ -4251,6 +4260,7 @@ public class WukongAnimations {
         scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.MILLISECONDS);
     }
 
+    // 若主手是悟空棍, 在物品 nbt 中写入特效剩余时间(单位 tick)
     public static void addItemEffectTimer(ServerPlayer serverPlayer, int leftTime) {
         serverPlayer
                 .getMainHandItem()
@@ -4268,6 +4278,7 @@ public class WukongAnimations {
                         }));
     }
 
+    // 把新事件 e 追加到旧事件数组末尾并返回新列表
     public static List<AnimationEvent.InTimeEvent> append(
             AnimationEvent.InTimeEvent e, AnimationEvent.InTimeEvent... oldArr) {
         List<AnimationEvent.InTimeEvent> list = new ArrayList<>(List.of(oldArr));
@@ -4275,13 +4286,13 @@ public class WukongAnimations {
         return list;
     }
 
-    /** 添加物品缩放，并插值 用途：{@link com.p1nero.wukong.mixin.ItemRendererMixin} */
+    // 生成逐 tick 的物品缩放/位移动画事件, 写入物品 nbt 供 ItemRendererMixin(com.p1nero.wukong.mixin.ItemRendererMixin) 读取渲染; 首尾 tick 复位缩放, 中间按插值结果设置
     public static AnimationEvent.InTimeEvent[] getScaleEvents(ScaleTime... ticks) {
         int lastTick = ticks[ticks.length - 1].tick;
         AnimationEvent.InTimeEvent[] timeStampedEvents = new AnimationEvent.InTimeEvent[lastTick];
         ticks = interpolate(ticks, lastTick);
 
-        // First event, no scaling, no translation
+        // 首个事件: 不缩放, 不位移
         timeStampedEvents[0] =
                 AnimationEvent.InTimeEvent.create(
                         0.01F,
@@ -4299,7 +4310,7 @@ public class WukongAnimations {
                         }),
                         AnimationEvent.Side.CLIENT);
 
-        // Last event, no scaling, no translation
+        // 最后一个事件: 不缩放, 不位移
         timeStampedEvents[lastTick - 1] =
                 AnimationEvent.InTimeEvent.create(
                         0.05F * lastTick,
@@ -4317,7 +4328,7 @@ public class WukongAnimations {
                         }),
                         AnimationEvent.Side.CLIENT);
 
-        // Interpolated events
+        // 中间事件: 使用插值后的缩放/位移数据
         for (int i = 1; i < lastTick - 1; i++) {
             float x = ticks[i].x;
             float y = ticks[i].y;
@@ -4353,27 +4364,23 @@ public class WukongAnimations {
         return timeStampedEvents;
     }
 
-    /**
-     * 插值处理
-     *
-     * @param scaleTimes 需要插值的时间点，按tick算
-     * @param lastTick 最后一个tick，将0~lastTick的每个tick插值处理
-     * @return 插值后的数据
-     */
+    // 插值处理: 对 0~lastTick 之间每个 tick 求缩放/位移数据
+    // scaleTimes 为已知的锚点时间点(按 tick), lastTick 为最后一个 tick
+    // 返回插值补全后的数据数组
     public static ScaleTime[] interpolate(ScaleTime[] scaleTimes, int lastTick) {
         ScaleTime[] results = new ScaleTime[lastTick + 1];
 
-        // Fill known values
+        // 先填充已知锚点值
         for (ScaleTime scaleTime : scaleTimes) {
             if (scaleTime.tick <= lastTick) {
                 results[scaleTime.tick] = scaleTime;
             }
         }
 
-        // Perform linear interpolation
+        // 对缺失的 tick 做线性插值
         for (int i = 0; i <= lastTick; i++) {
             if (results[i] == null) {
-                // Find the two surrounding points
+                // 向前向后寻找最近的两个锚点
                 ScaleTime before = null;
                 ScaleTime after = null;
 
@@ -4392,7 +4399,7 @@ public class WukongAnimations {
                 }
 
                 if (before != null && after != null) {
-                    // Linear interpolation for scale and translation
+                    // 对缩放与位移分别做线性插值
                     float t = (float) (i - before.tick) / (after.tick - before.tick);
                     float x = before.x + t * (after.x - before.x);
                     float y = before.y + t * (after.y - before.y);
@@ -4405,11 +4412,11 @@ public class WukongAnimations {
             }
         }
 
-        // Fill in nulls with the closest known value (forward filling)
+        // 剩余空洞用最近的已知值前向填充
         for (int i = 0; i <= lastTick; i++) {
             if (results[i] == null) {
                 if (i > 0) {
-                    results[i] = results[i - 1]; // Copy the last known value
+                    results[i] = results[i - 1]; // 复制上一个已知值
                 } else {
                     results[i] = new ScaleTime(i, 1, 1, 1, 0, 0, 0);
                 }
@@ -4419,17 +4426,21 @@ public class WukongAnimations {
         return results;
     }
 
+    // 单个 tick 的缩放/位移数据: x/y/z 为缩放比例, tx/ty/tz 为位移, tick 为触发时刻(按 tick)
     public record ScaleTime(int tick, float x, float y, float z, float tx, float ty, float tz) {
+        // 以秒为单位的时间构造缩放数据, 内部换算为 tick
         public static ScaleTime of(
                 float time, float x, float y, float z, float tx, float ty, float tz) {
             return new ScaleTime(((int) (time * 20)), x, y, z, tx, ty, tz);
         }
 
+        // 构造一个复位(无缩放/无位移)的缩放数据, 时间换算为 tick
         public static ScaleTime reset(float time) {
             return new ScaleTime(((int) (time * 20)), 1, 1, 1, 0, 0, 0);
         }
     }
 
+    // 玩家每 tick 递减主手棍的物品特效计时
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.player instanceof ServerPlayer serverPlayer) {
             serverPlayer

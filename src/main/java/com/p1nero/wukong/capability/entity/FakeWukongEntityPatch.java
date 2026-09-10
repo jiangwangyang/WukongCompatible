@@ -61,11 +61,13 @@ public class FakeWukongEntityPatch extends HumanoidMobPatch<FakeWukongEntity> {
         animator.addLivingAnimation(LivingMotions.DEATH, Animations.BIPED_COMMON_NEUTRALIZED);
     }
 
+    // 更新运动状态, 复用好战型生物的通用更新逻辑
     @Override
     public void updateMotion(boolean b) {
         super.commonAggressiveMobUpdateMotion(b);
     }
 
+    // 配置武器对应的攻击动作: WK_STAFF 类武器在劈棍式下使用 WK_STAFF 行为
     protected void setWeaponMotions() {
         this.weaponAttackMotions = Maps.newHashMap();
         this.weaponAttackMotions.put(
@@ -73,6 +75,7 @@ public class FakeWukongEntityPatch extends HumanoidMobPatch<FakeWukongEntity> {
     }
 
     @Override
+    // 将基础伤害缩放为 0.3 倍作为假悟空的修正伤害
     public float getModifiedBaseDamage(float baseDamage) {
         return 0.3F * baseDamage;
     }

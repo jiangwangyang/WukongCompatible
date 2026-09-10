@@ -22,8 +22,10 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
+// 通用Forge事件监听(服务端): 处理棍武器摔落免伤与悟空技能自动学习/默认技能装配
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID)
 public class CommonForgeEvent {
+    // 持有棍类武器的玩家受到摔落伤害时取消伤害并重置摔落高度
     @SubscribeEvent
     public static void onLivingAttack(LivingAttackEvent event) {
         if (!event.getSource().is(DamageTypes.FALL)
@@ -40,6 +42,8 @@ public class CommonForgeEvent {
         }
     }
 
+    // 服务端玩家每tick: 自动学习全部悟空技能, 并为空的技能槽位装配默认技能,
+    // 装配棍式槽位时刷新武器固有技能
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) {
@@ -90,6 +94,7 @@ public class CommonForgeEvent {
                         });
     }
 
+    // 为空槽位装配默认技能并同步给客户端, 返回是否装配成功
     private static boolean equipDefault(
             ServerPlayerPatch patch, CapabilitySkill skills, SkillSlot slot, Skill skill) {
         if (skill == null) {

@@ -9,22 +9,24 @@ import net.minecraft.world.entity.player.Player;
 
 import yesman.epicfight.particle.EpicFightParticles;
 
-/**
- * 手动加残影，不知道为何serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(),
- * player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);无效
- */
+// 手动加残影, 不知道为何 serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(),
+// player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);无效
+// 数据包: 在服务端请求下于指定实体位置生成白色残影粒子
 public record AddEntityAfterImageParticle(int id) implements BasePacket {
 
     @Override
+    // 将实体 id 写入字节缓冲
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(id);
     }
 
+    // 从字节缓冲读取实体 id 并构造数据包
     public static AddEntityAfterImageParticle decode(FriendlyByteBuf buf) {
         return new AddEntityAfterImageParticle(buf.readInt());
     }
 
     @Override
+    // 在客户端于指定实体位置生成白色残影粒子
     public void execute(Player player) {
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null) {
             Entity entity = Minecraft.getInstance().level.getEntity(id);

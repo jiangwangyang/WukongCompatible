@@ -15,8 +15,9 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
-/** Compatibility wrapper for multi-phase basic attacks. */
+// 多段基础攻击动画的兼容封装类
 public class BasicMultipleAttackAnimation extends AttackAnimation {
+    // 构造多段基础攻击动画, 不单独指定 preDelay 时 preDelay 取前摇时长
     public BasicMultipleAttackAnimation(
             float convertTime,
             float antic,
@@ -38,6 +39,7 @@ public class BasicMultipleAttackAnimation extends AttackAnimation {
                 armature);
     }
 
+    // 构造多段基础攻击动画, 显式指定前摇(antic)与接触前延迟(preDelay)
     public BasicMultipleAttackAnimation(
             float convertTime,
             float antic,
@@ -63,6 +65,7 @@ public class BasicMultipleAttackAnimation extends AttackAnimation {
                         collider));
     }
 
+    // 构造多段基础攻击动画, 指定主手(hand)与目标关节(colliderJoint)
     public BasicMultipleAttackAnimation(
             float convertTime,
             float antic,
@@ -89,6 +92,7 @@ public class BasicMultipleAttackAnimation extends AttackAnimation {
                         collider));
     }
 
+    // 基于已构建的阶段(Phase)构造多段攻击, coordSetter 参数预留未使用
     public BasicMultipleAttackAnimation(
             float convertTime,
             AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor,
@@ -98,6 +102,7 @@ public class BasicMultipleAttackAnimation extends AttackAnimation {
         this(convertTime, accessor, armature, phases);
     }
 
+    // 多段攻击核心构造: 调用父类并解除转向锁定, 将动画时间区间设为 0~无限
     public BasicMultipleAttackAnimation(
             float convertTime,
             AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor,
@@ -108,6 +113,7 @@ public class BasicMultipleAttackAnimation extends AttackAnimation {
         this.addStateRemoveOld(EntityState.TURNING_LOCKED, false);
     }
 
+    // 初始化: 若未设置基础攻速属性, 按动画总时长计算并写入 (攻速 = 1 / 总时长, 保留两位小数)
     @Override
     public void postInit() {
         super.postInit();
@@ -118,6 +124,7 @@ public class BasicMultipleAttackAnimation extends AttackAnimation {
         }
     }
 
+    // 标记本动画属于基础攻击动画
     public boolean isBasicAttackAnimation() {
         return true;
     }

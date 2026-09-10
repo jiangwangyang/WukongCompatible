@@ -37,18 +37,24 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.List;
 import java.util.function.Consumer;
 
+// 大圣套装护甲物品: 基于GeckoLib动画的护甲, 全套穿戴并手持金箍棒时获得抗性/力量加成与筋斗云飞行能力
 public class DaShengArmorItem extends ArmorItem implements GeoItem {
+    // GeckoLib动画实例缓存
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
+    // 构造方法
     public DaShengArmorItem(ArmorMaterial materialIn, Type type, Properties builder) {
         super(materialIn, type, builder);
     }
 
+    // 返回GeckoLib动画实例缓存
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
     }
 
+    // 注册动画控制器: 循环播放idle动画, 盔甲架始终播放,
+    // 其他实体任一护甲栏为空时停止动画(即只有整套穿戴才播放)
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(
@@ -73,6 +79,7 @@ public class DaShengArmorItem extends ArmorItem implements GeoItem {
                         }));
     }
 
+    // 添加物品悬停提示文本
     @Override
     public void appendHoverText(
             @NotNull ItemStack itemStack,
@@ -85,6 +92,9 @@ public class DaShengArmorItem extends ArmorItem implements GeoItem {
         list.add(Component.literal("【凝星制作组】赞助").withStyle(ChatFormatting.GREEN));
     }
 
+    // 物品每tick回调: 检测玩家是否满足套装条件(全套大圣+手持金箍棒),
+    // 满足则给予抗性/力量buff并授予飞行能力, 飞行时在脚下生成云朵粒子;
+    // 不满足则收回飞行能力(创造/旁观者除外)
     @Override
     public void inventoryTick(
             @NotNull ItemStack p_41404_,
@@ -129,6 +139,7 @@ public class DaShengArmorItem extends ArmorItem implements GeoItem {
         }
     }
 
+    // 判断玩家是否手持金箍棒且穿戴全套大圣护甲
     private boolean isFullArmor(Player player) {
         return !player.getMainHandItem().isEmpty()
                 && player.getMainHandItem().is(WukongItems.JIN_GU_BANG.get())
@@ -142,6 +153,7 @@ public class DaShengArmorItem extends ArmorItem implements GeoItem {
                 && player.getItemBySlot(EquipmentSlot.FEET).is(WukongItems.DASHENG_F.get());
     }
 
+    // 客户端初始化: 注册GeckoLib盔甲渲染器
     @Override
     @OnlyIn(Dist.CLIENT)
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {

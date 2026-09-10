@@ -17,9 +17,12 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 import java.util.List;
 
+// 悟空自定义移动坐标函数集: 提供追踪目标/突进等位移计算逻辑, 供动画的坐标设置器使用
 public class WukongMoveCoordFunctions extends MoveCoordFunctions {
+    // 一次性标志: 控制是否执行视角俯仰角调整(见 isSjzt), 触发一次后置为 false
     public static boolean SJZT = true;
 
+    // 追踪目标的位移设置器: 朝目标转向, 并按与目标的水平距离缩放位移关键帧的 z 分量, 使动画结束点贴近目标; 无有效目标时尝试就近搜索, 仍无则播放原位移
     public static final MoveCoordSetter TRACE_LOCROT_TARGETO =
             (self, entitypatch, transformSheet) -> {
                 LivingEntity attackTarget = entitypatch.getTarget();
@@ -91,7 +94,9 @@ public class WukongMoveCoordFunctions extends MoveCoordFunctions {
                 }
                 //
             };
+    // 突进最大距离(格), 超出部分被截断
     public static final double MAX_DASH_DISTANCE = 6.0D;
+    // 位移插值窗口结束点(动画归一化时间), 该时刻之前完成突进位移
     public static final float DASH_WINDOW_END = 0.6F;
 
     // 旧版 Epic Fight TRACE_DEST_LOCATION 的等价实现: 把位移表重写为绝对世界坐标, 从动画起始点滑步到目标身上, 供 WORLD_COORD 读取器消费
@@ -165,6 +170,7 @@ public class WukongMoveCoordFunctions extends MoveCoordFunctions {
                 destSheet.readFrom(transform);
             };
 
+    // 在本地玩家周围 3 格内查找最近的存活实体(排除自身与假悟空), 无则返回 null
     private static LivingEntity findClosestEnemyPosition(LivingEntityPatch<?> entitypatch) {
         if (entitypatch instanceof LocalPlayerPatch) {
             LocalPlayerPatch localPlayerPatch = (LocalPlayerPatch) entitypatch;
@@ -195,6 +201,7 @@ public class WukongMoveCoordFunctions extends MoveCoordFunctions {
         return null;
     }
 
+    // 一次性调整本地玩家视角俯仰角为 -7, 调整后将 SJZT 置为 false
     private static void isSjzt(LivingEntityPatch<?> entitypatch) {
         if (SJZT) {
             if (entitypatch instanceof LocalPlayerPatch localPlayerPatch) {
@@ -205,6 +212,7 @@ public class WukongMoveCoordFunctions extends MoveCoordFunctions {
         }
     }
 
+    // 计算两点之间的平方距离
     private static double calculateDistance(Vec3 position, Vec3 monsterPos) {
         double deltaX = monsterPos.x - position.x;
         double deltaY = monsterPos.y - position.y;
@@ -212,10 +220,12 @@ public class WukongMoveCoordFunctions extends MoveCoordFunctions {
         return deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ; // 使用平方距离避免开根号
     }
 
+    // 判断实体是否为本模组的假悟空实体
     private static boolean isFakeWukong(LivingEntity entity) {
         return entity.getType().toString().equals("entity.wukong.fake_wukong_entity");
     }
 
+    // 复位一次性标志 SJZT 为 true, 重新允许触发视角俯仰角调整
     public static void reseTSjzt() {
         SJZT = true;
     }

@@ -17,10 +17,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-/** 缩放的备案，在yesman修复bug之前这玩意儿真好使 */
+// 缩放的备案, 在yesman修复bug之前这玩意儿真好使
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {
 
+    // 在物品渲染头部注入: 对棍类武器 (WK_STAFF) 按 NBT 中记录的缩放/平移参数变换渲染姿态
     @Inject(method = "render", at = @At("HEAD"))
     public void render(
             ItemStack itemStack,
@@ -34,7 +35,7 @@ public class ItemRendererMixin {
             CallbackInfo ci) {
         // 获取物品的能力
         if (p_270188_ == ItemDisplayContext.NONE || p_270188_ == ItemDisplayContext.GUI) {
-            return; // 如果是物品栏中的物品，不进行任何修改
+            return; // 如果是物品栏中的物品, 不进行任何修改
         }
 
         itemStack
@@ -47,7 +48,7 @@ public class ItemRendererMixin {
                                     .equals(WukongWeaponCategories.WK_STAFF)) {
                                 CompoundTag tag = itemStack.getOrCreateTag();
 
-                                // 如果应该进行缩放，获取缩放值
+                                // 如果应该进行缩放, 获取缩放值
                                 if (tag.getBoolean("WK_shouldScaleItem")) {
                                     poseStack.scale(
                                             tag.getFloat("WK_XScale"),
@@ -55,7 +56,7 @@ public class ItemRendererMixin {
                                             tag.getFloat("WK_ZScale"));
                                 }
 
-                                // 如果应该进行平移，获取平移值
+                                // 如果应该进行平移, 获取平移值
                                 if (tag.getBoolean("WK_shouldTranslateItem")) {
                                     float tx = tag.getFloat("WK_XTranslation");
                                     float ty = tag.getFloat("WK_YTranslation");

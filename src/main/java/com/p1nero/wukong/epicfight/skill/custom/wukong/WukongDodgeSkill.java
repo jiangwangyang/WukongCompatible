@@ -42,12 +42,16 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
 import java.util.UUID;
 
-/** 完美闪避回棍势 */
+// 悟空闪避技能: 实现闪避动画轮播与完美闪避判定, 完美闪避时回棍势/体力并播放音效与残影
 public class WukongDodgeSkill extends Skill {
+    // 本技能事件监听器的唯一标识
     private static final UUID EVENT_UUID = UUID.fromString("d2d011cc-f30f-11ed-a05b-0242ac114515");
+    // 闪避连段归零的重置时长(单位: tick)
     public static final int RESET_TICKS = 100;
+    // 闪避动画表: 第一维为1~3段与完美闪避, 第二维为前/后/左/右方向
     protected final StaticAnimationProvider[][] animations;
 
+    // 创建闪避技能构建器, 设为闪避分类/单次激活/消耗体力
     public static WukongDodgeSkill.Builder createDodgeBuilder() {
         return (new WukongDodgeSkill.Builder())
                 .setCategory(SkillCategories.DODGE)
@@ -55,11 +59,14 @@ public class WukongDodgeSkill extends Skill {
                 .setResource(Resource.STAMINA);
     }
 
+    // 构造方法, 保存闪避动画表
     public WukongDodgeSkill(WukongDodgeSkill.Builder builder) {
         super(builder);
         animations = builder.animations;
     }
 
+    // 注册完美闪避(DODGE_SUCCESS)事件监听: 标记完美闪避状态, 播放音效与残影,
+    // 回复棍势与体力, 并播放对应方向的完美闪避动画
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
@@ -83,7 +90,7 @@ public class WukongDodgeSkill extends Skill {
                                     PacketRelay.sendToAll(
                                             PacketHandler.INSTANCE,
                                             new AddEntityAfterImageParticle(
-                                                    player.getId())); // 下面那行无效，手动发包解决//
+                                                    player.getId())); // 下面那行无效, 手动发包解决//
                                     //
                                     // serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
                                 }
@@ -121,12 +128,14 @@ public class WukongDodgeSkill extends Skill {
                         }));
     }
 
+    // 修改实体耐力值(最低为0), 用于完美闪避回复体力
     public void modifyStamina(LivingEntity livingentity, float staminaChange) {
         float currentStamina = livingentity.getEntityData().get(STAMINA);
         float newStamina = Math.max(0.0F, currentStamina + staminaChange);
         livingentity.getEntityData().set(STAMINA, newStamina);
     }
 
+    // 移除本技能注册的事件监听
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
@@ -136,6 +145,8 @@ public class WukongDodgeSkill extends Skill {
                 .removeListener(PlayerEventListener.EventType.DODGE_SUCCESS_EVENT, EVENT_UUID);
     }
 
+    // 客户端构造闪避执行请求: 在EpicFight更新输入状态前捕获原版移动按键,
+    // 计算闪避方向(垂直/水平分量)与闪避朝向角度, 写入请求包后交由网络层发送
     @Override
     @OnlyIn(Dist.CLIENT)
     public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args) {
@@ -143,7 +154,7 @@ public class WukongDodgeSkill extends Skill {
         Input input = executer.getOriginal().input;
         Minecraft minecraft = Minecraft.getInstance();
 
-        // Capture the physical movement keys before Epic Fight updates the input state.
+        // 在EpicFight更新输入状态前捕获原版物理移动按键
         boolean forward = minecraft.options.keyUp.isDown();
         boolean backward = minecraft.options.keyDown.isDown();
         boolean left = minecraft.options.keyLeft.isDown();
@@ -176,12 +187,15 @@ public class WukongDodgeSkill extends Skill {
         return packet;
     }
 
+    // 向技能提示参数列表中添加体力消耗值
     @OnlyIn(Dist.CLIENT)
     public List<Object> getTooltipArgsOfScreen(List<Object> list) {
         list.add(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(this.consumption));
         return list;
     }
 
+    // 服务端执行闪避: 轮播闪避动画(1~3段循环), 记录完美闪避方向,
+    // 重置普攻连段计数并同步模型朝向
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         super.executeOnServer(container, args);
@@ -208,7 +222,7 @@ public class WukongDodgeSkill extends Skill {
         executer.setModelYRot(yaw, true);
     }
 
-    /** 太久则复原第一段 */
+    // 每tick更新: 闪避连段计时结束后复原为第一段
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
@@ -225,6 +239,7 @@ public class WukongDodgeSkill extends Skill {
         }
     }
 
+    // 判断当前状态是否可执行闪避(不在空中/水中/攀爬/骑乘且实体状态允许)
     public boolean isExecutableState(PlayerPatch<?> executer) {
         EntityState playerState = executer.getEntityState();
         return !executer.isInAir()
@@ -234,47 +249,56 @@ public class WukongDodgeSkill extends Skill {
                 && executer.getOriginal().getVehicle() == null;
     }
 
+    // 技能构建器, 收集各段与各方向的闪避动画
     public static class Builder extends SkillBuilder<WukongDodgeSkill> {
         protected StaticAnimationProvider[][] animations =
-                new StaticAnimationProvider[4][4]; // 第一个参数分别是1~3段和完美闪避，第二个是前、后、左、右
+                new StaticAnimationProvider[4][4]; // 第一维为1~3段与完美闪避, 第二维为前/后/左/右
 
         public Builder() {}
 
+        // 设置技能分类
         public WukongDodgeSkill.Builder setCategory(SkillCategory category) {
             this.category = category;
             return this;
         }
 
+        // 设置激活类型
         public WukongDodgeSkill.Builder setActivateType(Skill.ActivateType activateType) {
             this.activateType = activateType;
             return this;
         }
 
+        // 设置消耗资源
         public WukongDodgeSkill.Builder setResource(Skill.Resource resource) {
             this.resource = resource;
             return this;
         }
 
+        // 设置创造模式标签页
         public WukongDodgeSkill.Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
             return this;
         }
 
+        // 设置1段闪避动画(前/后/左/右)
         public WukongDodgeSkill.Builder setAnimations1(StaticAnimationProvider... animations) {
             this.animations[0] = animations;
             return this;
         }
 
+        // 设置2段闪避动画(前/后/左/右)
         public WukongDodgeSkill.Builder setAnimations2(StaticAnimationProvider... animations) {
             this.animations[1] = animations;
             return this;
         }
 
+        // 设置3段闪避动画(前/后/左/右)
         public WukongDodgeSkill.Builder setAnimations3(StaticAnimationProvider... animations) {
             this.animations[2] = animations;
             return this;
         }
 
+        // 设置完美闪避动画(前/后/左/右)
         public WukongDodgeSkill.Builder setPerfectAnimations(
                 StaticAnimationProvider... animations) {
             this.animations[3] = animations;

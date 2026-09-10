@@ -10,19 +10,22 @@ import net.minecraft.world.entity.player.Player;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
-/** 根据客户端的需求来播动画 */
+// 根据客户端的需求来播动画: 服务端收到后播放金箍棒花 (staff flower) 动画并扣除体力
 public record PlayStaffFlowerPacket(boolean isTwoHand) implements BasePacket {
 
     @Override
+    // 将是否双手持棒标志写入字节缓冲
     public void encode(FriendlyByteBuf buf) {
         buf.writeBoolean(isTwoHand);
     }
 
+    // 从字节缓冲读取标志并构造数据包
     public static PlayStaffFlowerPacket decode(FriendlyByteBuf buf) {
         return new PlayStaffFlowerPacket(buf.readBoolean());
     }
 
     @Override
+    // 在服务端播放对应的金箍棒花循环动画, 并按配置扣除体力 (创造模式免扣)
     public void execute(Player player) {
         if (player != null) {
 

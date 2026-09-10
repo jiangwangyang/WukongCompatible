@@ -28,8 +28,10 @@ import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 
 import java.util.UUID;
 
+// 假悟空实体: 由玩家分身出的诱饵生物, 继承拥有者的装备与目标, 用于聚形散气吸引仇恨
 public class FakeWukongEntity extends TamableAnimal {
 
+    // 以拥有者玩家构造: 驯服拥有者并复制其最大生命
     public FakeWukongEntity(ServerPlayer owner) {
         super(WukongEntities.FAKE_WUKONG_ENTITY.get(), owner.level());
         tame(owner);
@@ -44,10 +46,12 @@ public class FakeWukongEntity extends TamableAnimal {
         }
     }
 
+    // 反序列化用构造
     public FakeWukongEntity(EntityType<? extends TamableAnimal> p_21803_, Level p_21804_) {
         super(p_21803_, p_21804_);
     }
 
+    // 驯服时复制拥有者的手持/盔甲装备与目标
     @Override
     public void tame(@NotNull Player player) {
         super.tame(player);
@@ -59,6 +63,7 @@ public class FakeWukongEntity extends TamableAnimal {
         setTarget(EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class).getTarget());
     }
 
+    // 受伤判定: 拥有者自身及其同类造成的伤害免疫, 坠落伤害免疫, 其余走父类逻辑
     @Override
     public boolean hurt(@NotNull DamageSource source, float p_27568_) {
         if (getOwner() != null && source.getEntity() != null && source.getEntity().is(getOwner())) {
@@ -78,6 +83,7 @@ public class FakeWukongEntity extends TamableAnimal {
         return super.hurt(source, p_27568_);
     }
 
+    // 注册 AI 目标与行为: 优先攻击/跟随拥有者的敌人, 其次跟随拥有者随机游走
     @Override
     protected void registerGoals() {
         this.targetSelector.addGoal(0, new OwnerHurtTargetGoal(this));
@@ -87,6 +93,7 @@ public class FakeWukongEntity extends TamableAnimal {
         this.goalSelector.addGoal(1, new WaterAvoidingRandomStrollGoal(this, 1.0));
     }
 
+    // 构建属性: 重量/移速/破甲/冲击/连击数/攻击伤害等
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(EpicFightAttributes.WEIGHT.get())
@@ -97,11 +104,13 @@ public class FakeWukongEntity extends TamableAnimal {
                 .add(Attributes.ATTACK_DAMAGE);
     }
 
+    // 装备掉落概率为 0(不掉落)
     @Override
     protected float getEquipmentDropChance(@NotNull EquipmentSlot slot) {
         return 0;
     }
 
+    // 不可繁殖, 返回 null
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(
@@ -109,6 +118,7 @@ public class FakeWukongEntity extends TamableAnimal {
         return null;
     }
 
+    // 每帧更新: 失去拥有者则移除; 目标为残留实体则清空; 存活超过 500 tick 则消散并播放音效
     @Override
     public void tick() {
         super.tick();

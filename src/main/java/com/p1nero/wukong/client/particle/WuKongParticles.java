@@ -16,16 +16,21 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+// 粒子类型注册类, 定义定身与残影粒子并在客户端注册其渲染器
 public class WuKongParticles {
+    // 粒子类型注册表
     public static final DeferredRegister<ParticleType<?>> PARTICLES =
             DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, WukongMoveset.MOD_ID);
+    // 定身粒子类型(配合 Ding 药剂效果使用)
     public static final RegistryObject<SimpleParticleType> DING =
             PARTICLES.register("ding", () -> new SimpleParticleType(true));
+    // 实体残影粒子类型
     public static final RegistryObject<SimpleParticleType> ENTITY_AFTER_IMAGE =
             PARTICLES.register("shen", () -> new SimpleParticleType(true));
 
     public WuKongParticles() {}
 
+    // 为定身与残影粒子注册精灵集(sprite set)渲染器
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void RP(RegisterParticleProvidersEvent event) {

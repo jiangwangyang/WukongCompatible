@@ -19,7 +19,9 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
+// 悟空变长棍攻击动画: 通过 nbt 标记驱动客户端缩放/位移棍子模型, 结束时复位状态
 public class WukongScaleStaffAttackAnimation extends BasicAttackAnimation {
+    // 构造变长棍攻击动画, 不单独指定 preDelay 时 preDelay 取前摇时长
     public WukongScaleStaffAttackAnimation(
             float convertTime,
             float antic,
@@ -32,6 +34,7 @@ public class WukongScaleStaffAttackAnimation extends BasicAttackAnimation {
         super(convertTime, antic, contact, recovery, collider, colliderJoint, accessor, armature);
     }
 
+    // 构造变长棍攻击动画, 显式指定前摇(antic)与接触前延迟(preDelay)
     public WukongScaleStaffAttackAnimation(
             float convertTime,
             float antic,
@@ -54,6 +57,7 @@ public class WukongScaleStaffAttackAnimation extends BasicAttackAnimation {
                 armature);
     }
 
+    // 构造变长棍攻击动画, 基于单一阶段(Phase), 各时间节点均取前摇时长
     public WukongScaleStaffAttackAnimation(
             float convertTime,
             float antic,
@@ -68,13 +72,13 @@ public class WukongScaleStaffAttackAnimation extends BasicAttackAnimation {
                         0.0F, antic, antic, antic, antic, Float.MAX_VALUE, colliderJoint, null));
     }
 
-    /** 取消加棍势 */
+    // 取消加棍势(本动画不计入基础攻击连段)
     @Override
     public boolean isBasicAttackAnimation() {
         return false;
     }
 
-    /** 保险，复位棍子的缩放 */
+    // 保险: 结束或打断时复位棍子的缩放/位移, 并清除伤害减免标记
     @Override
     public void end(
             LivingEntityPatch<?> entityPatch,

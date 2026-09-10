@@ -22,16 +22,18 @@ import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+// Mixin 注入到 EpicFight 的 PatchedLivingEntityRenderer, 实现聚形散气技能的玩家隐身透明度效果
 @Mixin(value = PatchedLivingEntityRenderer.class, remap = false)
 public class PatchedLivingEntityRendererMixin {
 
-    /** 记录当前正在渲染的实体, 用于在 modifyArg 中判断透明度修改是否只应作用于本地玩家。 聚形散气隐身只影响玩家自己, 不应让周围怪物也隐身。 */
+    // 记录当前正在渲染的实体, 用于在 modifyArg 中判断透明度修改是否只应作用于本地玩家. 聚形散气隐身只影响玩家自己, 不应让周围怪物也隐身.
     private static final ThreadLocal<LivingEntity> CURRENT_RENDERING_ENTITY = new ThreadLocal<>();
 
     @Inject(
             method =
                     "render(Lnet/minecraft/world/entity/LivingEntity;Lyesman/epicfight/world/capabilities/entitypatch/LivingEntityPatch;Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;Lnet/minecraft/client/renderer/MultiBufferSource;Lcom/mojang/blaze3d/vertex/PoseStack;IF)V",
             at = @At("HEAD"))
+    // 在渲染开始时记录当前正在渲染的实体到线程本地变量, 供后续透明度修改判断使用
     private void captureRenderingEntity(
             LivingEntity entity,
             LivingEntityPatch<?> patch,
@@ -54,6 +56,7 @@ public class PatchedLivingEntityRendererMixin {
                             target =
                                     "Lyesman/epicfight/api/client/model/SkinnedMesh;draw(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/RenderType;IFFFFILyesman/epicfight/api/model/Armature;[Lyesman/epicfight/api/utils/math/OpenMatrix4f;)V"),
             index = 7)
+    // 修改渲染透明度参数: 仅对本地玩家应用聚形散气隐身渐变透明度, 其余实体原样返回
     private float modifyAlpha(float alpha) {
         // 只有本地玩家自己才应用聚形散气的隐身透明度, 避免周围怪物跟着隐身
         LocalPlayer localPlayer = Minecraft.getInstance().player;
@@ -78,6 +81,7 @@ public class PatchedLivingEntityRendererMixin {
                     return alpha;
                 }
 
+                // 隐身透明度渐变: ratio 为剩余计时比例, 两端各 5% 区间内线性过渡, 中段固定为 0.2 (保持隐约可见)
                 float ratio = timerValue / maxTimer;
                 ratio = Math.max(0, Math.min(1, ratio));
 

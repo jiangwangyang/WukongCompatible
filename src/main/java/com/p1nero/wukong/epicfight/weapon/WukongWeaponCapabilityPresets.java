@@ -25,6 +25,7 @@ import yesman.epicfight.world.capabilities.item.WeaponCapability;
 import java.util.function.Function;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+// 悟空棍武器能力预设: 定义棍类武器的碰撞体/命中音效粒子, 以及各棍式(劈棍/戳棍/立棍/大圣)的连段/固有重击技能与生活动作动画
 public class WukongWeaponCapabilityPresets {
     // 说明:
     // 本类使用的WeaponCapability$Builder的livingMotionModifier/innateSkill/newStyleCombo/styleProvider/comboCancel/passiveSkill
@@ -32,6 +33,7 @@ public class WukongWeaponCapabilityPresets {
     // EpicFight官方的WeaponCapabilityPresets与WeaponTypeReloadListener同样在使用这些方法, 属于1.20.1下的标准用法
     // 因此保留现状与编译弃用警告, 待将来升级EpicFight至1.21.1+版本时再迁移, 请勿在此处添加SuppressWarnings
 
+    // 标准棍预设: 支持劈棍/戳棍/立棍/大圣四种棍式的连段/重击与生活动作, 附带棍花被动技能
     public static final Function<Item, CapabilityItem.Builder> STAFF =
             (item) ->
                     (CapabilityItem.Builder)
@@ -224,6 +226,7 @@ public class WukongWeaponCapabilityPresets {
                                             LivingMotions.FALL,
                                             WukongAnimations.FALL);
 
+    // 三棍式预设: 支持劈棍/戳棍/立棍三种棍式(不含大圣), 其余配置与STAFF一致
     public static final Function<Item, CapabilityItem.Builder> PILLAR_ONLY =
             (item) ->
                     (CapabilityItem.Builder)
@@ -379,6 +382,7 @@ public class WukongWeaponCapabilityPresets {
                                             LivingMotions.FALL,
                                             WukongAnimations.FALL);
 
+    // 将标准棍预设注册到EpicFight的武器能力预设表(键为wk_staff)
     @SubscribeEvent
     public static void register(WeaponCapabilityPresetRegistryEvent event) {
         event.getTypeEntry()
