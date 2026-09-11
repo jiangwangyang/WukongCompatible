@@ -208,11 +208,12 @@ public class WukongSkills {
                                         () -> WukongAnimations.PILLAR_HEAVY_RIVERSEAFLIP,
                                         () -> WukongGreatSageAnimations.HEAVY_AUTO2_3)
                                 .setChargePreAnimation(() -> WukongAnimations.SMASH_CHARGING_PRE)
+                                // 大圣蓄力重棍整体上调一档: 0~3星依次对应劈棍1~4星, 4星为独立大圣棍
                                 .setHeavyAttacks(
-                                        () -> WukongAnimations.SMASH_CHARGED0,
                                         () -> WukongAnimations.SMASH_CHARGED1,
                                         () -> WukongAnimations.SMASH_CHARGED2,
                                         () -> WukongAnimations.SMASH_CHARGED3,
+                                        () -> WukongAnimations.SMASH_CHARGED4,
                                         () -> WukongGreatSageAnimations.XULI_HEAVY_4)
                                 .setPillarHeavyAttacks(
                                         () -> WukongAnimations.PILLAR_HEAVY0,

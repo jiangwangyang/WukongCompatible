@@ -45,7 +45,8 @@ import java.util.UUID;
 // 法术: 聚形散气(聚气化形)技能, 进入隐身并周期结算法阵效果
 public class ShenfaJuxingsanqiSkill extends Skill {
 
-    private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0252ac114513"); // 事件监听器注册用唯一UUID
+    private static final UUID EVENT_UUID =
+            UUID.fromString("d2d057cc-f30f-11ed-a05b-0252ac114513"); // 事件监听器注册用唯一UUID
     public static final int MAX_TIME = 200; // 10s
     protected StaticAnimationProvider deriveAnimation1; // 第一衍生动画(施法)
     protected StaticAnimationProvider deriveAnimation2; // 第二衍生动画(破隐-有敌)
@@ -115,7 +116,8 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                                         new AABB(
                                                 playerPos.subtract(radius, radius, radius),
                                                 playerPos.add(
-                                                        radius, radius, radius)); // 获取周围的实体(怪物, 动物等)
+                                                        radius, radius,
+                                                        radius)); // 获取周围的实体(怪物, 动物等)
                                 List<Entity> nearbyEntities =
                                         player.level()
                                                 .getEntitiesOfClass(

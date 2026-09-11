@@ -4226,7 +4226,8 @@ public class WukongAnimations {
         }
     }
 
-    // 通过后台调度线程平滑调整客户端视野(FOV), 每 10ms 一帧, 在 durationTicks 内从当前 FOV 插值到目标 FOV, 重复 repeatTimes 次, 上限 97
+    // 通过后台调度线程平滑调整客户端视野(FOV), 每 10ms 一帧, 在 durationTicks 内从当前 FOV 插值到目标 FOV, 重复 repeatTimes 次, 上限
+    // 97
     public static void CameraOperationFov(
             float increaseAmount, int durationTicks, int repeatTimes) {
         Minecraft MC = Minecraft.getInstance();
@@ -4286,7 +4287,8 @@ public class WukongAnimations {
         return list;
     }
 
-    // 生成逐 tick 的物品缩放/位移动画事件, 写入物品 nbt 供 ItemRendererMixin(com.p1nero.wukong.mixin.ItemRendererMixin) 读取渲染; 首尾 tick 复位缩放, 中间按插值结果设置
+    // 生成逐 tick 的物品缩放/位移动画事件, 写入物品 nbt 供
+    // ItemRendererMixin(com.p1nero.wukong.mixin.ItemRendererMixin) 读取渲染; 首尾 tick 复位缩放, 中间按插值结果设置
     public static AnimationEvent.InTimeEvent[] getScaleEvents(ScaleTime... ticks) {
         int lastTick = ticks[ticks.length - 1].tick;
         AnimationEvent.InTimeEvent[] timeStampedEvents = new AnimationEvent.InTimeEvent[lastTick];

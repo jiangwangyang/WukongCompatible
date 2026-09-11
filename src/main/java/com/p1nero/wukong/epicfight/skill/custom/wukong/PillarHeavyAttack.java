@@ -129,8 +129,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), 0);
             dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
             executer.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
-            executer.playAnimationSynchronized(
-                    heavy[container.getStack()].get(), 0.0F); // 有几星就几星重击
+            executer.playAnimationSynchronized(heavy[container.getStack()].get(), 0.0F); // 有几星就几星重击
             resetConsumption(container, executer);
         } else if (dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0
                 && stackConsumed) {

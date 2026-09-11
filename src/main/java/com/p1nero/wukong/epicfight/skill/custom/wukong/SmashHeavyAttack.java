@@ -120,8 +120,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             if (dataManager.getDataValue(WukongSkillDataKeys.SMASH_FASHU_TIMER.get()) > 0) {
                 // 铜头铁臂直接释放窗口: 跳过蓄力前摇, 直接释放当前星数的重击并清空全部棍势
                 dataManager.setDataSync(WukongSkillDataKeys.SMASH_FASHU_TIMER.get(), 0);
-                dataManager.setData(
-                        WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
+                dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
                 executer.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
                 executer.playAnimationSynchronized(
                         animations[container.getStack()].get(), 0.0F); // 有几星就几星重击

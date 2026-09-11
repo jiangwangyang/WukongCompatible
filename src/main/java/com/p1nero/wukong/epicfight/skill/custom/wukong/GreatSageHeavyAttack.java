@@ -158,8 +158,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             data.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
             data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), stack);
             executor.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2.0F, 2.0F);
-            executor.playAnimationSynchronized(
-                    chargedAttacks[stack].get(), 0.0F); // 有几星就几星重击
+            executor.playAnimationSynchronized(chargedAttacks[stack].get(), 0.0F); // 有几星就几星重击
             resetConsumption(container, executor);
             return;
         }
