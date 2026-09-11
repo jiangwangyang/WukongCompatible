@@ -1,6 +1,5 @@
 package com.p1nero.wukong.network.packet.server;
 
-import com.p1nero.wukong.Config;
 import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.network.packet.BasePacket;
 
@@ -10,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
-// 根据客户端的需求来播动画: 服务端收到后播放金箍棒花 (staff flower) 动画并扣除体力
+// 根据客户端的需求来播动画: 服务端收到后播放金箍棒花 (staff flower) 动画
 public record PlayStaffFlowerPacket(boolean isTwoHand) implements BasePacket {
 
     @Override
@@ -25,7 +24,7 @@ public record PlayStaffFlowerPacket(boolean isTwoHand) implements BasePacket {
     }
 
     @Override
-    // 在服务端播放对应的金箍棒花循环动画, 并按配置扣除体力 (创造模式免扣)
+    // 在服务端播放对应的金箍棒花循环动画
     public void execute(Player player) {
         if (player != null) {
 
@@ -38,13 +37,6 @@ public record PlayStaffFlowerPacket(boolean isTwoHand) implements BasePacket {
                                                     ? WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP
                                                     : WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP,
                                             0);
-                                    playerPatch.setStamina(
-                                            playerPatch.getStamina()
-                                                    - (player.isCreative()
-                                                            ? 0
-                                                            : Config.STAFF_FLOWER_STAMINA_CONSUME
-                                                                    .get()
-                                                                    .floatValue()));
                                 }
                             }));
         }

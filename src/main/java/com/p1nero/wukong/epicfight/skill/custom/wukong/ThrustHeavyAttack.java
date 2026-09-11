@@ -1,7 +1,5 @@
 package com.p1nero.wukong.epicfight.skill.custom.wukong;
 
-import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
-
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.p1nero.wukong.Config;
@@ -163,7 +161,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                 }
                             }
                             if (event.getAttackDamage() > 0.0) {
-                                modifyStamina(event.getPlayerPatch().getOriginal(), 2.0F);
                                 if (event.getPlayerPatch()
                                         .getAnimator()
                                         .getPlayerFor(null)
@@ -271,7 +268,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                                 event.getPlayerPatch().getOriginal().getId()));
                                 event.getPlayerPatch()
                                         .playSound(WuKongSounds.PERFECT_DODGE.get(), 0.5F, 0, 0);
-                                modifyStamina(event.getPlayerPatch().getOriginal(), 5.0F);
                                 event.setCanceled(true);
                             }
                         }));
@@ -323,13 +319,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
-    // 修改实体耐力值(最低为0), 用于完美闪避/退寸等回复体力
-    public void modifyStamina(LivingEntity livingentity, float staminaChange) {
-        float currentStamina = livingentity.getEntityData().get(STAMINA);
-        float newStamina = Math.max(0.0F, currentStamina + staminaChange);
-        livingentity.getEntityData().set(STAMINA, newStamina);
-    }
-
     // 每tick更新: 棍势/音效/蓄力释放/退寸/搅棍/四蓄掉棍势等
     @Override
     public void updateContainer(SkillContainer container) {
@@ -341,7 +330,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
         } else {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
-            ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
             // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势
             if (dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_STACK.get())) {
                 WukongSkills.gainResource(container, 60.0F);
@@ -442,13 +430,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             }
 
             if (dataManager.getDataValue(WukongSkillDataKeys.IS_REPEATING_DERIVE.get())) {
-                if (!serverPlayer.isCreative()) {
-                    if (!serverPlayerPatch.hasStamina(0.1F)) {
-                        serverPlayerPatch.playAnimationSynchronized(juesick_end.get(), 0.0F);
-                        dataManager.setDataSync(
-                                WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), false);
-                    }
-                }
                 // 重置可寸时机
                 dataManager.setDataSync(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 30);
                 // 松手了则播end

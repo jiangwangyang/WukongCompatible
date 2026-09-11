@@ -1,7 +1,5 @@
 package com.p1nero.wukong.epicfight.skill.custom.wukong;
 
-import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
-
 import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
@@ -16,7 +14,6 @@ import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +39,7 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
 import java.util.UUID;
 
-// 悟空闪避技能: 实现闪避动画轮播与完美闪避判定, 完美闪避时回棍势/体力并播放音效与残影
+// 悟空闪避技能: 实现闪避动画轮播与完美闪避判定, 完美闪避时回棍势并播放音效与残影
 public class WukongDodgeSkill extends Skill {
     // 本技能事件监听器的唯一标识
     private static final UUID EVENT_UUID = UUID.fromString("d2d011cc-f30f-11ed-a05b-0242ac114515");
@@ -51,12 +48,12 @@ public class WukongDodgeSkill extends Skill {
     // 闪避动画表: 第一维为1~3段与完美闪避, 第二维为前/后/左/右方向
     protected final StaticAnimationProvider[][] animations;
 
-    // 创建闪避技能构建器, 设为闪避分类/单次激活/消耗体力
+    // 创建闪避技能构建器, 设为闪避分类/单次激活/无资源消耗
     public static WukongDodgeSkill.Builder createDodgeBuilder() {
         return (new WukongDodgeSkill.Builder())
                 .setCategory(SkillCategories.DODGE)
                 .setActivateType(ActivateType.ONE_SHOT)
-                .setResource(Resource.STAMINA);
+                .setResource(Resource.NONE);
     }
 
     // 构造方法, 保存闪避动画表
@@ -66,7 +63,7 @@ public class WukongDodgeSkill extends Skill {
     }
 
     // 注册完美闪避(DODGE_SUCCESS)事件监听: 标记完美闪避状态, 播放音效与残影,
-    // 回复棍势与体力, 并播放对应方向的完美闪避动画
+    // 回复棍势, 并播放对应方向的完美闪避动画
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
@@ -101,7 +98,6 @@ public class WukongDodgeSkill extends Skill {
                                     // 完美闪避获得30棍势
                                     WukongSkills.gainResource(weaponInnateContainer, 30.0F);
                                 }
-                                modifyStamina(event.getPlayerPatch().getOriginal(), 3.0F);
                                 container
                                         .getDataManager()
                                         .setData(WukongSkillDataKeys.DODGE_PLAYED.get(), true);
@@ -119,13 +115,6 @@ public class WukongDodgeSkill extends Skill {
                                                 this.animations[3][direction].get(), 0.0F);
                             }
                         }));
-    }
-
-    // 修改实体耐力值(最低为0), 用于完美闪避回复体力
-    public void modifyStamina(LivingEntity livingentity, float staminaChange) {
-        float currentStamina = livingentity.getEntityData().get(STAMINA);
-        float newStamina = Math.max(0.0F, currentStamina + staminaChange);
-        livingentity.getEntityData().set(STAMINA, newStamina);
     }
 
     // 移除本技能注册的事件监听
@@ -180,7 +169,7 @@ public class WukongDodgeSkill extends Skill {
         return packet;
     }
 
-    // 向技能提示参数列表中添加体力消耗值
+    // 向技能提示参数列表中添加消耗值
     @OnlyIn(Dist.CLIENT)
     public List<Object> getTooltipArgsOfScreen(List<Object> list) {
         list.add(ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(this.consumption));

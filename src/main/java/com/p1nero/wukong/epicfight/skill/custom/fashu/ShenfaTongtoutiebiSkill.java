@@ -1,7 +1,5 @@
 package com.p1nero.wukong.epicfight.skill.custom.fashu;
 
-import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
-
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.p1nero.wukong.WukongMoveset;
@@ -20,7 +18,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -131,7 +128,6 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                                                     WukongSkillSlots.STAFF_STYLE);
                                     if (containe != null
                                             && containe.getSkill() instanceof StaffStance style) {
-                                        modifyStamina(event.getPlayerPatch().getOriginal(), 5.0F);
                                         SkillContainer weaponContainer =
                                                 serverPlayerPatch.getSkill(
                                                         SkillSlots.WEAPON_INNATE);
@@ -198,13 +194,6 @@ public class ShenfaTongtoutiebiSkill extends Skill {
     @Override
     public void onRemoved(SkillContainer container) {
         super.onRemoved(container);
-    }
-
-    // 修改实体体力值(不允许低于0)
-    public void modifyStamina(LivingEntity livingentity, float staminaChange) {
-        float currentStamina = livingentity.getEntityData().get(STAMINA);
-        float newStamina = Math.max(0.0F, currentStamina + staminaChange);
-        livingentity.getEntityData().set(STAMINA, newStamina);
     }
 
     // 每帧更新: 递减无敌/恢复/冷却计时, 归零时复位对应状态

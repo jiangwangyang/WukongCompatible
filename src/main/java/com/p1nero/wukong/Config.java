@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-// 模组配置文件类, 定义蓄力/格挡/消耗等可调参数, 并注册 wukong 管理命令
+// 模组配置文件类, 定义蓄力/格挡等可调参数, 并注册 wukong 管理命令
 public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     // 切手技判定时间(tick)
@@ -26,10 +26,6 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue CHARGING_SPEED;
     // 四蓄(满星)窗口时长(tick), 窗口内命中会刷新计时
     public static final ForgeConfigSpec.DoubleValue CHARGED4_WINDOW_TICKS;
-    // 棍花每tick耐力消耗
-    public static final ForgeConfigSpec.DoubleValue STAFF_FLOWER_STAMINA_CONSUME;
-    // 立棍/戳棍切手技每tick耐力消耗
-    public static final ForgeConfigSpec.DoubleValue DERIVE_STAMINA_CONSUME;
     // 普攻间隔判定时间(tick)
     public static final ForgeConfigSpec.DoubleValue BASIC_ATTACK_INTERVAL_TICKS;
     // 是否给首个进入游戏的玩家发放指南书
@@ -54,9 +50,6 @@ public class Config {
                         "四蓄(4星)窗口时长tick数，窗口内命中敌人会刷新计时，窗口结束时满星降回3星(20 ticks = 1秒)，四种棍式统一",
                         "charged4_window_ticks",
                         300.0);
-        STAFF_FLOWER_STAMINA_CONSUME =
-                createDouble("棍花每tick耐力消耗", "staff_flower_stamina_consume", 0.1);
-        DERIVE_STAMINA_CONSUME = createDouble("立棍和戳棍切手技每tick耐力消耗", "derive_stamina_consume", 2.0);
         ENTITIES_CAN_BE_BLOCKED_BY_STAFF_FLOWER =
                 BUILDER.comment("可被棍花格挡的实体")
                         .defineListAllowEmpty(

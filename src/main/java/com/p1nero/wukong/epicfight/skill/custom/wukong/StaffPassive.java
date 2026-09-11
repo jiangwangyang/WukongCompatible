@@ -239,8 +239,7 @@ public class StaffPassive extends Skill {
                             }
                             if (executer.isLogicalClient()) {
                                 // 临时替换为悟空闪避
-                                if (!ordinalSkill.equals(WukongSkills.WUKONG_DODGE)
-                                        && executer.hasStamina(this.getConsumption())) {
+                                if (!ordinalSkill.equals(WukongSkills.WUKONG_DODGE)) {
                                     executer.getSkill(SkillSlots.DODGE)
                                             .setSkill(WukongSkills.WUKONG_DODGE);
                                     EpicFightNetworkManager.sendToServer(
@@ -365,10 +364,7 @@ public class StaffPassive extends Skill {
             return;
         }
 
-        if (WukongKeyMappings.STAFF_FLOWER.isDown()
-                && container
-                        .getExecutor()
-                        .hasStamina(Config.STAFF_FLOWER_STAMINA_CONSUME.get().floatValue())) {
+        if (WukongKeyMappings.STAFF_FLOWER.isDown()) {
             if (!container.getDataManager().getDataValue(PLAYING_STAFF_SPIN.get())
                     && Minecraft.getInstance().player != null) {
                 PacketRelay.sendToServer(
