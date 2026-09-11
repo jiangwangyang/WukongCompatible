@@ -10,6 +10,7 @@ import com.p1nero.wukong.epicfight.animation.custom.WukongDodgeAnimation;
 import com.p1nero.wukong.epicfight.compat.EpicFightDamageType;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
+import com.p1nero.wukong.epicfight.skill.WukongSkills;
 import com.p1nero.wukong.epicfight.skill.custom.avatar.HeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.item.WukongItems;
@@ -212,15 +213,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                                         .getDataManager()
                                         .getDataValue(
                                                 WukongSkillDataKeys.IS_SPECIAL_SUCCESS.get())) {
-                                    container
-                                            .getSkill()
-                                            .setConsumptionSynchronize(
-                                                    container,
-                                                    container.getResource()
-                                                            + Config.CHARGING_SPEED
-                                                                            .get()
-                                                                            .floatValue()
-                                                                    * 30); // 获得大量棍势
+                                    WukongSkills.gainResource(container, 60.0F); // 识破获得60棍势
                                     container
                                             .getDataManager()
                                             .setDataSync(
@@ -475,14 +468,9 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
 
-            // 铜头铁臂成功格挡后加2星并封顶4星(3星+2=4), 与立棍/戳棍/大圣行为统一
+            // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势
             if (dataManager.getDataValue(WukongSkillDataKeys.SMASH_FASHU_STACK.get())) {
-                if (container.getStack() < 4) {
-                    this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
-                    serverPlayerPatch.playSound(
-                            WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
-                    dataManager.setData(WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
-                }
+                WukongSkills.gainResource(container, 60.0F);
                 dataManager.setDataSync(WukongSkillDataKeys.SMASH_FASHU_STACK.get(), false);
             }
 
@@ -526,11 +514,9 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                     this.setStackSynchronize(container, 0);
                     return;
                 }
-                // 蓄力的加成
+                // 蓄力的加成(每tick+1.5棍势)
                 if (container.getStack() < 3) {
-                    this.setConsumptionSynchronize(
-                            container,
-                            container.getResource() + Config.CHARGING_SPEED.get().floatValue());
+                    this.setConsumptionSynchronize(container, container.getResource() + 1.5F);
                 }
                 // 松手则清空棍势打重击
                 if (!dataManager.getDataValue(WukongSkillDataKeys.KEY_PRESSING.get())) {
@@ -546,7 +532,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                 }
             }
 
-            // 破条则加stack清空蓄力条
+            // 破条则加stack, 多余棍势保留给下一段(1星30%/2星50%/3星70%, 4星攒满120封顶)
             if (container.getStack() < 1
                     && container.getResource() > container.getMaxResource() * 0.3) {
                 breakProgress(serverPlayerPatch, container);
@@ -575,9 +561,15 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         }
     }
 
-    // 破条时增加1星并清空耐力
+    // 破条时增加1星, 多余棍势按当前段阈值(30%/50%/70%)扣减后保留给下一段
     public void breakProgress(ServerPlayerPatch serverPlayerPatch, SkillContainer container) {
-        this.setConsumptionSynchronize(container, 0.1F);
+        float threshold =
+                (float)
+                        (container.getMaxResource()
+                                * (container.getStack() == 0
+                                        ? 0.3
+                                        : container.getStack() == 1 ? 0.5 : 0.7));
+        this.setConsumptionSynchronize(container, container.getResource() - threshold);
         this.setStackSynchronize(container, container.getStack() + 1);
     }
 

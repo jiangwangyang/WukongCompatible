@@ -2,11 +2,11 @@ package com.p1nero.wukong.epicfight.skill.custom.wukong;
 
 import static yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.STAMINA;
 
-import com.p1nero.wukong.Config;
 import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
+import com.p1nero.wukong.epicfight.skill.WukongSkills;
 import com.p1nero.wukong.network.PacketHandler;
 import com.p1nero.wukong.network.PacketRelay;
 import com.p1nero.wukong.network.packet.client.AddEntityAfterImageParticle;
@@ -98,15 +98,8 @@ public class WukongDodgeSkill extends Skill {
                                         event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
                                 if (weaponInnateContainer != null
                                         && !weaponInnateContainer.isEmpty()) {
-                                    weaponInnateContainer
-                                            .getSkill()
-                                            .setConsumptionSynchronize(
-                                                    weaponInnateContainer,
-                                                    weaponInnateContainer.getResource()
-                                                            + Config.CHARGING_SPEED
-                                                                            .get()
-                                                                            .floatValue()
-                                                                    * 20);
+                                    // 完美闪避获得30棍势
+                                    WukongSkills.gainResource(weaponInnateContainer, 30.0F);
                                 }
                                 modifyStamina(event.getPlayerPatch().getOriginal(), 3.0F);
                                 container

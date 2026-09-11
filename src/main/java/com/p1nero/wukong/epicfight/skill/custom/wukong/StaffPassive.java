@@ -170,15 +170,12 @@ public class StaffPassive extends Skill {
                                 SkillContainer skillContainer =
                                         event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);
                                 if (skillContainer != null && !skillContainer.isEmpty()) {
-                                    // 成功格挡回能量
+                                    // 成功格挡回5棍势
                                     skillContainer
                                             .getSkill()
                                             .setConsumptionSynchronize(
                                                     skillContainer,
-                                                    skillContainer.getResource()
-                                                            + Config.CHARGING_SPEED
-                                                                    .get()
-                                                                    .floatValue());
+                                                    skillContainer.getResource() + 5.0F);
                                 }
                             }
                         }));
@@ -211,7 +208,7 @@ public class StaffPassive extends Skill {
                             if (WukongAnimations.STAFF_SPIN_ONE_HAND_LOOP.equals(animation)
                                     || WukongAnimations.STAFF_SPIN_TWO_HAND_LOOP.equals(
                                             animation)) {
-                                // 打中加棍势(因为加的要比造成的伤害多)
+                                // 打中加5棍势(因为加的要比造成的伤害多)
                                 SkillContainer skillContainer =
                                         dealtDamageEvent
                                                 .getPlayerPatch()
@@ -221,11 +218,7 @@ public class StaffPassive extends Skill {
                                             .getSkill()
                                             .setConsumptionSynchronize(
                                                     skillContainer,
-                                                    skillContainer.getResource()
-                                                            + Config.CHARGING_SPEED
-                                                                            .get()
-                                                                            .floatValue()
-                                                                    * 3);
+                                                    skillContainer.getResource() + 5.0F);
                                 }
                             }
                         }));

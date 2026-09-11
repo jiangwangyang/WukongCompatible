@@ -11,6 +11,7 @@ import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.compat.EpicFightDamageType;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
+import com.p1nero.wukong.epicfight.skill.WukongSkills;
 import com.p1nero.wukong.epicfight.skill.custom.avatar.HeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.network.PacketHandler;
@@ -188,15 +189,12 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                     .getPlayerFor(null)
                                     .getAnimation()
                                     .equals(WukongAnimations.PILLAR_HEAVY_FENGYUNZHUAN.get())) {
+                                // 风云转命中加5棍势
                                 if (container.getStack() < 4) {
                                     container
                                             .getSkill()
                                             .setConsumptionSynchronize(
-                                                    container,
-                                                    container.getResource()
-                                                            + Config.CHARGING_SPEED
-                                                                    .get()
-                                                                    .floatValue());
+                                                    container, container.getResource() + 5.0F);
                                 }
                             }
                         }));
@@ -486,13 +484,9 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     Math.max(
                             dataManager.getDataValue(WukongSkillDataKeys.RED_TIMER.get()) - 1,
                             0)); // 使用技能星数显示
+            // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势
             if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FASHU_STACK.get())) {
-                if (container.getStack() < 4) {
-                    this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
-                    serverPlayerPatch.playSound(
-                            WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
-                    dataManager.setData(WukongSkillDataKeys.LAST_STACK.get(), container.getStack());
-                }
+                WukongSkills.gainResource(container, 60.0F);
                 dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), 18);
                 dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_STACK.get(), false);
             }
@@ -518,12 +512,10 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     this.setStackSynchronize(container, 0);
                     return;
                 }
-                // 蓄力的加成
+                // 蓄力的加成(每tick+1.5棍势)
                 if (container.getStack() < 3
                         && dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())) {
-                    this.setConsumptionSynchronize(
-                            container,
-                            container.getResource() + Config.CHARGING_SPEED.get().floatValue());
+                    this.setConsumptionSynchronize(container, container.getResource() + 1.5F);
                 }
                 if (!dataManager.getDataValue(WukongSkillDataKeys.KEY_PRESSING.get())) {
 
@@ -550,7 +542,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 }
             }
 
-            // 破条则加stack清空蓄力条
+            // 破条则加stack, 多余棍势保留给下一段(1星30%/2星50%/3星70%, 4星攒满120封顶)
             if (container.getStack() < 1
                     && container.getResource() > container.getMaxResource() * 0.3) {
                 breakProgress(serverPlayerPatch, container);
@@ -579,9 +571,15 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
-    // 破条时增加1星并清空耐力
+    // 破条时增加1星, 多余棍势按当前段阈值(30%/50%/70%)扣减后保留给下一段
     public void breakProgress(ServerPlayerPatch serverPlayerPatch, SkillContainer container) {
-        this.setConsumptionSynchronize(container, 0.1F);
+        float threshold =
+                (float)
+                        (container.getMaxResource()
+                                * (container.getStack() == 0
+                                        ? 0.3
+                                        : container.getStack() == 1 ? 0.5 : 0.7));
+        this.setConsumptionSynchronize(container, container.getResource() - threshold);
         this.setStackSynchronize(container, container.getStack() + 1);
     }
 

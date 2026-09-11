@@ -12,6 +12,7 @@ import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.compat.EpicFightDamageType;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
+import com.p1nero.wukong.epicfight.skill.WukongSkills;
 import com.p1nero.wukong.epicfight.skill.custom.avatar.HeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.network.PacketHandler;
@@ -153,16 +154,12 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                     .getPlayerFor(null)
                                     .getAnimation()
                                     .equals(WukongAnimations.THRUST_JUESICK_LOOP.get())) {
+                                // 搅棍命中加10棍势
                                 if (container.getStack() < 4) {
                                     container
                                             .getSkill()
                                             .setConsumptionSynchronize(
-                                                    container,
-                                                    container.getResource()
-                                                            + Config.CHARGING_SPEED
-                                                                            .get()
-                                                                            .floatValue()
-                                                                    * 3);
+                                                    container, container.getResource() + 10.0F);
                                 }
                             }
                             if (event.getAttackDamage() > 0.0) {
@@ -267,13 +264,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                             if (container
                                     .getDataManager()
                                     .getDataValue(WukongSkillDataKeys.Thrust_STEOP_BACK.get())) {
-                                container
-                                        .getSkill()
-                                        .setConsumptionSynchronize(
-                                                container,
-                                                container.getResource()
-                                                        + Config.CHARGING_SPEED.get().floatValue()
-                                                                * 90); // 获得大量棍势
+                                WukongSkills.gainResource(container, 30.0F); // 退寸获得30棍势
                                 PacketRelay.sendToAll(
                                         PacketHandler.INSTANCE,
                                         new AddEntityAfterImageParticle(
@@ -351,14 +342,9 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         } else {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
+            // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势
             if (dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_STACK.get())) {
-                if (container.getStack() < 4) {
-                    this.setStackSynchronize(container, Math.min(container.getStack() + 2, 4));
-                    serverPlayerPatch.playSound(
-                            WuKongSounds.XULI_LEVEL.get(container.getStack() - 1).get(), 1, 1);
-                    dataManager.setData(
-                            WukongSkillDataKeys.Thrust_LAST_STACK.get(), container.getStack());
-                }
+                WukongSkills.gainResource(container, 60.0F);
                 dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_TIMER.get(), 20);
                 dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_STACK.get(), false);
             }
@@ -410,10 +396,9 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     this.setStackSynchronize(container, 0);
                     return;
                 }
+                // 蓄力的加成(每tick+1.5棍势)
                 if (container.getStack() < 3) {
-                    this.setConsumptionSynchronize(
-                            container,
-                            container.getResource() + Config.CHARGING_SPEED.get().floatValue());
+                    this.setConsumptionSynchronize(container, container.getResource() + 1.5F);
                 }
                 if (!dataManager.getDataValue(WukongSkillDataKeys.Thrust_KEY_PRESSING.get())) {
                     dataManager.setDataSync(WukongSkillDataKeys.Thrust_IS_CHARGING.get(), false);
@@ -473,6 +458,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 }
             }
 
+            // 破条则加stack, 多余棍势保留给下一段(1星30%/2星50%/3星70%, 4星攒满120封顶)
             if (container.getStack() < 1
                     && container.getResource() > container.getMaxResource() * 0.3) {
                 breakProgress(serverPlayerPatch, container);
@@ -502,9 +488,15 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         }
     }
 
-    // 破条时增加1星并清空耐力
+    // 破条时增加1星, 多余棍势按当前段阈值(30%/50%/70%)扣减后保留给下一段
     public void breakProgress(ServerPlayerPatch serverPlayerPatch, SkillContainer container) {
-        this.setConsumptionSynchronize(container, 0.1F);
+        float threshold =
+                (float)
+                        (container.getMaxResource()
+                                * (container.getStack() == 0
+                                        ? 0.3
+                                        : container.getStack() == 1 ? 0.5 : 0.7));
+        this.setConsumptionSynchronize(container, container.getResource() - threshold);
         this.setStackSynchronize(container, container.getStack() + 1);
     }
 

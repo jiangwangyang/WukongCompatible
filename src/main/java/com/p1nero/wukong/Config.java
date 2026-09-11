@@ -22,7 +22,7 @@ public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     // 切手技判定时间(tick)
     public static final ForgeConfigSpec.DoubleValue DERIVE_CHECK_TIME;
-    // 蓄力时每tick增加的棍势
+    // 四蓄衰减速度基数(每tick流失该值/5的棍势)
     public static final ForgeConfigSpec.DoubleValue CHARGING_SPEED;
     // 四蓄(满星)窗口时长(tick), 窗口内命中会刷新计时
     public static final ForgeConfigSpec.DoubleValue CHARGED4_WINDOW_TICKS;
@@ -48,7 +48,7 @@ public class Config {
         BASIC_ATTACK_INTERVAL_TICKS =
                 createDouble("自定义普攻间隔判定时间（原版太长了！）", "basic_attack_time_interval", 16.0);
         DERIVE_CHECK_TIME = createDouble("切手技判定时间", "derive_check_time", 30.0);
-        CHARGING_SPEED = createDouble("蓄力时每tick增加的棍势（影响棍势消耗速度！）", "charging_speed", 1.2);
+        CHARGING_SPEED = createDouble("四蓄衰减速度基数（3星以上且窗口结束时每tick流失该值/5的棍势）", "charging_speed", 1.0);
         CHARGED4_WINDOW_TICKS =
                 createDouble(
                         "四蓄(4星)窗口时长tick数，窗口内命中敌人会刷新计时，窗口结束时满星降回3星(20 ticks = 1秒)，四种棍式统一",

@@ -2,7 +2,6 @@ package com.p1nero.wukong.epicfight.skill.custom.fashu;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.WukongSkillCategories;
@@ -151,10 +150,9 @@ public class FashuAnshenfaSkill extends Skill {
                     && !weaponContainer.isEmpty()
                     && weaponContainer.getSkill() != null) {
                 Skill weaponSkill = weaponContainer.getSkill();
+                // 阵内每脉冲回5棍势(平均1棍势/tick)
                 weaponSkill.setConsumptionSynchronize(
-                        weaponContainer,
-                        weaponContainer.getResource()
-                                + Config.CHARGING_SPEED.get().floatValue() * PULSE_INTERVAL);
+                        weaponContainer, weaponContainer.getResource() + 1.0F * PULSE_INTERVAL);
             }
             player.heal(0.2F * PULSE_INTERVAL);
         }

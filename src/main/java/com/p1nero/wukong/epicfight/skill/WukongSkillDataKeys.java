@@ -27,7 +27,10 @@ public class WukongSkillDataKeys {
                     "stance",
                     () ->
                             SkillDataKey.createSkillDataKey(
-                                    PacketBufferCodec.INTEGER, 0, false, SmashHeavyAttack.class)); // 当前棍式(武器天赋)编号
+                                    PacketBufferCodec.INTEGER,
+                                    0,
+                                    false,
+                                    SmashHeavyAttack.class)); // 当前棍式(武器天赋)编号
     public static final RegistryObject<SkillDataKey<Boolean>> IS_ATTACK_KEY_DOWN =
             DATA_KEYS.register(
                     "is_attack_key_down", // 戳棍重击: 攻击键是否按下
@@ -91,7 +94,7 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.BOOLEAN,
                                     false,
                                     false,
-                                    SmashHeavyAttack.class)); // 铜头铁臂成功格挡后跳2星标记
+                                    SmashHeavyAttack.class)); // 铜头铁臂成功格挡后加棍势标记
     public static final RegistryObject<SkillDataKey<Integer>> RED_TIMER =
             DATA_KEYS.register(
                     "red_timer",
@@ -364,7 +367,7 @@ public class WukongSkillDataKeys {
                                     PillarHeavyAttack.class)); // 派生重击时间
     public static final RegistryObject<SkillDataKey<Boolean>> PILLAR_FASHU_STACK =
             DATA_KEYS.register(
-                    "pillar_fashu_stack", // 立棍: 铜头铁臂成功格挡后跳星标记
+                    "pillar_fashu_stack", // 立棍: 铜头铁臂成功格挡后加棍势标记
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -503,7 +506,7 @@ public class WukongSkillDataKeys {
                                     ThrustHeavyAttack.class)); // 派生重击时间
     public static final RegistryObject<SkillDataKey<Boolean>> THRUST_FASHU_STACK =
             DATA_KEYS.register(
-                    "thrust_fashu_stack", // 戳棍: 铜头铁臂成功格挡后跳星标记
+                    "thrust_fashu_stack", // 戳棍: 铜头铁臂成功格挡后加棍势标记
                     () ->
                             SkillDataKey.createSkillDataKey(
                                     PacketBufferCodec.BOOLEAN,
@@ -756,7 +759,7 @@ public class WukongSkillDataKeys {
                                     PacketBufferCodec.BOOLEAN,
                                     false,
                                     false,
-                                    GreatSageHeavyAttack.class)); // 铜头铁臂成功格挡后跳2星标记
+                                    GreatSageHeavyAttack.class)); // 铜头铁臂成功格挡后加棍势标记
     public static final RegistryObject<SkillDataKey<Integer>> GREATSAGE_RED_TIMER =
             DATA_KEYS.register(
                     "greatsage_red_timer",

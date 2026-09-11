@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -53,6 +54,25 @@ public class WukongSkills {
             MAGI_DINGSHENFA,
             SHEN_WAI_SHEN_FA
         };
+    }
+
+    // 增加棍势: 跨段自动升星并保留多余棍势给下一段(阈值为上限的30%/50%/70%), 4星攒满上限封顶, 超出部分舍弃
+    public static void gainResource(SkillContainer container, float amount) {
+        float resource = container.getResource() + amount;
+        while (container.getStack() < 3) {
+            float threshold =
+                    (float)
+                            (container.getMaxResource()
+                                    * (container.getStack() == 0
+                                            ? 0.3
+                                            : container.getStack() == 1 ? 0.5 : 0.7));
+            if (resource <= threshold) {
+                break;
+            }
+            resource -= threshold;
+            container.getSkill().setStackSynchronize(container, container.getStack() + 1);
+        }
+        container.getSkill().setConsumptionSynchronize(container, resource);
     }
 
     // 获取玩家当前武器天赋(棍式)的星级层数
