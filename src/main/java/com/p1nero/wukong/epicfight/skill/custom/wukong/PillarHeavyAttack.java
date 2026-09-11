@@ -125,9 +125,13 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             }
             executer.playAnimationSynchronized(start[container.getStack()].get(), 0F);
         } else if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get()) > 0) {
-            executer.playAnimationSynchronized(start[container.getStack()].get(), 0F);
-            dataManager.setData(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), 0);
-            this.setStackSynchronize(container, container.getStack() - 1);
+            // 铜头铁臂直接释放窗口: 跳过爬棍蓄力前摇, 直接释放当前星数的砸下重击并清空全部棍势
+            dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), 0);
+            dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
+            executer.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
+            executer.playAnimationSynchronized(
+                    heavy[container.getStack()].get(), 0.0F); // 有几星就几星重击
+            resetConsumption(container, executer);
         } else if (dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0
                 && stackConsumed) {
             dataManager.setData(WukongSkillDataKeys.PILLAR_FENG_YU_ZHUAN.get(), true);

@@ -117,7 +117,16 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         } else if (player.onGround()) {
             // 如果用了星则要强化衍生
             boolean stackConsumed = container.getStack() > 0;
-            if (dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0
+            if (dataManager.getDataValue(WukongSkillDataKeys.SMASH_FASHU_TIMER.get()) > 0) {
+                // 铜头铁臂直接释放窗口: 跳过蓄力前摇, 直接释放当前星数的重击并清空全部棍势
+                dataManager.setDataSync(WukongSkillDataKeys.SMASH_FASHU_TIMER.get(), 0);
+                dataManager.setData(
+                        WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
+                executer.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
+                executer.playAnimationSynchronized(
+                        animations[container.getStack()].get(), 0.0F); // 有几星就几星重击
+                resetConsumption(container, executer, true);
+            } else if (dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0
                     && !container.isFull()) { // 有星才能用破棍式, 且满星直接放大(也防bug)
                 if (dataManager.getDataValue(WukongSkillDataKeys.CAN_FIRST_DERIVE.get())) {
                     dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
@@ -468,11 +477,18 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
             ServerPlayerPatch serverPlayerPatch = ((ServerPlayerPatch) container.getExecutor());
             ServerPlayer serverPlayer = serverPlayerPatch.getOriginal();
 
-            // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势
+            // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势, 并解锁30tick直接释放窗口
             if (dataManager.getDataValue(WukongSkillDataKeys.SMASH_FASHU_STACK.get())) {
                 WukongSkills.gainResource(container, 60.0F);
+                dataManager.setDataSync(WukongSkillDataKeys.SMASH_FASHU_TIMER.get(), 30);
                 dataManager.setDataSync(WukongSkillDataKeys.SMASH_FASHU_STACK.get(), false);
             }
+            dataManager.setDataSync(
+                    WukongSkillDataKeys.SMASH_FASHU_TIMER.get(),
+                    Math.max(
+                            dataManager.getDataValue(WukongSkillDataKeys.SMASH_FASHU_TIMER.get())
+                                    - 1,
+                            0)); // 铜头铁臂直接释放窗口计时
 
             // 层数变化检测以播放音效
             if (container.getStack()

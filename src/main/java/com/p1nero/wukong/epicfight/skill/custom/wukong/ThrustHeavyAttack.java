@@ -122,7 +122,15 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             return;
         }
 
-        if (dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get())
+        if (dataManager.getDataValue(WukongSkillDataKeys.THRUST_FASHU_TIMER.get()) > 0) {
+            // 铜头铁臂直接释放窗口: 跳过蓄力前摇, 直接释放当前星数的重击并清空全部棍势(4星走上方凤穿花分支)
+            dataManager.setDataSync(WukongSkillDataKeys.THRUST_FASHU_TIMER.get(), 0);
+            dataManager.setData(WukongSkillDataKeys.THRUST_PROTECT_NEXT_FALL.get(), true);
+            executer.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
+            executer.playAnimationSynchronized(
+                    animations[container.getStack()].get(), 0.0F); // 有几星就几星重击
+            resetConsumption(container, executer);
+        } else if (dataManager.getDataValue(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get())
                 > 0) { // 普攻击解锁退寸技
             dataManager.setData(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 0);
             executer.playAnimationSynchronized(stepinch.get(), 0F);

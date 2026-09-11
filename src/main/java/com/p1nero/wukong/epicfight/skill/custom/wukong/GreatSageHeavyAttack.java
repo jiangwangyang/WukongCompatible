@@ -152,6 +152,18 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             return;
         }
 
+        if (data.getDataValue(WukongSkillDataKeys.GREATSAGE_FASHU_TIMER.get()) > 0) {
+            // 铜头铁臂直接释放窗口: 跳过蓄力前摇, 直接释放当前星数的重击并清空全部棍势(4星走上方满星分支)
+            data.setDataSync(WukongSkillDataKeys.GREATSAGE_FASHU_TIMER.get(), 0);
+            data.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
+            data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), stack);
+            executor.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2.0F, 2.0F);
+            executor.playAnimationSynchronized(
+                    chargedAttacks[stack].get(), 0.0F); // 有几星就几星重击
+            resetConsumption(container, executor);
+            return;
+        }
+
         if (data.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0 && stack > 0) {
             data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
             data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), 1);
@@ -384,15 +396,17 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             data.setDataSync(WukongSkillDataKeys.ADD_BEANS.get(), false);
         }
 
-        // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势
+        // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势, 并解锁30tick直接释放窗口
         if (data.getDataValue(WukongSkillDataKeys.GREATSAGE_FASHU_STACK.get())) {
             WukongSkills.gainResource(container, 60.0F);
+            data.setDataSync(WukongSkillDataKeys.GREATSAGE_FASHU_TIMER.get(), 30);
             data.setDataSync(WukongSkillDataKeys.GREATSAGE_FASHU_STACK.get(), false);
         }
 
         decrementTimer(data, WukongSkillDataKeys.CAN_FIRST_TIMER.get(), player);
         decrementTimer(data, WukongSkillDataKeys.CAN_SECOND_TIMER.get(), player);
         decrementTimer(data, WukongSkillDataKeys.RED_TIMER.get(), player);
+        decrementTimer(data, WukongSkillDataKeys.GREATSAGE_FASHU_TIMER.get(), player);
 
         int stack = container.getStack();
         int lastStack = data.getDataValue(WukongSkillDataKeys.LAST_STACK.get());

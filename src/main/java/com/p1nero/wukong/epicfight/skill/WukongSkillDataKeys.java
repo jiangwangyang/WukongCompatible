@@ -95,6 +95,15 @@ public class WukongSkillDataKeys {
                                     false,
                                     false,
                                     SmashHeavyAttack.class)); // 铜头铁臂成功格挡后加棍势标记
+    public static final RegistryObject<SkillDataKey<Integer>> SMASH_FASHU_TIMER =
+            DATA_KEYS.register(
+                    "smash_fashu_timer",
+                    () ->
+                            SkillDataKey.createSkillDataKey(
+                                    PacketBufferCodec.INTEGER,
+                                    0,
+                                    false,
+                                    SmashHeavyAttack.class)); // 铜头铁臂直接释放窗口计时器
     public static final RegistryObject<SkillDataKey<Integer>> RED_TIMER =
             DATA_KEYS.register(
                     "red_timer",
@@ -760,6 +769,15 @@ public class WukongSkillDataKeys {
                                     false,
                                     false,
                                     GreatSageHeavyAttack.class)); // 铜头铁臂成功格挡后加棍势标记
+    public static final RegistryObject<SkillDataKey<Integer>> GREATSAGE_FASHU_TIMER =
+            DATA_KEYS.register(
+                    "greatsage_fashu_timer",
+                    () ->
+                            SkillDataKey.createSkillDataKey(
+                                    PacketBufferCodec.INTEGER,
+                                    0,
+                                    false,
+                                    GreatSageHeavyAttack.class)); // 铜头铁臂直接释放窗口计时器
     public static final RegistryObject<SkillDataKey<Integer>> GREATSAGE_RED_TIMER =
             DATA_KEYS.register(
                     "greatsage_red_timer",
