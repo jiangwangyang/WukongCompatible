@@ -64,7 +64,7 @@ public class ShenfaTongtoutiebiSkill extends Skill {
         if (dataManager.getDataValue(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get())) {
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_ATTACK.get(), false);
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_ZT.get(), true);
-            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 18);
+            dataManager.setDataSync(WukongSkillDataKeys.TTTB_RESTORE_TIMER.get(), 30);
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_COOLING_TIMER.get(), 300);
             dataManager.setDataSync(WukongSkillDataKeys.TTTB_INVINCIBLE_TIMER.get(), 0);
             executer.playAnimationSynchronized(deriveAnimation1.get(), 0F);

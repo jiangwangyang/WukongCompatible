@@ -42,7 +42,7 @@ public class Config {
     static {
         GET_GUILD_BOOK = createBool("给第一个进游戏的玩家玩法说明。", "get_guild_book", true);
         BASIC_ATTACK_INTERVAL_TICKS =
-                createDouble("自定义普攻间隔判定时间（原版太长了！）", "basic_attack_time_interval", 16.0);
+                createDouble("自定义普攻间隔判定时间（原版太长了！）", "basic_attack_time_interval", 30.0);
         DERIVE_CHECK_TIME = createDouble("切手技判定时间", "derive_check_time", 30.0);
         CHARGING_SPEED = createDouble("四蓄衰减速度基数（3星以上且窗口结束时每tick流失该值/5的棍势）", "charging_speed", 1.0);
         CHARGED4_WINDOW_TICKS =

@@ -487,7 +487,7 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             // 铜头铁臂成功格挡后加60棍势(与识破奖励一致), 跨段自动升星并保留多余棍势
             if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FASHU_STACK.get())) {
                 WukongSkills.gainResource(container, 60.0F);
-                dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), 18);
+                dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_TIMER.get(), 30);
                 dataManager.setDataSync(WukongSkillDataKeys.PILLAR_FASHU_STACK.get(), false);
             }
 

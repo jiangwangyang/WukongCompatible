@@ -171,7 +171,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                 }
             } else {
                 data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false);
-                data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 20);
+                data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30);
                 executor.playAnimationSynchronized(derivedAttacks1[combo].get(), 0.1F);
             }
             return;
@@ -277,7 +277,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                             var autoAnimations = capability.getAutoAttackMotion(playerPatch);
                             for (int i = 0; i < Math.min(autoAnimations.size(), 4); i++) {
                                 if (autoAnimations.get(i).equals(event.getAnimation())) {
-                                    data.setDataSync(WukongSkillDataKeys.CAN_FIRST_TIMER.get(), 25);
+                                    data.setDataSync(WukongSkillDataKeys.CAN_FIRST_TIMER.get(), 30);
                                     data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
                                     data.setDataSync(WukongSkillDataKeys.GREATSAGE_NUMBER.get(), i);
                                     data.setDataSync(
