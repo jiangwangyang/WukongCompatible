@@ -130,12 +130,16 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                         animations[container.getStack()].get(), 0.0F); // 有几星就几星重击
                 resetConsumption(container, executer, true);
             } else if (dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0
-                    && !container.isFull()) { // 有星才能用破棍式, 且满星直接放大(也防bug)
+                    && !container.isFull()) { // 切手技窗口内可放破棍式(不足1星也可放弱化版), 满星直接放大(也防bug)
                 if (dataManager.getDataValue(WukongSkillDataKeys.CAN_FIRST_DERIVE.get())) {
                     dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
-                    executer.playSound(
-                            WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
-                    this.setStackSynchronize(container, container.getStack() - 1);
+                    if (container.getStack() > 0) {
+                        // 至少1星时消耗1星并播放对应星级音效, 释放正常版破棍式
+                        executer.playSound(
+                                WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
+                        this.setStackSynchronize(container, container.getStack() - 1);
+                    }
+                    // 不足1星时不消耗棍势, 直接释放弱化版破棍式(伤害倍率由STARS_CONSUMED=0决定为x1.0)
                     executer.playAnimationSynchronized(deriveAnimation1.get(), 0.2F);
                 } else if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_DERIVE.get())) {
                     dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);

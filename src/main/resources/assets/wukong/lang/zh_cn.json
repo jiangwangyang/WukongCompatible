@@ -26,7 +26,7 @@
   "skill.wukong.staff_spin": "棍花",
   "skill.wukong.staff_spin.tooltip": "棍花：连续轻攻击触发棍花连段。",
   "skill.wukong.smash_style": "劈棍式",
-  "skill.wukong.smash_style.tooltip": "劈棍式：轻攻击后按技能键可消耗1层棍势使用破棍式；命中后可接斩棍式。",
+  "skill.wukong.smash_style.tooltip": "劈棍式：轻攻击后按技能键可使用破棍式，棍势不足1层时不消耗并释放弱化版，至少1层时消耗1层强化；命中后可接斩棍式。",
   "skill.wukong.thrust_style": "戳棍式",
   "skill.wukong.thrust_style.tooltip": "戳棍式：轻攻击后按技能键可消耗1层棍势使用搅棍式；命中后可接退寸步。",
   "skill.wukong.pillar_style": "立棍式",
