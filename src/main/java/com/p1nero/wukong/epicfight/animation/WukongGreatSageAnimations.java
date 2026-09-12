@@ -41,8 +41,8 @@ import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 // 大圣形态动画注册类: 持有大圣套动画访问器, 提供基础连段与重击风格的构建逻辑
+@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class WukongGreatSageAnimations {
     // 大圣套基础连段访问器(冲刺轻击与轻击 1~5)
     public static AnimationManager.AnimationAccessor STAFF_AUTO1_DASH;

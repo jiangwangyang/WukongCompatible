@@ -96,6 +96,20 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         this.chargePre = requireProvider(builder.chargePre, "charge pre animation");
     }
 
+    // 返回所有重击动画列表, 用于判断当前是否处于重击状态
+    @Override
+    public List<StaticAnimationProvider> getHeavyAttacks() {
+        List<StaticAnimationProvider> animations = new ArrayList<>();
+        Collections.addAll(animations, derivedAttacks1);
+        Collections.addAll(animations, derivedAttacks2);
+        Collections.addAll(animations, chargedAttacks);
+        Collections.addAll(animations, pillarHeavyAttacks);
+        Collections.addAll(animations, pillarStartAttacks);
+        animations.add(pillarUp);
+        animations.add(chargePre);
+        return animations;
+    }
+
     // 校验动画提供者数组非空且长度达标, 否则抛出异常
     private static StaticAnimationProvider[] requireProviders(
             StaticAnimationProvider[] providers, int minimumLength, String name) {
@@ -112,20 +126,6 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             throw new IllegalArgumentException("Great Sage requires " + name);
         }
         return provider;
-    }
-
-    // 返回所有重击动画列表, 用于判断当前是否处于重击状态
-    @Override
-    public List<StaticAnimationProvider> getHeavyAttacks() {
-        List<StaticAnimationProvider> animations = new ArrayList<>();
-        Collections.addAll(animations, derivedAttacks1);
-        Collections.addAll(animations, derivedAttacks2);
-        Collections.addAll(animations, chargedAttacks);
-        Collections.addAll(animations, pillarHeavyAttacks);
-        Collections.addAll(animations, pillarStartAttacks);
-        animations.add(pillarUp);
-        animations.add(chargePre);
-        return animations;
     }
 
     // 服务端执行技能: 根据棍势/计时器决定播放的衍生或蓄力动画

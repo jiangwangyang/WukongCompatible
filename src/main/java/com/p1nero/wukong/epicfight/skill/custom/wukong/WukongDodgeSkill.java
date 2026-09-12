@@ -29,8 +29,14 @@ import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.client.CPSkillRequest;
-import yesman.epicfight.skill.*;
+import yesman.epicfight.skill.BasicAttack;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
@@ -87,9 +93,7 @@ public class WukongDodgeSkill extends Skill {
                                     PacketRelay.sendToAll(
                                             PacketHandler.INSTANCE,
                                             new AddEntityAfterImageParticle(
-                                                    player.getId())); // 下面那行无效, 手动发包解决//
-                                    //
-                                    // serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(), player.getX(), player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);
+                                                    player.getId())); // 手动发包加残影
                                 }
                                 SkillContainer weaponInnateContainer =
                                         event.getPlayerPatch().getSkill(SkillSlots.WEAPON_INNATE);

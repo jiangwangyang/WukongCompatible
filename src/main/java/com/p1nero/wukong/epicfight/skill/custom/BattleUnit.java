@@ -2,7 +2,6 @@ package com.p1nero.wukong.epicfight.skill.custom;
 
 import com.p1nero.wukong.client.particle.WuKongEffect;
 import com.p1nero.wukong.entity.CloudStepLeftEntity;
-import com.p1nero.wukong.entity.FakeWukongEntity;
 import com.p1nero.wukong.entity.client.DingAfterImageParticle;
 import com.p1nero.wukong.epicfight.WukongSkillSlots;
 import com.p1nero.wukong.epicfight.skill.EntitySpeedData;
@@ -13,7 +12,6 @@ import com.p1nero.wukong.epicfight.skill.custom.wukong.UpdateWeaponInnatePacket;
 import com.p1nero.wukong.network.PacketHandler;
 import com.p1nero.wukong.network.PacketRelay;
 
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,46 +31,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.List;
 
-// 战斗单元: 提供分身, 大圣模式切换, 定身施放等战斗相关辅助逻辑
+// 战斗单元: 提供大圣模式切换, 定身施放, 寸退解锁/上锁等战斗相关辅助逻辑
 public class BattleUnit {
-
-    // 空构造器
-    public BattleUnit() {}
-
-    // 分身: 在玩家周围环形生成多个假悟空实体, 并播撒poof粒子
-    public static void fenshen(LivingEntityPatch<?> entitypatch) {
-        if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
-            ServerPlayer player = serverPlayerPatch.getOriginal();
-            Vec3 position = player.position(); // 获取玩家位置
-            Vec3 particleOrigin = position.subtract(0, 1, 0);
-            if (entitypatch.getOriginal() instanceof ServerPlayer serverPlayer) {
-                ServerLevel serverLevel = (ServerLevel) serverPlayer.level();
-                int particleCount = 7;
-                float radius = 5F;
-                float angleIncrement = (float) Math.PI * 2 / particleCount;
-                for (int i = 0; i < particleCount; i++) {
-                    float angle = i * angleIncrement;
-                    float xOffset = radius * (float) Math.cos(angle);
-                    float zOffset = radius * (float) Math.sin(angle);
-                    Vec3 particlePos = particleOrigin.add(xOffset, 0, zOffset);
-                    serverLevel.sendParticles(
-                            ParticleTypes.POOF,
-                            particlePos.x,
-                            particlePos.y + 2,
-                            particlePos.z,
-                            20,
-                            0,
-                            0,
-                            0,
-                            0.1);
-                    FakeWukongEntity fakeWukongEntity =
-                            new FakeWukongEntity(serverPlayerPatch.getOriginal());
-                    fakeWukongEntity.setPos(particleOrigin.add(xOffset, 1, zOffset)); // 设置位置
-                    serverLevel.getLevel().addFreshEntity(fakeWukongEntity);
-                }
-            }
-        }
-    }
 
     // 切换为大圣模式: 将武器天赋槽切换为第4(大圣)式并向玩家发送提示
     public static void greatSageMode(LivingEntityPatch<?> entitypatch) {
@@ -94,7 +54,7 @@ public class BattleUnit {
         if (attackTarget == null) {
             if (entitypatch instanceof ServerPlayerPatch serverPlayerPatch) {
                 ServerPlayer player = serverPlayerPatch.getOriginal();
-                Vec3 position = player.position(); // 获取玩家位置
+                Vec3 position = player.position();
                 LivingEntity closestMonster = null;
                 double closestDistance = Double.MAX_VALUE;
                 List<LivingEntity> nearbyEntities =

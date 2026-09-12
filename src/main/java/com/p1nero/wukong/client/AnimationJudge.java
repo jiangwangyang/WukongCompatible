@@ -6,22 +6,24 @@ import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.skill.SkillSlots;
 
 import java.util.Arrays;
 import java.util.List;
 
+// 动画判定工具: 按蓄力星级/发光特效/棍花等类别判定动画归属
 public record AnimationJudge() {
-    static final List<AnimationManager.AnimationAccessor> ZERO_STOR;
     static final List<AnimationManager.AnimationAccessor> ONE_STOR;
     static final List<AnimationManager.AnimationAccessor> TWO_STOR;
     static final List<AnimationManager.AnimationAccessor> THREE_STOR;
     static final List<AnimationManager.AnimationAccessor> FOUR_STOR;
-    static final List<AnimationManager.AnimationAccessor> Glow;
+    static final List<AnimationManager.AnimationAccessor> GLOW;
     static final List<AnimationManager.AnimationAccessor> GH;
 
     static {
-        Glow =
+        GLOW =
                 Arrays.asList(
                         WukongAnimations.SMASH_CHARGED0,
                         WukongAnimations.SMASH_CHARGED1,
@@ -38,11 +40,6 @@ public record AnimationJudge() {
                         WukongAnimations.PILLAR_HEAVY2,
                         WukongAnimations.PILLAR_HEAVY3,
                         WukongAnimations.PILLAR_HEAVY4);
-        ZERO_STOR =
-                Arrays.asList(
-                        WukongAnimations.SMASH_CHARGED0,
-                        WukongAnimations.THRUST_CHARGED0,
-                        WukongAnimations.PILLAR_HEAVY0);
         ONE_STOR =
                 Arrays.asList(
                         WukongAnimations.SMASH_CHARGED1,
@@ -77,7 +74,7 @@ public record AnimationJudge() {
 
     // 判断动画是否为带发光特效的蓄力动画
     public static boolean isGlow(StaticAnimation staticAnimation) {
-        return contains(Glow, staticAnimation);
+        return contains(GLOW, staticAnimation);
     }
 
     // 判断动画是否为一层蓄力动画
@@ -109,25 +106,14 @@ public record AnimationJudge() {
 
     // 判断玩家当前是否处于蓄力状态(劈棍/戳棍)
     public static boolean isCharging(LocalPlayerPatch lpp) {
-        return lpp.getSkill(SkillSlots.WEAPON_INNATE) != null
-                && ((lpp.getSkill(SkillSlots.WEAPON_INNATE)
-                                        .getDataManager()
-                                        .hasData(WukongSkillDataKeys.IS_CHARGING.get())
-                                && lpp.getSkill(SkillSlots.WEAPON_INNATE)
-                                        .getDataManager()
-                                        .getDataValue(WukongSkillDataKeys.IS_CHARGING.get()))
-                        || (lpp.getSkill(SkillSlots.WEAPON_INNATE)
-                                        .getDataManager()
-                                        .hasData(WukongSkillDataKeys.IS_CHARGING.get())
-                                && (lpp.getSkill(SkillSlots.WEAPON_INNATE)
-                                        .getDataManager()
-                                        .getDataValue(WukongSkillDataKeys.IS_CHARGING.get())))
-                        || (lpp.getSkill(SkillSlots.WEAPON_INNATE)
-                                        .getDataManager()
-                                        .hasData(WukongSkillDataKeys.Thrust_IS_CHARGING.get())
-                                && (lpp.getSkill(SkillSlots.WEAPON_INNATE)
-                                        .getDataManager()
-                                        .getDataValue(
-                                                WukongSkillDataKeys.Thrust_IS_CHARGING.get()))));
+        SkillContainer innate = lpp.getSkill(SkillSlots.WEAPON_INNATE);
+        if (innate == null) {
+            return false;
+        }
+        SkillDataManager dataManager = innate.getDataManager();
+        return (dataManager.hasData(WukongSkillDataKeys.IS_CHARGING.get())
+                        && dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get()))
+                || (dataManager.hasData(WukongSkillDataKeys.Thrust_IS_CHARGING.get())
+                        && dataManager.getDataValue(WukongSkillDataKeys.Thrust_IS_CHARGING.get()));
     }
 }

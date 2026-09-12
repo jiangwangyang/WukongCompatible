@@ -33,11 +33,12 @@ public class ItemRendererMixin {
             int p_115150_,
             BakedModel p_115151_,
             CallbackInfo ci) {
-        // 获取物品的能力
+        // 物品栏/GUI 中的物品不做任何修改
         if (p_270188_ == ItemDisplayContext.NONE || p_270188_ == ItemDisplayContext.GUI) {
-            return; // 如果是物品栏中的物品, 不进行任何修改
+            return;
         }
 
+        // 获取物品的武器能力
         itemStack
                 .getCapability(EpicFightCapabilities.CAPABILITY_ITEM)
                 .ifPresent(

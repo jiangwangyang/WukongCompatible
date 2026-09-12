@@ -21,7 +21,7 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-// 抄ef原版的调视角, 改了个方向, 注意要取消动画的turning lock才不会被打断
+// 相机视角控制: 瞄准时拉近相机并延迟拉远(参照EpicFight原版实现修改方向), 注意需取消动画的turning lock才不会被打断
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, value = Dist.CLIENT)
 public class CameraAnim {
     // 默认的瞄准相机偏移修正量
@@ -43,17 +43,10 @@ public class CameraAnim {
     }
 
     // 开始拉近相机, 指定偏移修正量与拉远前的保持时长
-    public static void zoomIn(Vec3f aimingCorrection, int timer) { // TODO int InsuranceTime
+    public static void zoomIn(Vec3f aimingCorrection, int timer) {
         aiming = true;
         zoomCount = zoomCount == 0 ? 1 : zoomCount;
         zoomOutTimer = timer;
-        AIMING_CORRECTION = aimingCorrection;
-    }
-
-    public static void zoomIn(Vec3f aimingCorrection) {
-        aiming = true;
-        zoomCount = zoomCount == 0 ? 1 : zoomCount;
-        zoomOutTimer = 0;
         AIMING_CORRECTION = aimingCorrection;
     }
 

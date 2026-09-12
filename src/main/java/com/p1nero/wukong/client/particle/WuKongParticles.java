@@ -15,8 +15,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 // 粒子类型注册类, 定义定身与残影粒子并在客户端注册其渲染器
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class WuKongParticles {
     // 粒子类型注册表
     public static final DeferredRegister<ParticleType<?>> PARTICLES =
@@ -28,6 +28,7 @@ public class WuKongParticles {
     public static final RegistryObject<SimpleParticleType> ENTITY_AFTER_IMAGE =
             PARTICLES.register("shen", () -> new SimpleParticleType(true));
 
+    // 空构造, 供 Forge 注册事件订阅器实例
     public WuKongParticles() {}
 
     // 为定身与残影粒子注册精灵集(sprite set)渲染器

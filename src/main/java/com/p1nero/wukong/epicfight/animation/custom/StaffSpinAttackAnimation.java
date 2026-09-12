@@ -93,7 +93,7 @@ public class StaffSpinAttackAnimation extends BasicMultipleAttackAnimation {
             passiveContainer.getDataManager().setDataSync(PLAYING_STAFF_SPIN.get(), false);
         }
         if (entityPatch.isLogicalClient() && CameraAnim.isAiming()) {
-            CameraAnim.zoomOut(20); // 保险
+            CameraAnim.zoomOut(20); // 兜底拉远相机
         }
     }
 }

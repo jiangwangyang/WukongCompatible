@@ -16,6 +16,13 @@ public class StaffStance extends Skill {
     // 当前棍式(为空时默认劈棍)
     public final WukongStyles style;
 
+    // 创建棍式技能构建器, 设为STAFF_STYLE分类且无需消耗资源
+    public static Builder createStaffStyle() {
+        return new Builder()
+                .setCategory(WukongSkillCategories.STAFF_STYLE)
+                .setResource(Resource.NONE);
+    }
+
     // 构造方法, 保存棍式
     public StaffStance(Builder builder) {
         super(builder);
@@ -26,13 +33,6 @@ public class StaffStance extends Skill {
     @Override
     public void onInitiate(SkillContainer container) {
         super.onInitiate(container);
-    }
-
-    // 创建棍式技能构建器, 设为STAFF_STYLE分类且无需消耗资源
-    public static Builder createStaffStyle() {
-        return new Builder()
-                .setCategory(WukongSkillCategories.STAFF_STYLE)
-                .setResource(Resource.NONE);
     }
 
     // 技能移除时的回调(当前无额外逻辑, 仅调用父类)

@@ -30,8 +30,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.skill.*;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
@@ -104,27 +108,21 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                         (event) -> {
                             if (!event.getPlayerPatch().isLogicalClient()) {
                                 PlayerPatch<?> executer = event.getPlayerPatch();
-                                ServerPlayer player =
-                                        (ServerPlayer) executer.getOriginal(); // 获取玩家的位置
-                                Vec3 playerPos = player.position(); // 设置探测范围, 比如一个半径为 10 的球形范围
+                                ServerPlayer player = (ServerPlayer) executer.getOriginal();
+                                Vec3 playerPos = player.position();
+                                // 探测范围: 以玩家为中心半径 10 的球形范围
                                 double radius = 10.0;
                                 AABB range =
                                         new AABB(
                                                 playerPos.subtract(radius, radius, radius),
-                                                playerPos.add(
-                                                        radius, radius,
-                                                        radius)); // 获取周围的实体(怪物, 动物等)
+                                                playerPos.add(radius, radius, radius));
+                                // 获取范围内的怪物实体
                                 List<Entity> nearbyEntities =
                                         player.level()
                                                 .getEntitiesOfClass(
                                                         Entity.class,
                                                         range,
-                                                        entity ->
-                                                                entity
-                                                                        instanceof
-                                                                        Monster); // 只获取怪物类实体
-                                //  WukongMoveset.LOGGER.info("聚气化形: {}", nearbyEntities.size());
-
+                                                        entity -> entity instanceof Monster);
                                 // 平A换成破隐
                                 if (event.getSkillContainer()
                                         .getSkill()

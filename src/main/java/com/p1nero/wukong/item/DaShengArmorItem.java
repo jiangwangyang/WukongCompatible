@@ -15,7 +15,10 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -111,7 +114,7 @@ public class DaShengArmorItem extends ArmorItem implements GeoItem {
 
                     if (player instanceof ServerPlayer serverPlayer
                             && serverPlayer.getAbilities().flying) {
-                        ServerLevel serverLevel = serverPlayer.serverLevel(); // 获取服务器世界实例
+                        ServerLevel serverLevel = serverPlayer.serverLevel();
                         double x = serverPlayer.getX();
                         double y = serverPlayer.getY();
                         double z = serverPlayer.getZ();

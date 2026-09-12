@@ -79,6 +79,7 @@ public class WukongKeyMappings {
                     GLFW.GLFW_KEY_V,
                     "key.wukong.category");
 
+    // 注册全部按键映射
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(JIAO_ZHEN);

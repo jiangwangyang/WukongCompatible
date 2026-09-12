@@ -41,8 +41,11 @@ import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.skill.*;
 import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -54,6 +57,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,10 +66,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
     // 本技能事件监听器的唯一标识
     private static final UUID EVENT_UUID = UUID.fromString("d2d057cc-f30f-11ed-a05b-0242ac114513");
-    // 立棍蓄力时视野(FOV)最大增加角度
-    public static final int MAX_ANGLE_FOV = 74;
-    // 立棍蓄力时视野最小角度(占位, 当前未使用)
-    public static final int MAX_FOVLJ = 0;
     // 立棍增高(升星)动画
     protected final StaticAnimationProvider[] up;
     // 立棍起手动画
@@ -81,14 +81,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
     protected StaticAnimationProvider hotwheel;
     // 衍生收尾动画
     protected StaticAnimationProvider deriveEnd;
-
-    // 返回重击动画列表(含二段衍生), 用于判断当前是否处于重击状态
-    @Override
-    public List<StaticAnimationProvider> getHeavyAttacks() {
-        List<StaticAnimationProvider> staticAnimations = new java.util.ArrayList<>(List.of(heavy));
-        staticAnimations.add(deriveAnimation2);
-        return staticAnimations;
-    }
 
     // 创建技能构建器, 设为武器固有技能且无需消耗资源
     public static Builder createChargedAttack() {
@@ -106,6 +98,14 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         deriveAnimation2 = builder.derive2;
         hotwheel = builder.hotwheel;
         deriveEnd = builder.deriveEnd;
+    }
+
+    // 返回重击动画列表(含二段衍生), 用于判断当前是否处于重击状态
+    @Override
+    public List<StaticAnimationProvider> getHeavyAttacks() {
+        List<StaticAnimationProvider> staticAnimations = new ArrayList<>(List.of(heavy));
+        staticAnimations.add(deriveAnimation2);
+        return staticAnimations;
     }
 
     // 在计时周期内使用技能才算使用衍生, 否则视为重击; 长按循环第一段衍生的判断在updateContainer
@@ -500,9 +500,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     resetConsumption(container, serverPlayerPatch);
                 }
             }
-
-            // WukongMoveset.LOGGER.info("立棍PILLAR_JIANGHAIFAN_TIMER:
-            // {}",dataManager.getDataValue(WukongSkillDataKeys.JIANGHAIFAN_TIMER.get())) ;
 
             if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_FENG_YU_ZHUAN.get())) {
                 if (!dataManager.getDataValue(WukongSkillDataKeys.KEY_PRESSING.get())) {

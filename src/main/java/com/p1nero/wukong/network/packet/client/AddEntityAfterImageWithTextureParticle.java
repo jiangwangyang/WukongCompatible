@@ -8,9 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-// 手动加残影, 不知道为何 serverLevel.sendParticles(EpicFightParticles.ENTITY_AFTER_IMAGE.get(),
-// player.getX(),
-// player.getY(), player.getZ(), 0, Double.longBitsToDouble(player.getId()), 0.0, 0.0, 1.0);无效
+// 手动发包加残影: 直接调 serverLevel.sendParticles 发 ENTITY_AFTER_IMAGE 无效, 故改为数据包手动生成
 // 数据包: 在服务端请求下于指定实体位置生成带贴图的残影粒子 (以 y 为中心抬高渲染)
 public record AddEntityAfterImageWithTextureParticle(int id) implements BasePacket {
 

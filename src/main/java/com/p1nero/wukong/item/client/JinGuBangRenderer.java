@@ -30,10 +30,10 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
     // 当前金箍棒贴图档位索引(0~4), 发光/蓄力时随动画循环递增切换更亮的贴图
     public static int MAX_CZLT = 1;
-    // 发光动画的内部帧计数器(循环0~TOTAL_TEXTURES-1)
-    private int currentTextureIndex = 0;
     // 发光动画总帧数
     private static final int TOTAL_TEXTURES = 20;
+    // 发光动画的内部帧计数器(循环0~TOTAL_TEXTURES-1)
+    private int currentTextureIndex = 0;
 
     // 构造方法, 加载金箍棒模型
     public JinGuBangRenderer() {

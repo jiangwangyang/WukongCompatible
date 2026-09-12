@@ -28,8 +28,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.skill.*;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 import java.util.List;
@@ -69,7 +73,6 @@ public class FashuAnshenfaSkill extends Skill {
         if (executer == null) {
             return;
         }
-        // WukongMoveset.LOGGER.info("安身 {}", "executeOnServer");
         SkillDataManager dataManager = container.getDataManager();
         ServerPlayer player = executer.getOriginal();
 

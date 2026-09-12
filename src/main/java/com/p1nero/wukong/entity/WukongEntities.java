@@ -17,8 +17,8 @@ import net.minecraftforge.registries.RegistryObject;
 import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
 import yesman.epicfight.gameasset.Armatures;
 
-@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 // 本模组实体注册中心: 注册假悟空与筋斗云残留实体, 并绑定属性与 Patch
+@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WukongEntities {
     // 实体类型延迟注册表
     public static final DeferredRegister<EntityType<?>> ENTITIES =

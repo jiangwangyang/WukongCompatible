@@ -6,26 +6,29 @@ import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.StaffScaleState;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.entity.FakeWukongEntity;
-import com.p1nero.wukong.epicfight.animation.custom.*;
+import com.p1nero.wukong.epicfight.animation.custom.BasicMultipleAttackAnimation;
+import com.p1nero.wukong.epicfight.animation.custom.SpecialActionAnimation;
+import com.p1nero.wukong.epicfight.animation.custom.StaffSpinAttackAnimation;
+import com.p1nero.wukong.epicfight.animation.custom.WukongBasicMultipleAttackAnimation;
+import com.p1nero.wukong.epicfight.animation.custom.WukongDodgeAnimation;
+import com.p1nero.wukong.epicfight.animation.custom.WukongJumpAttackAnimation;
+import com.p1nero.wukong.epicfight.animation.custom.WukongMoveCoordFunctions;
+import com.p1nero.wukong.epicfight.animation.custom.WukongScaleStaffAttackAnimation;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.skill.custom.BattleUnit;
 import com.p1nero.wukong.epicfight.weapon.WukongColliders;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.item.WukongItems;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -33,7 +36,13 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
-import yesman.epicfight.api.animation.types.*;
+import yesman.epicfight.api.animation.types.ActionAnimation;
+import yesman.epicfight.api.animation.types.AttackAnimation;
+import yesman.epicfight.api.animation.types.BasicAttackAnimation;
+import yesman.epicfight.api.animation.types.EntityState;
+import yesman.epicfight.api.animation.types.MainFrameAnimation;
+import yesman.epicfight.api.animation.types.SelectiveAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.LevelUtil;
 import yesman.epicfight.api.utils.TimePairList;
@@ -47,41 +56,16 @@ import yesman.epicfight.skill.BasicAttack;
 import yesman.epicfight.skill.SkillDataKey;
 import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.skill.SkillSlots;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
+// 悟空动画注册主类: 持有各形态动画访问器, 提供普通/戳棍/立棍/劈棍等动画的构建逻辑, 并附带棍身缩放事件等工具方法
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-// 悟空动画注册主类: 持有各形态动画访问器, 提供普通/戳棍/立棍/劈棍等动画的构建逻辑, 并附带物品缩放事件与 tick 计时等工具方法
 public class WukongAnimations {
-
-    // 若武器天赋技能数据已注册则写入数据(不同步)
-    private static <T> void setWeaponInnateDataIfRegistered(
-            ServerPlayerPatch playerPatch, SkillDataKey<T> key, T value) {
-        SkillDataManager dataManager =
-                playerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
-        if (dataManager.hasData(key)) {
-            dataManager.setData(key, value);
-        }
-    }
-
-    // 若武器天赋技能数据已注册则写入数据并同步到客户端
-    private static <T> void setWeaponInnateDataSyncIfRegistered(
-            ServerPlayerPatch playerPatch, SkillDataKey<T> key, T value) {
-        SkillDataManager dataManager =
-                playerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
-        if (dataManager.hasData(key)) {
-            dataManager.setDataSync(key, value);
-        }
-    }
 
     public static AnimationManager.AnimationAccessor IDLE;
     public static AnimationManager.AnimationAccessor WALK;
@@ -370,7 +354,7 @@ public class WukongAnimations {
                                                 AnimationProperty.StaticAnimationProperty
                                                         .PLAY_SPEED_MODIFIER,
                                                 (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
-                                                        1.5F)); // 设置播放速度
+                                                        1.5F));
 
         FASHU_MAGICARTS_DSF_START =
                 builder.nextAccessor(
@@ -4204,72 +4188,24 @@ public class WukongAnimations {
 
     }
 
-    // 对目标施加来自玩家的水平方向击退, 强度由 knockbackStrength 控制
-    public void applyKnockback(ServerPlayer player, Entity target, double knockbackStrength) {
-        if (target instanceof LivingEntity) {
-            double directionX = target.getX() - player.getX();
-            double directionZ = target.getZ() - player.getZ();
-            double distance = Math.sqrt(directionX * directionX + directionZ * directionZ);
-
-            if (distance > 0.1) {
-                directionX /= distance; // 归一化方向
-                directionZ /= distance;
-                target.push(directionX * knockbackStrength, 0.0, directionZ * knockbackStrength);
-            }
+    // 若武器天赋技能数据已注册则写入数据(不同步)
+    private static <T> void setWeaponInnateDataIfRegistered(
+            ServerPlayerPatch playerPatch, SkillDataKey<T> key, T value) {
+        SkillDataManager dataManager =
+                playerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
+        if (dataManager.hasData(key)) {
+            dataManager.setData(key, value);
         }
     }
 
-    // 通过后台调度线程平滑调整客户端视野(FOV), 每 10ms 一帧, 在 durationTicks 内从当前 FOV 插值到目标 FOV, 重复 repeatTimes 次, 上限
-    // 97
-    public static void CameraOperationFov(
-            float increaseAmount, int durationTicks, int repeatTimes) {
-        Minecraft MC = Minecraft.getInstance();
-        float startFov = MC.options.fov().get();
-        float targetFov = Math.min(startFov + increaseAmount, 97F);
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        AtomicInteger tickCount = new AtomicInteger(0);
-        AtomicInteger repeatCount = new AtomicInteger(0);
-        Runnable task =
-                new Runnable() {
-                    private float currentStartFov = startFov;
-
-                    @Override
-                    public void run() {
-                        int currentTick = tickCount.incrementAndGet();
-                        if (currentTick > durationTicks) {
-                            tickCount.set(0);
-                            repeatCount.incrementAndGet();
-                            if (repeatCount.get() >= repeatTimes) {
-                                scheduler.shutdown();
-                                return;
-                            }
-                            currentStartFov = MC.options.fov().get();
-                        }
-                        float progress = (float) currentTick / durationTicks;
-                        float newFov = currentStartFov + (targetFov - currentStartFov) * progress;
-                        MC.options.fov().set((int) newFov);
-                    }
-                };
-
-        scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.MILLISECONDS);
-    }
-
-    // 若主手是悟空棍, 在物品 nbt 中写入特效剩余时间(单位 tick)
-    public static void addItemEffectTimer(ServerPlayer serverPlayer, int leftTime) {
-        serverPlayer
-                .getMainHandItem()
-                .getCapability(EpicFightCapabilities.CAPABILITY_ITEM)
-                .ifPresent(
-                        (capabilityItem -> {
-                            if (capabilityItem
-                                    .getWeaponCategory()
-                                    .equals(WukongWeaponCategories.WK_STAFF)) {
-                                serverPlayer
-                                        .getMainHandItem()
-                                        .getOrCreateTag()
-                                        .putInt(WukongMoveset.ITEM_HAS_EFFECT_TIMER_KEY, leftTime);
-                            }
-                        }));
+    // 若武器天赋技能数据已注册则写入数据并同步到客户端
+    private static <T> void setWeaponInnateDataSyncIfRegistered(
+            ServerPlayerPatch playerPatch, SkillDataKey<T> key, T value) {
+        SkillDataManager dataManager =
+                playerPatch.getSkill(SkillSlots.WEAPON_INNATE).getDataManager();
+        if (dataManager.hasData(key)) {
+            dataManager.setDataSync(key, value);
+        }
     }
 
     // 把新事件 e 追加到旧事件数组末尾并返回新列表
@@ -4418,32 +4354,6 @@ public class WukongAnimations {
         // 构造一个复位(无缩放/无位移)的缩放数据, 时间换算为 tick
         public static ScaleTime reset(float time) {
             return new ScaleTime(((int) (time * 20)), 1, 1, 1, 0, 0, 0);
-        }
-    }
-
-    // 玩家每 tick 递减主手棍的物品特效计时
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.player instanceof ServerPlayer serverPlayer) {
-            serverPlayer
-                    .getMainHandItem()
-                    .getCapability(EpicFightCapabilities.CAPABILITY_ITEM)
-                    .ifPresent(
-                            (capabilityItem -> {
-                                if (capabilityItem
-                                        .getWeaponCategory()
-                                        .equals(WukongWeaponCategories.WK_STAFF)) {
-                                    CompoundTag mainHandItem =
-                                            serverPlayer.getMainHandItem().getOrCreateTag();
-                                    mainHandItem.putInt(
-                                            WukongMoveset.ITEM_HAS_EFFECT_TIMER_KEY,
-                                            Math.max(
-                                                    0,
-                                                    mainHandItem.getInt(
-                                                                    WukongMoveset
-                                                                            .ITEM_HAS_EFFECT_TIMER_KEY)
-                                                            - 1));
-                                }
-                            }));
         }
     }
 }

@@ -4,8 +4,18 @@ import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.epicfight.WukongStyles;
 import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.animation.WukongGreatSageAnimations;
-import com.p1nero.wukong.epicfight.skill.custom.fashu.*;
-import com.p1nero.wukong.epicfight.skill.custom.wukong.*;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.FashuAnshenfaSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.FashuDingshenfaSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenWaiShenFaSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenfaJuxingsanqiSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenfaTongtoutiebiSkill;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.GreatSageHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.PillarHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.SmashHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.StaffPassive;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.StaffStance;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.ThrustHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.WukongDodgeSkill;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,8 +31,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 // 悟空技能注册类: 在MOD事件总线上注册全部技能(棍式/重击/闪避/法术), 并提供可选项列表
+@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WukongSkills {
     public static Skill SMASH_STYLE; // 劈棍式技能实例
     public static Skill THRUST_STYLE; // 戳棍式技能实例

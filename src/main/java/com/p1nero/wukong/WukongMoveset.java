@@ -8,7 +8,6 @@ import com.p1nero.wukong.entity.WukongEntities;
 import com.p1nero.wukong.epicfight.WukongSkillCategories;
 import com.p1nero.wukong.epicfight.WukongSkillSlots;
 import com.p1nero.wukong.epicfight.WukongStyles;
-import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.item.WukongItems;
@@ -33,13 +32,11 @@ import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.item.Style;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
-@Mod("wukong")
 // 悟空模组主类, 负责注册技能枚举/物品/实体/粒子/音效并初始化配置与事件监听
+@Mod("wukong")
 public class WukongMoveset {
     // 模组唯一ID
     public static final String MOD_ID = "wukong";
-    // 武器持有特效计时器的NBT键名
-    public static final String ITEM_HAS_EFFECT_TIMER_KEY = "wukong_has_effect_timer";
     // 模组日志器
     public static final Logger LOGGER = LogUtils.getLogger();
 
@@ -62,7 +59,6 @@ public class WukongMoveset {
         PacketHandler.register();
 
         IEventBus fg_bus = MinecraftForge.EVENT_BUS;
-        fg_bus.addListener(WukongAnimations::onPlayerTick);
         fg_bus.addListener(WukongMoveset::onPlayerLoggedIn);
 
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -70,10 +66,6 @@ public class WukongMoveset {
 
     // 玩家登录时(若开启配置)发放一本硬编码的游玩指南书
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        // WKPlayer.setFovsz(Minecraft.getInstance().options.fov().get());
-
-        // Minecraft.getInstance().player.setCustomName(Component.nullToEmpty("DSX"));
-
         if (!Config.GET_GUILD_BOOK.get()) {
             return;
         }

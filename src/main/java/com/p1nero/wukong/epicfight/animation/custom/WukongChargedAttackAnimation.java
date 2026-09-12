@@ -12,7 +12,6 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 // 蓄力攻击动画: 在造成伤害的时间节点给物品写入 nbt 标签, 方便做棍子的人操作缩放; 按棍势加伤尚未实现
 public class WukongChargedAttackAnimation extends BasicAttackAnimation {
@@ -61,18 +60,5 @@ public class WukongChargedAttackAnimation extends BasicAttackAnimation {
                 AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER,
                 ValueModifier.setter(impact));
         return this;
-    }
-
-    // TODO
-    @Override
-    protected void hurtCollidingEntities(
-            LivingEntityPatch<?> entitypatch,
-            float prevElapsedTime,
-            float elapsedTime,
-            EntityState prevState,
-            EntityState state,
-            Phase phase) {
-        super.hurtCollidingEntities(
-                entitypatch, prevElapsedTime, elapsedTime, prevState, state, phase);
     }
 }

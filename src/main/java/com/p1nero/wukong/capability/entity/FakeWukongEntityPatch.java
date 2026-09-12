@@ -14,6 +14,7 @@ import yesman.epicfight.world.capabilities.entitypatch.Factions;
 import yesman.epicfight.world.capabilities.entitypatch.HumanoidMobPatch;
 import yesman.epicfight.world.entity.ai.goal.CombatBehaviors;
 
+// 假悟空分身的 EpicFight 实体补丁: 配置持棍分身的战斗 AI 行为(连段/重击/闪避等)
 public class FakeWukongEntityPatch extends HumanoidMobPatch<FakeWukongEntity> {
 
     public static final CombatBehaviors.Builder<HumanoidMobPatch<?>> WK_STAFF =
@@ -49,10 +50,12 @@ public class FakeWukongEntityPatch extends HumanoidMobPatch<FakeWukongEntity> {
                                                     .withinEyeHeight()
                                                     .withinDistance(0.0D, 2.5D)));
 
+    // 构造补丁, 阵营设为 UNDEAD 以避免分身被同类战斗 AI 主动攻击
     public FakeWukongEntityPatch() {
         super(Factions.UNDEAD);
     }
 
+    // 初始化动画器: 注册待机/移动/追击/死亡动作
     @Override
     public void initAnimator(Animator animator) {
         animator.addLivingAnimation(LivingMotions.IDLE, WukongAnimations.IDLE);

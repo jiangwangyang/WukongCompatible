@@ -7,7 +7,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.*;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -18,16 +22,20 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+// 玩家附加能力(WKPlayer)的注册与提供器: 负责能力的挂载/序列化/事件注册
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
 
     public static Capability<WKPlayer> WK_PLAYER =
             CapabilityManager.get(new CapabilityToken<>() {});
 
+    // 持有的玩家能力数据实例(懒加载)
     private WKPlayer wkPlayer = null;
 
+    // 能力实例的延迟包装
     private final LazyOptional<WKPlayer> optional = LazyOptional.of(this::createWKPlayer);
 
+    // 懒加载创建玩家能力数据实例
     private WKPlayer createWKPlayer() {
         if (this.wkPlayer == null) {
             this.wkPlayer = new WKPlayer();
@@ -36,6 +44,7 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         return this.wkPlayer;
     }
 
+    // 按请求类型返回能力实例, 非 WK_PLAYER 时返回空
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(
             @NotNull Capability<T> capability, @Nullable Direction direction) {
@@ -46,6 +55,7 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         return LazyOptional.empty();
     }
 
+    // 将能力数据序列化到 NBT
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
@@ -53,6 +63,7 @@ public class WKCapabilityProvider implements ICapabilityProvider, INBTSerializab
         return tag;
     }
 
+    // 从 NBT 反序列化能力数据
     @Override
     public void deserializeNBT(CompoundTag tag) {
         createWKPlayer().loadNBTData(tag);

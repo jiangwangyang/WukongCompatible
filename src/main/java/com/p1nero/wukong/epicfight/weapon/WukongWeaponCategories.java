@@ -13,13 +13,13 @@ import yesman.epicfight.world.capabilities.item.WeaponCategory;
 public enum WukongWeaponCategories implements WeaponCategory {
     WK_STAFF;
 
+    // 枚举管理器分配的唯一 ID
+    final int id;
+
     // 构造枚举项: 向管理器申请唯一 ID
     private WukongWeaponCategories() {
         this.id = WeaponCategory.ENUM_MANAGER.assign(this);
     }
-
-    // 枚举管理器分配的唯一 ID
-    final int id;
 
     // 返回枚举管理器分配的唯一 ID
     @Override

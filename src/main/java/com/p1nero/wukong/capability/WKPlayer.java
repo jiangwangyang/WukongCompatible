@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import java.util.ArrayList;
 import java.util.List;
 
+// 玩家附加能力数据: 记录完美闪避状态/上次闪避技能/假悟空分身实体ID, 支持NBT持久化
 public class WKPlayer {
     private String lastSkill = ""; // 用于恢复闪避技能
     private boolean perfectDodge;

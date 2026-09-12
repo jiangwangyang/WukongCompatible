@@ -40,8 +40,14 @@ import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.skill.*;
+import yesman.epicfight.skill.BasicAttack;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -54,6 +60,7 @@ import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,18 +75,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
     protected StaticAnimationProvider greatSageCharged4; // 大圣套装专属四蓄重棍动画(满星直接释放并变身大圣式)
     @NotNull protected StaticAnimationProvider jumpAttackHeavy; // 跳跃重击动画
     @NotNull protected StaticAnimationProvider chargePre; // 蓄力前摇动画
-
-    // 返回重击动画列表(含二段衍生), 用于判断当前是否处于重击状态
-    @Override
-    public List<StaticAnimationProvider> getHeavyAttacks() {
-        List<StaticAnimationProvider> staticAnimations =
-                new java.util.ArrayList<>(List.of(animations));
-        staticAnimations.add(deriveAnimation2);
-        if (greatSageCharged4 != null) {
-            staticAnimations.add(greatSageCharged4); // 身外身法的分身也需同步该重击
-        }
-        return staticAnimations;
-    }
 
     // 创建技能构建器, 设为武器固有技能且无需消耗资源
     public static Builder createChargedAttack() {
@@ -98,6 +93,17 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         jumpAttackHeavy = builder.jumpAttackHeavy;
     }
 
+    // 返回重击动画列表(含二段衍生), 用于判断当前是否处于重击状态
+    @Override
+    public List<StaticAnimationProvider> getHeavyAttacks() {
+        List<StaticAnimationProvider> staticAnimations = new ArrayList<>(List.of(animations));
+        staticAnimations.add(deriveAnimation2);
+        if (greatSageCharged4 != null) {
+            staticAnimations.add(greatSageCharged4); // 身外身法的分身也需同步该重击
+        }
+        return staticAnimations;
+    }
+
     // 在计时周期内使用技能才算使用衍生, 否则视为重击; 长按循环第一段衍生的判断在updateContainer
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
@@ -109,13 +115,10 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         if (dataManager.getDataValue(WukongSkillDataKeys.CAN_JUMP_HEAVY.get())
                 && !player.onGround()) {
             dataManager.setData(
-                    WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true); // 放里面, 防止瞎按技能键就防坠机的bug
+                    WukongSkillDataKeys.PROTECT_NEXT_FALL.get(),
+                    true); // 必须在此分支内设置, 防止误按技能键也获得防摔落保护
             // 跳跃攻击, 也消所有棍势
             dataManager.setDataSync(WukongSkillDataKeys.CAN_JUMP_HEAVY.get(), false);
-            if (container.getStack() > 0) { // 0星是null会中空
-                // executer.playSound(WuKongSounds.stackSounds.get(container.getStack() -
-                // 1).get(), 1, 1);
-            }
             executer.playAnimationSynchronized(jumpAttackHeavy.get(), 0.15F);
             resetConsumption(container, executer, false);
         } else if (player.onGround()) {
@@ -275,7 +278,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                                 event.setCanceled(true);
                             }
 
-                            // 防止坠机 FIXME
+                            // 防摔落: 跳重击后免疫下一次摔落伤害并清除保护标记
                             if (event.getDamageSource().is(DamageTypes.FALL)
                                     && container
                                             .getDataManager()

@@ -6,7 +6,11 @@ import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenfaJuxingsanqiSkill;
 import com.p1nero.wukong.epicfight.skill.lizi.ParticleRenderTypeN;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.*;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,60 +23,23 @@ import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 
-@OnlyIn(Dist.CLIENT)
 // 定身法残影粒子: 在聚形散气隐身期间的施法者头顶显示"定"字残影, 实体消失或隐身结束时自动移除
+@OnlyIn(Dist.CLIENT)
 public class DingEntityAfterImageParticle extends TextureSheetParticle {
     // 施法者实体 ID, 用于 tick 中定位对应实体以同步残影的存活与位置
-    private final int ID;
-
-    // 定身残影粒子的提供器: 从 xSpeed 中解码实体 ID, 校验存活后创建残影粒子
-    @OnlyIn(Dist.CLIENT)
-    public static class DangerParticleProvider implements ParticleProvider<SimpleParticleType> {
-        // 粒子动画帧(SpriteSet), 用于驱动残影贴图
-        private final SpriteSet spriteSet;
-
-        // 构造提供器并持有 SpriteSet
-        public DangerParticleProvider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
-        }
-
-        // 解码 xSpeed 中的实体 ID, 校验实体为存活活体后创建定身残影粒子
-        @Override
-        public Particle createParticle(
-                SimpleParticleType typeIn,
-                ClientLevel level,
-                double x,
-                double y,
-                double z,
-                double xSpeed,
-                double ySpeed,
-                double zSpeed) {
-            Entity entity =
-                    level.getEntity((int) Double.doubleToLongBits(xSpeed)); // 通过 xSpeed 获取对应的实体
-            if (entity != null && entity instanceof LivingEntity) { // 确保是活体实体
-                LivingEntity livingEntity = (LivingEntity) entity;
-                if (livingEntity.isRemoved()) {
-                    return null; // 如果实体已经死亡, 不创建粒子
-                }
-                // 创建并返回粒子
-                return new DingEntityAfterImageParticle(
-                        level, x, y, z, this.spriteSet, entity.getId());
-            }
-            return null;
-        }
-    }
+    private final int id;
 
     // 构造定身残影粒子: 记录施法者实体 ID, 设置尺寸(2.5x2.85), 生命周期与聚形散气隐身时长一致, 关闭重力与物理碰撞
     protected DingEntityAfterImageParticle(
-            ClientLevel world, double x, double y, double z, SpriteSet spriteSet, int ID) {
+            ClientLevel world, double x, double y, double z, SpriteSet spriteSet, int id) {
         super(world, x, y, z);
-        this.ID = ID; // 保存 ID
+        this.id = id;
         this.setSize(2.5f, 2.5f);
         this.quadSize *= 2.85f;
         this.lifetime = ShenfaJuxingsanqiSkill.MAX_TIME; // 与聚形散气隐身时长保持一致(200 tick = 10s)
         this.gravity = 0f;
         this.hasPhysics = false;
-        this.setColor(1.0F, 1.0F, 1.0F); // 设置白色不透明
+        this.setColor(1.0F, 1.0F, 1.0F);
         this.setSpriteFromAge(spriteSet);
     }
 
@@ -85,17 +52,16 @@ public class DingEntityAfterImageParticle extends TextureSheetParticle {
     // 返回全亮光照值(15728880), 使残影在暗处也完全可见
     @Override
     public int getLightColor(float partialTick) {
-        return 15728880; // 设置光照颜色
+        return 15728880;
     }
 
     // 每帧根据实体 ID 同步残影: 实体消失/生命归零/隐身结束时移除粒子
     @Override
     public void tick() {
         super.tick();
-        Entity entity = level.getEntity(ID);
+        Entity entity = level.getEntity(id);
         if (entity != null) {
             float health = ((LivingEntity) entity).getHealth();
-            // 如果实体的健康为 0, 移除粒子
             if (health == 0) this.remove();
             // 聚形散气结束时(主动攻击/受击/倒计时归零)残影同步消失, 前 10 tick 是施法同步缓冲期
             if (this.age > 10 && this.isJxsqEnded(entity)) {
@@ -135,5 +101,40 @@ public class DingEntityAfterImageParticle extends TextureSheetParticle {
     @Override
     public ParticleRenderType getRenderType() {
         return ParticleRenderTypeN.PARTICLE_SHEET_LIT_NO_CULL; // 自定义的渲染类型
+    }
+
+    // 定身残影粒子的提供器: 从 xSpeed 中解码实体 ID, 校验存活后创建残影粒子
+    @OnlyIn(Dist.CLIENT)
+    public static class DangerParticleProvider implements ParticleProvider<SimpleParticleType> {
+        // 粒子动画帧(SpriteSet), 用于驱动残影贴图
+        private final SpriteSet spriteSet;
+
+        // 构造提供器并持有 SpriteSet
+        public DangerParticleProvider(SpriteSet spriteSet) {
+            this.spriteSet = spriteSet;
+        }
+
+        // 解码 xSpeed 中的实体 ID, 校验实体为存活活体后创建定身残影粒子
+        @Override
+        public Particle createParticle(
+                SimpleParticleType typeIn,
+                ClientLevel level,
+                double x,
+                double y,
+                double z,
+                double xSpeed,
+                double ySpeed,
+                double zSpeed) {
+            Entity entity = level.getEntity((int) Double.doubleToLongBits(xSpeed));
+            if (entity != null && entity instanceof LivingEntity) {
+                LivingEntity livingEntity = (LivingEntity) entity;
+                if (livingEntity.isRemoved()) {
+                    return null;
+                }
+                return new DingEntityAfterImageParticle(
+                        level, x, y, z, this.spriteSet, entity.getId());
+            }
+            return null;
+        }
     }
 }

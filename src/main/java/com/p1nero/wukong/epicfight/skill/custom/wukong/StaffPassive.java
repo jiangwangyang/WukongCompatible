@@ -35,7 +35,12 @@ import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPChangeSkill;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.particle.HitParticleType;
-import yesman.epicfight.skill.*;
+import yesman.epicfight.skill.BasicAttack;
+import yesman.epicfight.skill.Skill;
+import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -223,7 +228,7 @@ public class StaffPassive extends Skill {
                             }
                         }));
 
-        // 拦截闪避事件, 替换为自己的闪避并执行, 算是保险
+        // 兜底: 拦截闪避事件, 替换为本技能的闪避并执行
         container
                 .getExecutor()
                 .getEventListener()

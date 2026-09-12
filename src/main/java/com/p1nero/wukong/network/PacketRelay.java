@@ -15,6 +15,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 // 网络包发送工具类: 封装向玩家/区域/全体/服务端/维度发送数据包, 以及玩家能力数据的双向同步
 public class PacketRelay {
+    // 空构造, 工具类无需实例化状态
     public PacketRelay() {}
 
     // 向指定玩家发送数据包

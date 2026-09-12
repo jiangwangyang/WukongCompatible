@@ -41,8 +41,12 @@ import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.skill.*;
+import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
+import yesman.epicfight.skill.SkillCategories;
+import yesman.epicfight.skill.SkillCategory;
+import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
@@ -53,6 +57,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageSources;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,16 +76,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
     protected StaticAnimationProvider juesick_loop; // 搅棍循环动画
     protected StaticAnimationProvider juesick_end; // 搅棍收尾动画
     protected StaticAnimationProvider jumpAttackHeavy; // 跳跃重击动画
-
-    // 返回重击动画列表(含进尺/凤穿花), 用于判断当前是否处于重击状态
-    @Override
-    public List<StaticAnimationProvider> getHeavyAttacks() {
-        List<StaticAnimationProvider> staticAnimations =
-                new java.util.ArrayList<>(List.of(animations));
-        staticAnimations.add(footage);
-        staticAnimations.add(fengchuanhua);
-        return staticAnimations;
-    }
 
     // 创建技能构建器, 设为武器固有技能且无需消耗资源
     public static Builder createChargedAttack() {
@@ -102,6 +97,15 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         juesick_end = builder.juesick_end;
 
         jumpAttackHeavy = builder.jumpAttackHeavy;
+    }
+
+    // 返回重击动画列表(含进尺/凤穿花), 用于判断当前是否处于重击状态
+    @Override
+    public List<StaticAnimationProvider> getHeavyAttacks() {
+        List<StaticAnimationProvider> staticAnimations = new ArrayList<>(List.of(animations));
+        staticAnimations.add(footage);
+        staticAnimations.add(fengchuanhua);
+        return staticAnimations;
     }
 
     // 在计时周期内使用技能才算使用衍生, 否则视为重击; 长按循环第一段衍生的判断在updateContainer
@@ -409,7 +413,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
 
             if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0) {
                 if (dataManager.getDataValue(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get())) {
-                    // WukongMoveset.LOGGER.info("搅棍");
                     dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
                     // 开始搅
                     if (dataManager.getDataValue(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get())
@@ -426,7 +429,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                         }
                     }
                 } else if (dataManager.getDataValue(WukongSkillDataKeys.THRUST_METERS_BACK.get())) {
-                    // WukongMoveset.LOGGER.info("进尺");
                     dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
                     if (container.getStack() > 0) {
                         serverPlayerPatch.playAnimationSynchronized(footage.get(), 0.0F);

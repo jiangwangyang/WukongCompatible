@@ -24,8 +24,8 @@ import yesman.epicfight.world.capabilities.item.WeaponCapability;
 
 import java.util.function.Function;
 
-@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 // 悟空棍武器能力预设: 定义棍类武器的碰撞体/命中音效粒子, 以及各棍式(劈棍/戳棍/立棍/大圣)的连段/固有重击技能与生活动作动画
+@Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WukongWeaponCapabilityPresets {
     // 说明:
     // 本类使用的WeaponCapability$Builder的livingMotionModifier/innateSkill/newStyleCombo/styleProvider/comboCancel/passiveSkill

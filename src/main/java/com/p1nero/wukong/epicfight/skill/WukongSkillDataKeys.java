@@ -1,8 +1,17 @@
 package com.p1nero.wukong.epicfight.skill;
 
 import com.p1nero.wukong.WukongMoveset;
-import com.p1nero.wukong.epicfight.skill.custom.fashu.*;
-import com.p1nero.wukong.epicfight.skill.custom.wukong.*;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.FashuAnshenfaSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.FashuDingshenfaSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenWaiShenFaSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenfaJuxingsanqiSkill;
+import com.p1nero.wukong.epicfight.skill.custom.fashu.ShenfaTongtoutiebiSkill;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.GreatSageHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.PillarHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.SmashHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.StaffPassive;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.ThrustHeavyAttack;
+import com.p1nero.wukong.epicfight.skill.custom.wukong.WukongDodgeSkill;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
