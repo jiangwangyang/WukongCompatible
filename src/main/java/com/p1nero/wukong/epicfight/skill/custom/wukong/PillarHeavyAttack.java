@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
-import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.WukongStyles;
 import com.p1nero.wukong.epicfight.animation.WukongAnimations;
@@ -252,7 +251,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                             .getDataValue(
                                                     WukongSkillDataKeys.PROTECT_NEXT_FALL.get())) {
                                 event.setCanceled(true);
-                                event.setCanceled(true);
                                 event.setResult(AttackResult.ResultType.MISSED);
                                 event.getPlayerPatch().getOriginal().resetFallDistance();
                                 container
@@ -312,38 +310,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                         .setData(
                                                 WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), false);
                             }
-                            event.getPlayerPatch()
-                                    .getOriginal()
-                                    .getCapability(WKCapabilityProvider.WK_PLAYER)
-                                    .ifPresent(
-                                            wkPlayer -> {
-                                                if (wkPlayer.getDamageReduce() > 0) {
-                                                    if (event.getDamageSource()
-                                                            instanceof
-                                                            EpicFightDamageSource
-                                                                    epicFightDamageSource) {
-                                                        epicFightDamageSource.setStunType(
-                                                                StunType.NONE);
-                                                    }
-                                                    LivingEntityPatch<?> attackerPatch =
-                                                            EpicFightCapabilities.getEntityPatch(
-                                                                    event.getDamageSource()
-                                                                            .getEntity(),
-                                                                    LivingEntityPatch.class);
-                                                    this.processDamage(
-                                                            event.getPlayerPatch(),
-                                                            event.getDamageSource(),
-                                                            AttackResult.ResultType.SUCCESS,
-                                                            event.getDamage()
-                                                                    * (1
-                                                                            - wkPlayer
-                                                                                    .getDamageReduce()),
-                                                            attackerPatch);
-                                                    event.setResult(
-                                                            AttackResult.ResultType.BLOCKED);
-                                                    event.setCanceled(true);
-                                                }
-                                            });
                         }));
         container
                 .getExecutor()
@@ -691,12 +657,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
-    // 返回自身, 将技能属性绑定到动画
-    @Override
-    public WeaponInnateSkill registerPropertiesToAnimation() {
-        return this;
-    }
-
     // 技能构建器, 收集各类重击/衍生动画提供者
     public static class Builder extends SkillBuilder<PillarHeavyAttack> {
         protected StaticAnimationProvider[] start; // 立棍起手动画
@@ -704,7 +664,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         protected StaticAnimationProvider[] heavy; // 立棍重击动画
         protected StaticAnimationProvider derive1; // 一段衍生(风云转)动画
         protected StaticAnimationProvider derive2; // 二段衍生(江海翻)动画
-        protected StaticAnimationProvider deriveLoop; // 衍生长循环动画(未使用)
         protected StaticAnimationProvider deriveEnd; // 衍生收尾动画
         protected StaticAnimationProvider hotwheel; // 风火轮衍生动画
 
@@ -763,11 +722,9 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         // 设置风云转/江海翻等衍生动画
         public Builder setDeriveAnimations(
                 StaticAnimationProvider derivePre,
-                StaticAnimationProvider deriveLoop,
                 StaticAnimationProvider deriveEnd,
                 StaticAnimationProvider derive2) {
             this.derive1 = derivePre;
-            this.deriveLoop = deriveLoop;
             this.deriveEnd = deriveEnd;
             this.derive2 = derive2;
             return this;

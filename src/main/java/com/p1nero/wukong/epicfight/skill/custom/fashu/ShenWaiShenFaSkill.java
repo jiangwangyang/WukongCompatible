@@ -145,7 +145,6 @@ public class ShenWaiShenFaSkill extends Skill {
                                                     });
                                 }
                             }
-                            ;
                         }));
     }
 
@@ -269,12 +268,6 @@ public class ShenWaiShenFaSkill extends Skill {
     @Override
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
-    }
-
-    // 注册技能属性到动画(此处直接返回自身)
-    @Override
-    public Skill registerPropertiesToAnimation() {
-        return this;
     }
 
     // 是否可执行的判定(此处直接调用父类逻辑)

@@ -94,7 +94,6 @@ public class ShenfaTongtoutiebiSkill extends Skill {
                                     > 0) {
                                 event.setResult(AttackResult.ResultType.MISSED);
                                 event.setCanceled(true);
-                                event.setCanceled(true);
                                 return;
                             } else if (container
                                     .getDataManager()
@@ -295,12 +294,6 @@ public class ShenfaTongtoutiebiSkill extends Skill {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
-    // 注册技能属性到动画(此处直接返回自身)
-    @Override
-    public Skill registerPropertiesToAnimation() {
-        return this;
-    }
-
     // 是否可执行的判定(此处直接调用父类逻辑)
     @Override
     public boolean canExecute(SkillContainer container) {
@@ -309,7 +302,6 @@ public class ShenfaTongtoutiebiSkill extends Skill {
 
     // 铜头铁臂技能构建器
     public static class Builder extends SkillBuilder<ShenfaTongtoutiebiSkill> {
-        protected StaticAnimationProvider[] animationProviders; // 普通动画列表
         protected StaticAnimationProvider derive1; // 第一衍生动画(施法/格挡)
         protected StaticAnimationProvider derive2; // 第二衍生动画(格挡失败)
 
@@ -336,12 +328,6 @@ public class ShenfaTongtoutiebiSkill extends Skill {
         // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
-            return this;
-        }
-
-        // 设置普通动画
-        public Builder setAnimations(StaticAnimationProvider... animationProviders) {
-            this.animationProviders = animationProviders;
             return this;
         }
 

@@ -126,7 +126,6 @@ public class WukongAnimations {
     public static AnimationManager.AnimationAccessor SMASH_DERIVE1;
     public static AnimationManager.AnimationAccessor SMASH_DERIVE2;
     public static AnimationManager.AnimationAccessor SMASH_CHARGING_PRE;
-    public static AnimationManager.AnimationAccessor SMASH_CHARGING_LOOP;
     public static AnimationManager.AnimationAccessor SMASH_CHARGING_LOOP_STAND;
     // 不同星级的重击
     public static AnimationManager.AnimationAccessor SMASH_CHARGED0;
@@ -161,19 +160,12 @@ public class WukongAnimations {
     public static AnimationManager.AnimationAccessor PILLAR_START3;
     public static AnimationManager.AnimationAccessor PILLAR_START4;
     public static AnimationManager.AnimationAccessor PILLAR_LOOP0;
-    public static AnimationManager.AnimationAccessor PILLAR_CHARGED_LOOP1;
-    public static AnimationManager.AnimationAccessor PILLAR_CHARGED_LOOP2;
-    public static AnimationManager.AnimationAccessor PILLAR_CHARGED_LOOP3;
     public static AnimationManager.AnimationAccessor PILLAR_CHARGED_LOOP4;
-    public static AnimationManager.AnimationAccessor PILLAR_CHARGED_LOOP0TOP1;
-    public static AnimationManager.AnimationAccessor PILLAR_CHARGED_LOOP1TOP2;
-    public static AnimationManager.AnimationAccessor PILLAR_CHARGED_LOOP2TOP3;
     public static AnimationManager.AnimationAccessor PILLAR_HEAVY0;
     public static AnimationManager.AnimationAccessor PILLAR_HEAVY1;
     public static AnimationManager.AnimationAccessor PILLAR_HEAVY2;
     public static AnimationManager.AnimationAccessor PILLAR_HEAVY3;
     public static AnimationManager.AnimationAccessor PILLAR_HEAVY4;
-    public static AnimationManager.AnimationAccessor PILLAR_UP4;
     public static AnimationManager.AnimationAccessor PILLAR_UP;
 
     public static AnimationManager.AnimationAccessor PILLAR_HEAVY3_SAGE;

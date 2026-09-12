@@ -262,12 +262,6 @@ public class FashuDingshenfaSkill extends Skill {
     }
 
     @Override
-    // 注册技能属性到动画(此处直接返回自身)
-    public Skill registerPropertiesToAnimation() {
-        return this;
-    }
-
-    @Override
     // 是否可执行的判定(此处直接调用父类逻辑)
     public boolean canExecute(SkillContainer container) {
         return super.canExecute(container);
@@ -275,7 +269,6 @@ public class FashuDingshenfaSkill extends Skill {
 
     // 定身术技能构建器
     public static class Builder extends SkillBuilder<FashuDingshenfaSkill> {
-        protected StaticAnimationProvider[] animationProviders; // 普通动画列表
         protected StaticAnimationProvider derive1; // 第一衍生(施法)动画
         protected StaticAnimationProvider derive2; // 第二衍生动画(预留)
 
@@ -302,12 +295,6 @@ public class FashuDingshenfaSkill extends Skill {
         // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
-            return this;
-        }
-
-        // 设置普通动画
-        public Builder setAnimations(StaticAnimationProvider... animationProviders) {
-            this.animationProviders = animationProviders;
             return this;
         }
 

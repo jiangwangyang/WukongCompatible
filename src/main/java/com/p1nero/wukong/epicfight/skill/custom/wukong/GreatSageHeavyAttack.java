@@ -626,12 +626,6 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         graphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
-    // 返回自身, 将技能属性绑定到动画
-    @Override
-    public WeaponInnateSkill registerPropertiesToAnimation() {
-        return this;
-    }
-
     // 技能构建器, 收集各类重击/蓄力动画提供者
     public static class Builder extends SkillBuilder<GreatSageHeavyAttack> {
         private StaticAnimationProvider[] derivedAttacks1;

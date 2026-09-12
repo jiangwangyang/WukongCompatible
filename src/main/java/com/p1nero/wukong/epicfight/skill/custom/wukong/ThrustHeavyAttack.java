@@ -637,11 +637,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
-    // 返回自身, 将技能属性绑定到动画
-    public WeaponInnateSkill registerPropertiesToAnimation() {
-        return this;
-    }
-
     // 技能构建器, 收集各类重击/衍生动画提供者
     public static class Builder extends SkillBuilder<ThrustHeavyAttack> {
         protected StaticAnimationProvider[] animationProviders; // 戳棍重击动画
@@ -652,7 +647,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         protected StaticAnimationProvider juesick_start; // 搅棍起手动画
         protected StaticAnimationProvider juesick_loop; // 搅棍循环动画
         protected StaticAnimationProvider juesick_end; // 搅棍收尾动画
-        StaticAnimationProvider chargingAnimation; // 蓄力动画(占位, 当前未使用)
         protected StaticAnimationProvider start; // 蓄力起手动画
 
         StaticAnimationProvider pre; // 蓄力前摇动画
@@ -680,12 +674,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
-            return this;
-        }
-
-        // 设置蓄力动画
-        public Builder setChargingAnimation(StaticAnimationProvider chargingAnimation) {
-            this.chargingAnimation = chargingAnimation;
             return this;
         }
 

@@ -19,12 +19,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -52,7 +49,6 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     protected StaticAnimationProvider deriveAnimation2; // 第二衍生动画(破隐-有敌)
     protected StaticAnimationProvider deriveAnimation3; // 第三衍生动画(破隐-无敌)
     public static final int MAX_TRANSPARENT_TIMER = 200; // 隐身/生效最大时长(帧)
-    ItemStack currentWeapon; // 施法前记录的主手武器, 用于解除隐身时恢复
 
     // 创建技能构建器并设置分类与资源类型
     public static Builder create() {
@@ -233,19 +229,6 @@ public class ShenfaJuxingsanqiSkill extends Skill {
                 PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID);
     }
 
-    // 将记录的主手武器与四件护甲写回玩家(解除隐身时恢复装备)
-    public void restoreArmor(ServerPlayer player, ItemStack[] savedArmor) {
-        player.setItemInHand(InteractionHand.MAIN_HAND, currentWeapon);
-        for (int i = 0; i < 4; i++) {
-            player.setItemSlot(
-                    EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, i), savedArmor[i]);
-        }
-        for (int i = 0; i < 4; i++) {
-            player.setItemSlot(
-                    EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, i), savedArmor[i]);
-        }
-    }
-
     @Override
     // 每帧更新: 递减隐身/冷却计时, 归零时复位可释放状态
     public void updateContainer(SkillContainer container) {
@@ -280,12 +263,6 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     // 仅当装备合法武器时绘制该技能
     public boolean shouldDraw(SkillContainer container) {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
-    }
-
-    @Override
-    // 注册技能属性到动画(此处直接返回自身)
-    public Skill registerPropertiesToAnimation() {
-        return this;
     }
 
     // 根据技能状态绘制自定义技能图标与冷却显示; 完全重写Epic Fight默认绘制, 战斗模式HUD仅显示此自定义画面
@@ -342,7 +319,6 @@ public class ShenfaJuxingsanqiSkill extends Skill {
     // 聚形散气技能构建器
     // 聚形散气技能构建器
     public static class Builder extends SkillBuilder<ShenfaJuxingsanqiSkill> {
-        protected StaticAnimationProvider[] animationProviders; // 普通动画列表
         protected StaticAnimationProvider derive1; // 第一衍生动画(施法)
         protected StaticAnimationProvider derive2; // 第二衍生动画(破隐-有敌)
         protected StaticAnimationProvider derive3; // 第三衍生动画(破隐-无敌)
@@ -370,12 +346,6 @@ public class ShenfaJuxingsanqiSkill extends Skill {
         // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
-            return this;
-        }
-
-        // 设置普通动画
-        public Builder setAnimations(StaticAnimationProvider... animationProviders) {
-            this.animationProviders = animationProviders;
             return this;
         }
 

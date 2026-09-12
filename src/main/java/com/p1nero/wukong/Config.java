@@ -1,14 +1,8 @@
 package com.p1nero.wukong;
 
-import com.mojang.brigadier.CommandDispatcher;
-
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -17,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = WukongMoveset.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-// 模组配置文件类, 定义蓄力/格挡等可调参数, 并注册 wukong 管理命令
+// 模组配置文件类, 定义蓄力/格挡等可调参数
 public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     // 切手技判定时间(tick)
@@ -82,14 +76,5 @@ public class Config {
     private static boolean validateEntityName(final Object obj) {
         return obj instanceof final String itemName
                 && ForgeRegistries.ENTITY_TYPES.containsKey(ResourceLocation.parse(itemName));
-    }
-
-    // 注册 wukong 命令(需2级权限)
-    @SubscribeEvent
-    public static void registerCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        dispatcher.register(
-                Commands.literal("wukong")
-                        .requires((commandSourceStack) -> commandSourceStack.hasPermission(2)));
     }
 }

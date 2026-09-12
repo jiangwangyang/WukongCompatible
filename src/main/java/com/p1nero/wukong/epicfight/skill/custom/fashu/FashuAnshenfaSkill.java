@@ -212,12 +212,6 @@ public class FashuAnshenfaSkill extends Skill {
         return WukongWeaponCategories.isWeaponValid(container.getExecutor());
     }
 
-    @Override
-    // 注册技能属性到动画(此处直接返回自身)
-    public Skill registerPropertiesToAnimation() {
-        return this;
-    }
-
     // 根据技能状态绘制自定义技能图标与冷却显示; 完全重写Epic Fight默认绘制, 战斗模式HUD仅显示此自定义画面
     @OnlyIn(Dist.CLIENT)
     @Override
@@ -272,7 +266,6 @@ public class FashuAnshenfaSkill extends Skill {
 
     // 安身法技能构建器
     public static class Builder extends SkillBuilder<FashuAnshenfaSkill> {
-        protected StaticAnimationProvider[] animationProviders; // 普通动画列表
         protected StaticAnimationProvider derive; // 衍生(施法)动画
 
         public Builder() {}
@@ -298,12 +291,6 @@ public class FashuAnshenfaSkill extends Skill {
         // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
-            return this;
-        }
-
-        // 设置普通动画
-        public Builder setAnimations(StaticAnimationProvider... animationProviders) {
-            this.animationProviders = animationProviders;
             return this;
         }
 

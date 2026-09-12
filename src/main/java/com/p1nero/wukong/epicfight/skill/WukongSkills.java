@@ -132,7 +132,6 @@ public class WukongSkills {
                         SmashHeavyAttack::new,
                         SmashHeavyAttack.createChargedAttack()
                                 .setChargePreAnimation(() -> WukongAnimations.SMASH_CHARGING_PRE)
-                                .setChargingAnimation(() -> WukongAnimations.SMASH_CHARGING_LOOP)
                                 .setHeavyAttacks(
                                         () -> WukongAnimations.SMASH_CHARGED0,
                                         () -> WukongAnimations.SMASH_CHARGED1,
@@ -168,7 +167,6 @@ public class WukongSkills {
                                         () -> WukongAnimations.PILLAR_HEAVY4)
                                 .setDeriveAnimations(
                                         () -> WukongAnimations.PILLAR_HEAVY_FENGYUNZHUAN,
-                                        () -> WukongAnimations.PILLAR_UP4,
                                         () -> WukongAnimations.PILLAR_HEAVY_FENGYUNZHUANEND,
                                         () -> WukongAnimations.PILLAR_HEAVY_RIVERSEAFLIP));
 

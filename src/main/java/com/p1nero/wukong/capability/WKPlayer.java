@@ -8,7 +8,6 @@ import java.util.List;
 public class WKPlayer {
     private String lastSkill = ""; // 用于恢复闪避技能
     private boolean perfectDodge;
-    private float damageReduce = 0.0f; // 伤害减少值, 默认值为 0
 
     // 已生成的假悟空实体ID列表
     private final List<Integer> fakeWukongIds = new ArrayList<>();
@@ -26,11 +25,6 @@ public class WKPlayer {
     // 查询是否处于完美闪避状态
     public boolean isPerfectDodge() {
         return perfectDodge;
-    }
-
-    // 获取当前伤害减少值
-    public float getDamageReduce() {
-        return damageReduce;
     }
 
     // 记录玩家上一次使用的闪避技能ID

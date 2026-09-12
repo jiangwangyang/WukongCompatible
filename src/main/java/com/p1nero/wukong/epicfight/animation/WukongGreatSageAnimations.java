@@ -61,10 +61,6 @@ public final class WukongGreatSageAnimations {
     public static AnimationManager.AnimationAccessor XULI_HEAVY_4;
     public static AnimationManager.AnimationAccessor HENSHIN;
 
-    // 旧命名别名, 分别指向风云扫式与扫戳式
-    public static AnimationManager.AnimationAccessor FENG_YUN_SAO_STYLE;
-    public static AnimationManager.AnimationAccessor SAO_CHUO_SHI_STYLE;
-
     // 工具类, 禁止实例化
     private WukongGreatSageAnimations() {}
 
@@ -82,16 +78,13 @@ public final class WukongGreatSageAnimations {
         return accessor;
     }
 
-    // 构建大圣形态全部动画: 先注册基础连段与重击风格, 再初始化旧命名别名
+    // 构建大圣形态全部动画: 注册基础连段与重击风格
     static void build(AnimationManager.AnimationBuilder builder) {
         WukongMoveset.LOGGER.info("Registering complete Great Sage animation set");
         HumanoidArmature biped = Armatures.BIPED.get();
 
         registerBasicCombo(builder, biped);
         registerHeavyAttacks(builder, biped);
-
-        FENG_YUN_SAO_STYLE = WIND_CLOUD_STYLE;
-        SAO_CHUO_SHI_STYLE = SWEEP_JAB_STYLE;
     }
 
     // 注册大圣形态的基础连段动画: 冲刺轻击(重置连击数)与轻击 1~5, 各段配置伤害/音效/缩放等事件

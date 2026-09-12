@@ -235,7 +235,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                                         deriveAnimation1.get(),
                                         2);
                                 event.setCanceled(true);
-                                event.setCanceled(true);
                             }
 
                             float damageReduce =
@@ -269,8 +268,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                                             .getDataManager()
                                             .getDataValue(
                                                     WukongSkillDataKeys.PROTECT_NEXT_FALL.get())) {
-                                System.out.println("man!");
-                                event.setCanceled(true);
                                 event.setCanceled(true);
                                 event.setResult(AttackResult.ResultType.MISSED);
                                 event.getPlayerPatch().getOriginal().resetFallDistance();
@@ -693,12 +690,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         guiGraphics.blit(texture, x, y, 48, 48, 0.0F, 0.0F, 256, 256, 256, 256);
     }
 
-    // 返回自身, 将技能属性绑定到动画
-    @Override
-    public WeaponInnateSkill registerPropertiesToAnimation() {
-        return this;
-    }
-
     // 技能构建器, 收集各类重击/衍生动画提供者
     public static class Builder extends SkillBuilder<SmashHeavyAttack> {
         protected StaticAnimationProvider[] animationProviders; // 劈棍重击动画
@@ -706,7 +697,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         protected StaticAnimationProvider derive2; // 二段衍生动画
         protected StaticAnimationProvider derive3; // 大圣套装专属三段衍生动画
         protected StaticAnimationProvider jumpAttackHeavy; // 跳跃重击动画
-        StaticAnimationProvider chargingAnimation; // 蓄力动画(占位, 当前未使用)
         StaticAnimationProvider pre; // 蓄力前摇动画
 
         public Builder() {}
@@ -732,12 +722,6 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         // 设置创造模式标签页
         public Builder setCreativeTab(CreativeModeTab tab) {
             this.tab = tab;
-            return this;
-        }
-
-        // 设置蓄力动画
-        public Builder setChargingAnimation(StaticAnimationProvider chargingAnimation) {
-            this.chargingAnimation = chargingAnimation;
             return this;
         }
 
