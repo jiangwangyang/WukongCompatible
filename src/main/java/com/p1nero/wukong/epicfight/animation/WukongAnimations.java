@@ -3,6 +3,7 @@ package com.p1nero.wukong.epicfight.animation;
 import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.capability.WKCapabilityProvider;
+import com.p1nero.wukong.client.StaffScaleState;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.entity.FakeWukongEntity;
 import com.p1nero.wukong.epicfight.animation.custom.*;
@@ -4279,8 +4280,9 @@ public class WukongAnimations {
         return list;
     }
 
-    // 生成逐 tick 的物品缩放/位移动画事件, 写入物品 nbt 供
+    // 生成逐 tick 的物品缩放/位移动画事件, 写入客户端缓存 StaffScaleState 供
     // ItemRendererMixin(com.p1nero.wukong.mixin.ItemRendererMixin) 读取渲染; 首尾 tick 复位缩放, 中间按插值结果设置
+    // (不得写入物品 NBT: 单人局域连接下物品栈对象跨端共享, 写入会让服务端误判装备变化并重建战斗 AI)
     public static AnimationEvent.InTimeEvent[] getScaleEvents(ScaleTime... ticks) {
         int lastTick = ticks[ticks.length - 1].tick;
         AnimationEvent.InTimeEvent[] timeStampedEvents = new AnimationEvent.InTimeEvent[lastTick];
@@ -4294,13 +4296,8 @@ public class WukongAnimations {
                             if (!WukongWeaponCategories.isWeaponValid(livingEntityPatch)) {
                                 return;
                             }
-                            CompoundTag tag =
-                                    livingEntityPatch
-                                            .getOriginal()
-                                            .getMainHandItem()
-                                            .getOrCreateTag();
-                            tag.putBoolean("WK_shouldScaleItem", false);
-                            tag.putBoolean("WK_shouldTranslateItem", false);
+                            StaffScaleState.reset(
+                                    livingEntityPatch.getOriginal().getMainHandItem());
                         }),
                         AnimationEvent.Side.CLIENT);
 
@@ -4312,13 +4309,8 @@ public class WukongAnimations {
                             if (!WukongWeaponCategories.isWeaponValid(livingEntityPatch)) {
                                 return;
                             }
-                            CompoundTag tag =
-                                    livingEntityPatch
-                                            .getOriginal()
-                                            .getMainHandItem()
-                                            .getOrCreateTag();
-                            tag.putBoolean("WK_shouldScaleItem", false);
-                            tag.putBoolean("WK_shouldTranslateItem", false);
+                            StaffScaleState.reset(
+                                    livingEntityPatch.getOriginal().getMainHandItem());
                         }),
                         AnimationEvent.Side.CLIENT);
 
@@ -4338,19 +4330,14 @@ public class WukongAnimations {
                                 if (!WukongWeaponCategories.isWeaponValid(livingEntityPatch)) {
                                     return;
                                 }
-                                CompoundTag tag =
-                                        livingEntityPatch
-                                                .getOriginal()
-                                                .getMainHandItem()
-                                                .getOrCreateTag();
-                                tag.putBoolean("WK_shouldScaleItem", true);
-                                tag.putBoolean("WK_shouldTranslateItem", true);
-                                tag.putFloat("WK_XScale", x);
-                                tag.putFloat("WK_YScale", y);
-                                tag.putFloat("WK_ZScale", z);
-                                tag.putFloat("WK_XTranslation", tx);
-                                tag.putFloat("WK_YTranslation", ty);
-                                tag.putFloat("WK_ZTranslation", tz);
+                                StaffScaleState.set(
+                                        livingEntityPatch.getOriginal().getMainHandItem(),
+                                        x,
+                                        y,
+                                        z,
+                                        tx,
+                                        ty,
+                                        tz);
                             }),
                             AnimationEvent.Side.CLIENT);
         }

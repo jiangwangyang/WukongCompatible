@@ -1,9 +1,8 @@
 package com.p1nero.wukong.epicfight.animation.custom;
 
+import com.p1nero.wukong.client.StaffScaleState;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
-
-import net.minecraft.nbt.CompoundTag;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -86,9 +85,11 @@ public class WukongScaleStaffAttackAnimation extends BasicAttackAnimation {
             boolean isEnd) {
         super.end(entityPatch, nextAnimation, isEnd);
         if (WukongWeaponCategories.isWeaponValid(entityPatch)) {
-            CompoundTag tag = entityPatch.getOriginal().getMainHandItem().getOrCreateTag();
-            tag.putBoolean("WK_shouldScaleItem", false);
-            tag.putBoolean("WK_shouldTranslateItem", false);
+            // 缩放/位移状态存于客户端缓存 StaffScaleState, 仅在客户端复位;
+            // 不得写物品 NBT, 否则服务端会误判装备变化并重建持棍生物(如 Boss)的战斗 AI
+            if (entityPatch.getOriginal().level().isClientSide()) {
+                StaffScaleState.reset(entityPatch.getOriginal().getMainHandItem());
+            }
 
             if (entityPatch instanceof ServerPlayerPatch serverPlayerPatch) {
                 var dataManager =

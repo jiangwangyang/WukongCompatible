@@ -1,12 +1,12 @@
 package com.p1nero.wukong.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.p1nero.wukong.client.StaffScaleState;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -42,27 +42,11 @@ public class ItemRendererMixin {
                 .getCapability(EpicFightCapabilities.CAPABILITY_ITEM)
                 .ifPresent(
                         (capabilityItem) -> {
-                            // 判断是否是 Staff 类型的武器
+                            // 判断是否是 Staff 类型的武器, 是则应用动画事件记录的缩放/位移变换
                             if (capabilityItem
                                     .getWeaponCategory()
                                     .equals(WukongWeaponCategories.WK_STAFF)) {
-                                CompoundTag tag = itemStack.getOrCreateTag();
-
-                                // 如果应该进行缩放, 获取缩放值
-                                if (tag.getBoolean("WK_shouldScaleItem")) {
-                                    poseStack.scale(
-                                            tag.getFloat("WK_XScale"),
-                                            tag.getFloat("WK_YScale"),
-                                            tag.getFloat("WK_ZScale"));
-                                }
-
-                                // 如果应该进行平移, 获取平移值
-                                if (tag.getBoolean("WK_shouldTranslateItem")) {
-                                    float tx = tag.getFloat("WK_XTranslation");
-                                    float ty = tag.getFloat("WK_YTranslation");
-                                    float tz = tag.getFloat("WK_ZTranslation");
-                                    poseStack.translate(tx, ty, tz); // 平移物品
-                                }
+                                StaffScaleState.apply(itemStack, poseStack);
                             }
                         });
     }
