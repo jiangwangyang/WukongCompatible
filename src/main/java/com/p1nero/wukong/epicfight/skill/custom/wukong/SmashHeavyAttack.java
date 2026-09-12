@@ -11,6 +11,7 @@ import com.p1nero.wukong.epicfight.compat.EpicFightDamageType;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 import com.p1nero.wukong.epicfight.skill.WukongSkills;
+import com.p1nero.wukong.epicfight.skill.custom.BattleUnit;
 import com.p1nero.wukong.epicfight.skill.custom.avatar.HeavyAttack;
 import com.p1nero.wukong.epicfight.weapon.WukongWeaponCategories;
 import com.p1nero.wukong.item.WukongItems;
@@ -56,7 +57,7 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 import java.util.List;
 import java.util.UUID;
 
-// 劈棍重击技能: 处理劈棍棍式的重击/蓄力/衍生(破棍式/跳重击)与棍势管理, 含伤害倍率与HUD绘制
+// 劈棍重击技能: 处理劈棍棍式的重击/蓄力/衍生(破棍式/跳重击)/大圣四蓄变身与棍势管理, 含伤害倍率与HUD绘制
 public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
     // 本技能事件监听器的唯一标识
@@ -64,7 +65,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
     @NotNull protected final StaticAnimationProvider[] animations; // 0~4星劈棍重击动画
     protected StaticAnimationProvider deriveAnimation1; // 一段衍生(破棍式)动画
     protected StaticAnimationProvider deriveAnimation2; // 二段衍生动画
-    protected StaticAnimationProvider deriveAnimation3; // 大圣套装专属三段衍生动画
+    protected StaticAnimationProvider greatSageCharged4; // 大圣套装专属四蓄重棍动画(满星直接释放并变身大圣式)
     @NotNull protected StaticAnimationProvider jumpAttackHeavy; // 跳跃重击动画
     @NotNull protected StaticAnimationProvider chargePre; // 蓄力前摇动画
 
@@ -74,6 +75,9 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         List<StaticAnimationProvider> staticAnimations =
                 new java.util.ArrayList<>(List.of(animations));
         staticAnimations.add(deriveAnimation2);
+        if (greatSageCharged4 != null) {
+            staticAnimations.add(greatSageCharged4); // 身外身法的分身也需同步该重击
+        }
         return staticAnimations;
     }
 
@@ -90,7 +94,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         this.animations = builder.animationProviders;
         deriveAnimation1 = builder.derive1;
         deriveAnimation2 = builder.derive2;
-        deriveAnimation3 = builder.derive3;
+        greatSageCharged4 = builder.greatSageCharged4;
         jumpAttackHeavy = builder.jumpAttackHeavy;
     }
 
@@ -141,9 +145,14 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                     executer.playAnimationSynchronized(deriveAnimation2.get(), 0.2F);
                 }
             } else if (container.isFull()
-                    && deriveAnimation3 != null
+                    && greatSageCharged4 != null
                     && isWearingGreatSageSet(player)) {
-                executer.playAnimationSynchronized(deriveAnimation3.get(), 0.2F);
+                // 满星且穿戴全套大圣套装: 直接释放大圣四蓄重棍并清空全部棍势, 随后切换为大圣棍式
+                dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
+                executer.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
+                executer.playAnimationSynchronized(greatSageCharged4.get(), 0.0F);
+                resetConsumption(container, executer, true);
+                BattleUnit.greatSageMode(executer);
             } else {
                 // 重击, 消耗所有星, 开始蓄力, 松手在客户端判断
                 if (!dataManager.getDataValue(WukongSkillDataKeys.IS_CHARGING.get())) {
@@ -155,7 +164,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         super.executeOnServer(container, args);
     }
 
-    // 判断玩家是否穿戴全套大圣套装(用于解锁三段衍生)
+    // 判断玩家是否穿戴全套大圣套装(用于满星时解锁大圣四蓄重棍变身)
     private static boolean isWearingGreatSageSet(ServerPlayer player) {
         return player.getItemBySlot(EquipmentSlot.HEAD).is(WukongItems.DASHENG_H.get())
                 && player.getItemBySlot(EquipmentSlot.CHEST).is(WukongItems.DASHENG_C.get())
@@ -695,7 +704,7 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
         protected StaticAnimationProvider[] animationProviders; // 劈棍重击动画
         protected StaticAnimationProvider derive1; // 一段衍生(破棍式)动画
         protected StaticAnimationProvider derive2; // 二段衍生动画
-        protected StaticAnimationProvider derive3; // 大圣套装专属三段衍生动画
+        protected StaticAnimationProvider greatSageCharged4; // 大圣套装专属四蓄重棍动画
         protected StaticAnimationProvider jumpAttackHeavy; // 跳跃重击动画
         StaticAnimationProvider pre; // 蓄力前摇动画
 
@@ -739,12 +748,15 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
 
         // 设置破棍式等衍生动画(可长按衍生的derive1即pre动画, 具体在动画处判断)
         public Builder setDeriveAnimations(
-                StaticAnimationProvider derive1,
-                StaticAnimationProvider derive2,
-                StaticAnimationProvider derive3) {
+                StaticAnimationProvider derive1, StaticAnimationProvider derive2) {
             this.derive1 = derive1;
             this.derive2 = derive2;
-            this.derive3 = derive3;
+            return this;
+        }
+
+        // 设置大圣套装专属四蓄重棍动画(满星直接释放并变身大圣式)
+        public Builder setGreatSageCharged4Animation(StaticAnimationProvider greatSageCharged4) {
+            this.greatSageCharged4 = greatSageCharged4;
             return this;
         }
 

@@ -140,8 +140,9 @@ public class WukongSkills {
                                         () -> WukongAnimations.SMASH_CHARGED4)
                                 .setDeriveAnimations(
                                         () -> WukongAnimations.SMASH_DERIVE1,
-                                        () -> WukongAnimations.SMASH_DERIVE2,
-                                        () -> WukongGreatSageAnimations.HENSHIN)
+                                        () -> WukongAnimations.SMASH_DERIVE2)
+                                .setGreatSageCharged4Animation(
+                                        () -> WukongGreatSageAnimations.XULI_HEAVY_4)
                                 .setJumpAttackHeavy(() -> WukongAnimations.JUMP_ATTACK_HEAVY));
         // 立棍
         PILLAR_HEAVY_ATTACK =
