@@ -146,9 +146,12 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                     executer.playAnimationSynchronized(deriveAnimation1.get(), 0.2F);
                 } else if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_DERIVE.get())) {
                     dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
-                    executer.playSound(
-                            WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
-                    this.setStackSynchronize(container, container.getStack() - 1);
+                    // 无棍势也可放斩棍式(弱化版), 有棍势则消耗1星并播放对应星级音效
+                    if (container.getStack() > 0) {
+                        executer.playSound(
+                                WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
+                        this.setStackSynchronize(container, container.getStack() - 1);
+                    }
                     executer.playAnimationSynchronized(deriveAnimation2.get(), 0.2F);
                 }
             } else if (container.isFull()
@@ -408,12 +411,13 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                             } else if (event.getDamageSource()
                                     .getAnimation()
                                     .equals(deriveAnimation2.get())) {
+                                // 斩棍式伤害随释放时棍势增多而提高, 0星为弱化版(约1星的一半, 与破棍式1.0/1.96同口径)
                                 float mul =
                                         switch (starCnt) {
                                             case 1 -> 4.7F;
                                             case 2 -> 4.9F;
                                             case 3, 4 -> 5.1F;
-                                            default -> 4.48F;
+                                            default -> 2.4F;
                                         };
                                 event.getDamageSource()
                                         .attachDamageModifier(ValueModifier.multiplier(mul));

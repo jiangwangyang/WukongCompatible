@@ -20,7 +20,6 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
@@ -66,9 +65,8 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
         if (lpp != null
                 && (AnimationJudge.isCharging(lpp)
                                 && lpp.getSkill(SkillSlots.WEAPON_INNATE).getStack() >= 1
-                        || (lpp.getAnimator().getPlayerFor(null).getAnimation()
-                                        instanceof StaticAnimation staticAnimation
-                                && AnimationJudge.isGlow(staticAnimation)))) {
+                        || AnimationJudge.isGlow(
+                                lpp.getAnimator().getPlayerFor(null).getAnimation()))) {
             currentTextureIndex = (currentTextureIndex + 1) % TOTAL_TEXTURES;
             if (currentTextureIndex > TOTAL_TEXTURES - 2) MAX_CZLT++;
             if (MAX_CZLT > 4) MAX_CZLT = 1;
@@ -125,28 +123,22 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
 
         // 蓄力或播放发光动画: 提升光照为自发光
         if (lpp != null
-                && ((lpp.getAnimator().getPlayerFor(null).getAnimation()
-                                                instanceof StaticAnimation staticAnimation
-                                        && AnimationJudge.isGlow(staticAnimation))
+                && (AnimationJudge.isGlow(lpp.getAnimator().getPlayerFor(null).getAnimation())
                                 && (lpp.getEntityState().getLevel() != 3)
                         || (AnimationJudge.isCharging(lpp)
                                 && lpp.getSkill(SkillSlots.WEAPON_INNATE).getStack() >= 1)))
             packedLight = 0xf000ff;
         // 切手类动画: 偏白亮色调
         if (lpp != null
-                && (lpp.getAnimator().getPlayerFor(null).getAnimation()
-                                instanceof StaticAnimation staticAnimation
-                        && AnimationJudge.isQie(staticAnimation)
-                        && (lpp.getEntityState().getLevel() != 3))) {
+                && AnimationJudge.isQie(lpp.getAnimator().getPlayerFor(null).getAnimation())
+                && (lpp.getEntityState().getLevel() != 3)) {
             green = 222f / 255f;
             blue = 200f / 255f;
             red = 1.0f;
         }
         // 二星蓄力: 金黄色调
         if (lpp != null
-                && ((lpp.getAnimator().getPlayerFor(null).getAnimation()
-                                        instanceof StaticAnimation staticAnimation
-                                && AnimationJudge.isTwo(staticAnimation)
+                && ((AnimationJudge.isTwo(lpp.getAnimator().getPlayerFor(null).getAnimation())
                                 && (lpp.getEntityState().getLevel() != 3))
                         || (AnimationJudge.isCharging(lpp)
                                 && lpp.getSkill(SkillSlots.WEAPON_INNATE).getStack() == 2))) {
@@ -156,9 +148,7 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
         }
         // 三星蓄力: 橙色调
         if (lpp != null
-                && ((lpp.getAnimator().getPlayerFor(null).getAnimation()
-                                        instanceof StaticAnimation staticAnimation
-                                && AnimationJudge.isThree(staticAnimation)
+                && ((AnimationJudge.isThree(lpp.getAnimator().getPlayerFor(null).getAnimation())
                                 && (lpp.getEntityState().getLevel() != 3))
                         || (AnimationJudge.isCharging(lpp)
                                 && lpp.getSkill(SkillSlots.WEAPON_INNATE).getStack() == 3))) {
@@ -168,9 +158,7 @@ public class JinGuBangRenderer extends GeoItemRenderer<JinGuBang> {
         }
         // 四星蓄力: 红橙色调
         if (lpp != null
-                && ((lpp.getAnimator().getPlayerFor(null).getAnimation()
-                                        instanceof StaticAnimation staticAnimation
-                                && AnimationJudge.isFour(staticAnimation)
+                && ((AnimationJudge.isFour(lpp.getAnimator().getPlayerFor(null).getAnimation())
                                 && (lpp.getEntityState().getLevel() != 3))
                         || (AnimationJudge.isCharging(lpp)
                                 && lpp.getSkill(SkillSlots.WEAPON_INNATE).getStack() == 4))) {

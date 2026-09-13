@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import yesman.epicfight.api.utils.AttackResult;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -138,7 +139,9 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 > 0) { // 普攻击解锁退寸技
             dataManager.setData(WukongSkillDataKeys.Thrust_RETREAT_TIMER.get(), 0);
             executer.playAnimationSynchronized(stepinch.get(), 0F);
-        } else if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0) {
+        } else if (dataManager.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0
+                && !dataManager.getDataValue(WukongSkillDataKeys.Thrust_FOOTAGE_WINDOW.get())) {
+            // 进尺后的窗口只允许接搅棍, 禁止再次进尺, 此时按重击落入蓄力分支
             dataManager.setDataSync(WukongSkillDataKeys.THRUST_METERS_BACK.get(), true);
         } else {
             executer.playAnimationSynchronized(xuli_start.get(), 0F);
@@ -163,38 +166,52 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                     .getAnimator()
                                     .getPlayerFor(null)
                                     .getAnimation()
-                                    .equals(WukongAnimations.THRUST_JUESICK_LOOP.get())) {
-                                // 搅棍命中加10棍势
+                                    .equals(WukongAnimations.THRUST_JUESICK_LOOP)) {
+                                // 搅棍命中加5棍势
                                 if (container.getStack() < 4) {
                                     container
                                             .getSkill()
                                             .setConsumptionSynchronize(
-                                                    container, container.getResource() + 10.0F);
+                                                    container, container.getResource() + 5.0F);
                                 }
                             }
                             if (event.getAttackDamage() > 0.0) {
+                                // 动画比较必须访问器对访问器, 访问器与动画实例比较恒为false
                                 if (event.getPlayerPatch()
                                         .getAnimator()
                                         .getPlayerFor(null)
                                         .getAnimation()
-                                        .equals(WukongAnimations.PILLAR_HEAVY_FENGYUNZHUAN.get())) {
+                                        .equals(WukongAnimations.PILLAR_HEAVY_FENGYUNZHUAN)) {
                                     createRepelForAttackTarget(
                                             player, event.getForgeEvent().getEntity(), 2);
                                 } else if (event.getPlayerPatch()
                                         .getAnimator()
                                         .getPlayerFor(null)
                                         .getAnimation()
-                                        .equals(WukongAnimations.THRUST_FOOTAGE.get())) {
+                                        .equals(WukongAnimations.THRUST_FOOTAGE)) {
                                     createRepelForAttackTarget(
                                             player, event.getForgeEvent().getEntity(), 1);
                                 } else if (event.getPlayerPatch()
                                         .getAnimator()
                                         .getPlayerFor(null)
                                         .getAnimation()
-                                        .equals(WukongAnimations.THRUST_CHARGED3.get())) {
+                                        .equals(WukongAnimations.THRUST_CHARGED3)) {
                                     createRepelForAttackTarget(
                                             player, event.getForgeEvent().getEntity(), 1.5);
                                 }
+                            }
+                            // 无棍势进尺为弱化版: 伤害归一化至x2.0(动画自带x3.92), 与劈棍0星破棍式(x1.0/x1.96)约一半的比例一致
+                            if (WukongAnimations.THRUST_FOOTAGE.equals(
+                                            event.getDamageSource().getAnimation())
+                                    && container
+                                                    .getDataManager()
+                                                    .getDataValue(
+                                                            WukongSkillDataKeys.STARS_CONSUMED
+                                                                    .get())
+                                            == 0) {
+                                event.getDamageSource()
+                                        .attachDamageModifier(
+                                                ValueModifier.multiplier(2.0F / 3.92F));
                             }
                         }));
 
@@ -274,6 +291,31 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                     .getDataManager()
                                     .getDataValue(WukongSkillDataKeys.Thrust_STEOP_BACK.get())) {
                                 WukongSkills.gainResource(container, 30.0F); // 退寸获得30棍势
+                                // 记录退寸赌胜成功, 之后的进尺期间同样免伤
+                                container
+                                        .getDataManager()
+                                        .setDataSync(
+                                                WukongSkillDataKeys.Thrust_RETREAT_SUCCESS.get(),
+                                                true);
+                                PacketRelay.sendToAll(
+                                        PacketHandler.INSTANCE,
+                                        new AddEntityAfterImageParticle(
+                                                event.getPlayerPatch().getOriginal().getId()));
+                                event.getPlayerPatch()
+                                        .playSound(WuKongSounds.PERFECT_DODGE.get(), 0.5F, 0, 0);
+                                event.setCanceled(true);
+                            }
+                            // 退寸赌胜成功后的进尺期间同样视作闪避, 命中免伤但不再加棍势
+                            if (container
+                                            .getDataManager()
+                                            .getDataValue(
+                                                    WukongSkillDataKeys.Thrust_RETREAT_SUCCESS
+                                                            .get())
+                                    && event.getPlayerPatch()
+                                            .getAnimator()
+                                            .getPlayerFor(null)
+                                            .getAnimation()
+                                            .equals(WukongAnimations.THRUST_FOOTAGE)) {
                                 PacketRelay.sendToAll(
                                         PacketHandler.INSTANCE,
                                         new AddEntityAfterImageParticle(
@@ -313,7 +355,7 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
     }
 
-    // 对攻击目标施加按距离归一化的击退(并点燃), 实现戳棍的击退效果
+    // 对攻击目标施加按距离归一化的击退, 实现戳棍的击退效果
     public void createRepelForAttackTarget(
             ServerPlayer player, Entity target, double knockbackStrength) {
         Vec3 playerPos = player.position();
@@ -326,7 +368,6 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 deltaX /= distance;
                 deltaZ /= distance;
                 target.push(deltaX * knockbackStrength, 0.0, deltaZ * knockbackStrength);
-                target.setSecondsOnFire(10);
             }
         }
     }
@@ -430,11 +471,16 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                     }
                 } else if (dataManager.getDataValue(WukongSkillDataKeys.THRUST_METERS_BACK.get())) {
                     dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
+                    // 消耗进尺请求标记, 防止进尺接触帧后重开的窗口重复触发进尺
+                    dataManager.setDataSync(WukongSkillDataKeys.THRUST_METERS_BACK.get(), false);
+                    // 记录释放时星数供伤害端判断弱化版, 无棍势也释放进尺(弱化版, 类似劈棍破棍式)
+                    dataManager.setDataSync(
+                            WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack());
+                    // 标记后续窗口来自进尺, 窗口内禁止再次进尺
+                    dataManager.setDataSync(WukongSkillDataKeys.Thrust_FOOTAGE_WINDOW.get(), true);
+                    serverPlayerPatch.playAnimationSynchronized(footage.get(), 0.0F);
                     if (container.getStack() > 0) {
-                        serverPlayerPatch.playAnimationSynchronized(footage.get(), 0.0F);
                         this.setStackSynchronize(container, container.getStack() - 1);
-                    } else {
-                        serverPlayerPatch.playAnimationSynchronized(animations[0].get(), 0.0F);
                     }
                 }
             }
@@ -446,6 +492,20 @@ public class ThrustHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                 if (!dataManager.getDataValue(WukongSkillDataKeys.IS_ATTACK_KEY_DOWN.get())) {
                     serverPlayerPatch.playAnimationSynchronized(juesick_end.get(), 0.0F);
                     dataManager.setDataSync(WukongSkillDataKeys.IS_REPEATING_DERIVE.get(), false);
+                }
+            }
+
+            // 戳棍重击(含凤穿花)接触帧(动画时间0.9s)后开启搅棍窗口(无需命中), 该窗口同样禁止再进尺
+            var playingAnimation =
+                    serverPlayerPatch.getAnimator().getPlayerFor(null).getAnimation();
+            for (StaticAnimationProvider thrustHeavy : animations) {
+                if (playingAnimation.equals(thrustHeavy.get())
+                        && serverPlayerPatch.getAnimator().getPlayerFor(null).getElapsedTime()
+                                >= 0.9F) {
+                    dataManager.setDataSync(WukongSkillDataKeys.REPEATING_DERIVE_TIMER.get(), 30);
+                    dataManager.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30);
+                    dataManager.setDataSync(WukongSkillDataKeys.Thrust_FOOTAGE_WINDOW.get(), true);
+                    break;
                 }
             }
 

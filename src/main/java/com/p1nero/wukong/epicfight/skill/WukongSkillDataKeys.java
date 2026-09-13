@@ -449,6 +449,24 @@ public class WukongSkillDataKeys {
                                     false,
                                     false,
                                     ThrustHeavyAttack.class)); // 退寸状态用于检测免伤害
+    public static final RegistryObject<SkillDataKey<Boolean>> Thrust_RETREAT_SUCCESS =
+            DATA_KEYS.register(
+                    "thrust_retreat_success",
+                    () ->
+                            SkillDataKey.createSkillDataKey(
+                                    PacketBufferCodec.BOOLEAN,
+                                    false,
+                                    false,
+                                    ThrustHeavyAttack.class)); // 退寸赌胜成功标记, 成功后的进尺期间同样免伤
+    public static final RegistryObject<SkillDataKey<Boolean>> Thrust_FOOTAGE_WINDOW =
+            DATA_KEYS.register(
+                    "thrust_footage_window",
+                    () ->
+                            SkillDataKey.createSkillDataKey(
+                                    PacketBufferCodec.BOOLEAN,
+                                    false,
+                                    false,
+                                    ThrustHeavyAttack.class)); // 禁止再进尺的窗口标记: 进尺后或戳棍重击后的窗口内按重击转为蓄力
     public static final RegistryObject<SkillDataKey<Boolean>> THRUST_SECOND_BACK =
             DATA_KEYS.register(
                     "thrust_second_back",

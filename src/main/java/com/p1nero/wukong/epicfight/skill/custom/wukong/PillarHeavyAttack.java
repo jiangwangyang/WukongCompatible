@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.utils.AttackResult;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -116,7 +117,6 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
         ServerPlayer player = executer.getOriginal();
         dataManager.setDataSync(
                 WukongSkillDataKeys.STARS_CONSUMED.get(), container.getStack()); // 0星也是星
-        boolean stackConsumed = container.getStack() > 0;
         if (container.getStack() == 4) {
             dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
             if (container.getStack() > 0) {
@@ -130,19 +130,26 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             executer.playSound(WuKongSounds.XULI_ATTACK_4.get(), 2, 2);
             executer.playAnimationSynchronized(heavy[container.getStack()].get(), 0.0F); // 有几星就几星重击
             resetConsumption(container, executer);
-        } else if (dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0
-                && stackConsumed) {
+        } else if (dataManager.getDataValue(WukongSkillDataKeys.DERIVE_TIMER.get()) > 0) {
+            // 无棍势也可放风云转(弱化版, 伤害端减半), 有棍势则消耗1星并播放对应星级音效
             dataManager.setData(WukongSkillDataKeys.PILLAR_FENG_YU_ZHUAN.get(), true);
-            executer.playSound(WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
             dataManager.setData(WukongSkillDataKeys.PROTECT_NEXT_FALL.get(), true);
+            if (container.getStack() > 0) {
+                executer.playSound(
+                        WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
+                this.setStackSynchronize(container, container.getStack() - 1);
+            }
             executer.playAnimationSynchronized(deriveAnimation1.get(), 0F);
             dataManager.setData(WukongSkillDataKeys.DERIVE_TIMER.get(), 0);
-            this.setStackSynchronize(container, container.getStack() - 1);
-        } else if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get()) > 0
-                && stackConsumed) {
+        } else if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get())
+                > 0) {
+            // 江海翻消耗所有棍势并按释放时星数增伤(伤害端按STARS_CONSUMED加倍率), 无棍势也可放弱化版
             dataManager.setDataSync(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get(), 0);
-            executer.playSound(WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
-            this.setStackSynchronize(container, container.getStack() - 1);
+            if (container.getStack() > 0) {
+                executer.playSound(
+                        WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
+                resetConsumption(container, executer);
+            }
             executer.playAnimationSynchronized(deriveAnimation2.get(), 0F);
         } else {
             // 重击开始蓄力
@@ -186,18 +193,46 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                         PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK,
                         EVENT_UUID,
                         (event -> {
+                            int starCnt =
+                                    container
+                                            .getDataManager()
+                                            .getDataValue(WukongSkillDataKeys.STARS_CONSUMED.get());
                             if (event.getPlayerPatch()
                                     .getAnimator()
                                     .getPlayerFor(null)
                                     .getAnimation()
-                                    .equals(WukongAnimations.PILLAR_HEAVY_FENGYUNZHUAN.get())) {
-                                // 风云转命中加5棍势
+                                    .equals(WukongAnimations.PILLAR_HEAVY_FENGYUNZHUAN)) {
+                                // 风云转命中加5棍势, 并刷新江海翻窗口(风云转打中才可接江海翻)
                                 if (container.getStack() < 4) {
                                     container
                                             .getSkill()
                                             .setConsumptionSynchronize(
                                                     container, container.getResource() + 5.0F);
                                 }
+                                container
+                                        .getDataManager()
+                                        .setDataSync(
+                                                WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get(),
+                                                Config.DERIVE_CHECK_TIME.get().intValue());
+                                // 无棍势风云转为弱化版, 伤害减半
+                                if (starCnt == 0) {
+                                    event.getDamageSource()
+                                            .attachDamageModifier(ValueModifier.multiplier(0.5F));
+                                }
+                            }
+                            // 江海翻按释放时星数增伤1~4倍(动画自带首段x0.9/砸落x4.48), 0星为弱化版减半
+                            if (WukongAnimations.PILLAR_HEAVY_RIVERSEAFLIP.equals(
+                                    event.getDamageSource().getAnimation())) {
+                                float mul =
+                                        switch (starCnt) {
+                                            case 1 -> 1.0F;
+                                            case 2 -> 2.0F;
+                                            case 3 -> 3.0F;
+                                            case 4 -> 4.0F;
+                                            default -> 0.5F;
+                                        };
+                                event.getDamageSource()
+                                        .attachDamageModifier(ValueModifier.multiplier(mul));
                             }
                         }));
 

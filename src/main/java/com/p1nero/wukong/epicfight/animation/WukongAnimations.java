@@ -1,6 +1,5 @@
 package com.p1nero.wukong.epicfight.animation;
 
-import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.capability.WKCapabilityProvider;
 import com.p1nero.wukong.client.StaffScaleState;
@@ -1595,6 +1594,7 @@ public class WukongAnimations {
                                                         .NO_GRAVITY_TIME,
                                                 TimePairList.create(0F, 0.5333F))
                                         .addEvents(
+                                                // 江海翻窗口改由风云转命中刷新, 收尾动画仅清除防坠机保护
                                                 AnimationEvent.InPeriodEvent.create(
                                                         0F,
                                                         1.93333F,
@@ -1605,19 +1605,6 @@ public class WukongAnimations {
                                                                     instanceof
                                                                     ServerPlayerPatch
                                                                             serverPlayerPatch) {
-                                                                serverPlayerPatch
-                                                                        .getSkill(
-                                                                                SkillSlots
-                                                                                        .WEAPON_INNATE)
-                                                                        .getDataManager()
-                                                                        .setDataSync(
-                                                                                WukongSkillDataKeys
-                                                                                        .PILLAR_JIANGHAIFAN_TIMER
-                                                                                        .get(),
-                                                                                Config
-                                                                                        .DERIVE_CHECK_TIME
-                                                                                        .get()
-                                                                                        .intValue());
                                                                 setWeaponInnateDataSyncIfRegistered(
                                                                         serverPlayerPatch,
                                                                         WukongSkillDataKeys
@@ -2185,8 +2172,50 @@ public class WukongAnimations {
                                                                                         .Thrust_CAN_FIRST_DERIVE
                                                                                         .get(),
                                                                                 false);
+                                                                // 免伤窗口从退寸第一帧开启, 并重置赌胜成功与进尺窗口标记
+                                                                serverPlayerPatch
+                                                                        .getSkill(
+                                                                                SkillSlots
+                                                                                        .WEAPON_INNATE)
+                                                                        .getDataManager()
+                                                                        .setDataSync(
+                                                                                WukongSkillDataKeys
+                                                                                        .Thrust_STEOP_BACK
+                                                                                        .get(),
+                                                                                true);
+                                                                serverPlayerPatch
+                                                                        .getSkill(
+                                                                                SkillSlots
+                                                                                        .WEAPON_INNATE)
+                                                                        .getDataManager()
+                                                                        .setDataSync(
+                                                                                WukongSkillDataKeys
+                                                                                        .Thrust_RETREAT_SUCCESS
+                                                                                        .get(),
+                                                                                false);
+                                                                serverPlayerPatch
+                                                                        .getSkill(
+                                                                                SkillSlots
+                                                                                        .WEAPON_INNATE)
+                                                                        .getDataManager()
+                                                                        .setDataSync(
+                                                                                WukongSkillDataKeys
+                                                                                        .Thrust_FOOTAGE_WINDOW
+                                                                                        .get(),
+                                                                                false);
                                                             }
                                                         }),
+                                                        AnimationEvent.Side.SERVER))
+                                        // 动画结束或被打断时关闭免伤窗口, 防止标记残留导致全程免伤
+                                        .addEvents(
+                                                AnimationProperty.StaticAnimationProperty
+                                                        .ON_END_EVENTS,
+                                                AnimationEvent.SimpleEvent.create(
+                                                        ((livingEntityPatch,
+                                                                staticAnimation,
+                                                                objects) ->
+                                                                BattleUnit.CUNTUI_SHANGSUO(
+                                                                        livingEntityPatch)),
                                                         AnimationEvent.Side.SERVER))
                                         .addEvents(
                                                 AnimationProperty.StaticAnimationProperty
@@ -2262,6 +2291,22 @@ public class WukongAnimations {
                                                                 staticAnimation,
                                                                 objects) -> {
                                                             WukongMoveCoordFunctions.reseTSjzt();
+                                                            // 进尺结束或被打断时消耗掉退寸赌胜成功标记
+                                                            if (livingEntityPatch
+                                                                    instanceof
+                                                                    ServerPlayerPatch
+                                                                            serverPlayerPatch) {
+                                                                serverPlayerPatch
+                                                                        .getSkill(
+                                                                                SkillSlots
+                                                                                        .WEAPON_INNATE)
+                                                                        .getDataManager()
+                                                                        .setDataSync(
+                                                                                WukongSkillDataKeys
+                                                                                        .Thrust_RETREAT_SUCCESS
+                                                                                        .get(),
+                                                                                false);
+                                                            }
                                                         }),
                                                         AnimationEvent.Side.SERVER))
                                         .addProperty(
@@ -2277,6 +2322,42 @@ public class WukongAnimations {
                                                         .PLAY_SPEED_MODIFIER,
                                                 ((dynamicAnimation, livingEntityPatch, v, v1, v2) ->
                                                         3F))
+                                        // 进尺接触帧(2.033s)之后开启搅棍窗口: 进尺后长按普攻接搅棍而非普攻连段
+                                        .addEvents(
+                                                AnimationProperty.StaticAnimationProperty
+                                                        .TICK_EVENTS,
+                                                AnimationEvent.InTimeEvent.create(
+                                                        2.5F,
+                                                        (livingEntityPatch,
+                                                                staticAnimation,
+                                                                objects) -> {
+                                                            if (livingEntityPatch
+                                                                    instanceof
+                                                                    ServerPlayerPatch
+                                                                            serverPlayerPatch) {
+                                                                serverPlayerPatch
+                                                                        .getSkill(
+                                                                                SkillSlots
+                                                                                        .WEAPON_INNATE)
+                                                                        .getDataManager()
+                                                                        .setDataSync(
+                                                                                WukongSkillDataKeys
+                                                                                        .REPEATING_DERIVE_TIMER
+                                                                                        .get(),
+                                                                                30);
+                                                                serverPlayerPatch
+                                                                        .getSkill(
+                                                                                SkillSlots
+                                                                                        .WEAPON_INNATE)
+                                                                        .getDataManager()
+                                                                        .setDataSync(
+                                                                                WukongSkillDataKeys
+                                                                                        .CAN_SECOND_TIMER
+                                                                                        .get(),
+                                                                                30);
+                                                            }
+                                                        },
+                                                        AnimationEvent.Side.SERVER))
                                         .addEvents(
                                                 getScaleEvents(
                                                         ScaleTime.of(0F, 1, 1F, 1F, 0F, 0F, 0F),

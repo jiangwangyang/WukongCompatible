@@ -6,6 +6,7 @@ import com.p1nero.wukong.Config;
 import com.p1nero.wukong.WukongMoveset;
 import com.p1nero.wukong.client.WuKongSounds;
 import com.p1nero.wukong.epicfight.animation.WukongAnimations;
+import com.p1nero.wukong.epicfight.animation.WukongGreatSageAnimations;
 import com.p1nero.wukong.epicfight.animation.custom.WukongDodgeAnimation;
 import com.p1nero.wukong.epicfight.compat.EpicFightDamageType;
 import com.p1nero.wukong.epicfight.compat.StaticAnimationProvider;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.MainFrameAnimation;
 import yesman.epicfight.api.utils.AttackResult;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -163,13 +165,16 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
             return;
         }
 
-        if (data.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0 && stack > 0) {
+        if (data.getDataValue(WukongSkillDataKeys.CAN_SECOND_TIMER.get()) > 0) {
+            // 与劈棍斩棍式一致: 无棍势也可放弱化版, 有星则消耗1星, 记录释放时星数供伤害端归一化
             data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 0);
-            data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), 1);
+            data.setDataSync(WukongSkillDataKeys.STARS_CONSUMED.get(), stack);
             data.setDataSync(
                     WukongSkillDataKeys.RED_TIMER.get(), Config.DERIVE_CHECK_TIME.get().intValue());
             executor.playAnimationSynchronized(derivedAttacks2[combo].get(), 0.0F);
-            setStackSynchronize(container, stack - 1);
+            if (stack > 0) {
+                setStackSynchronize(container, stack - 1);
+            }
             return;
         }
 
@@ -181,8 +186,8 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                     executor.playAnimationSynchronized(pillarStartAttacks[stack].get(), 0.1F);
                 }
             } else {
+                // 二段衍生窗口改为一段衍生命中后开启(见DEAL_DAMAGE_EVENT_DAMAGE监听)
                 data.setDataSync(WukongSkillDataKeys.GREATSAGE_PILLAR.get(), false);
-                data.setDataSync(WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30);
                 executor.playAnimationSynchronized(derivedAttacks1[combo].get(), 0.1F);
             }
             return;
@@ -311,6 +316,49 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
                                     .setDataSync(
                                             WukongSkillDataKeys.CHARGED4_TIMER.get(),
                                             Config.CHARGED4_WINDOW_TICKS.get().intValue());
+                            // 一段衍生打中才解锁二段衍生窗口(与劈棍破棍打中解锁斩棍一致)
+                            for (StaticAnimationProvider derive1 : derivedAttacks1) {
+                                if (derive1.get().equals(event.getDamageSource().getAnimation())) {
+                                    container
+                                            .getDataManager()
+                                            .setDataSync(
+                                                    WukongSkillDataKeys.CAN_SECOND_TIMER.get(), 30);
+                                    break;
+                                }
+                            }
+                        });
+
+        // 大圣二段衍生伤害: 不随棍势加伤害, 仅有星正常版/0星弱化版两档
+        container
+                .getExecutor()
+                .getEventListener()
+                .addEventListener(
+                        PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK,
+                        EVENT_UUID,
+                        event -> {
+                            int starCnt =
+                                    container
+                                            .getDataManager()
+                                            .getDataValue(WukongSkillDataKeys.STARS_CONSUMED.get());
+                            for (StaticAnimationProvider derive2 : derivedAttacks2) {
+                                if (derive2.get().equals(event.getDamageSource().getAnimation())) {
+                                    if (derive2.get()
+                                            .equals(WukongGreatSageAnimations.CHOP_STICK_STYLE)) {
+                                        // 斩棍: 正常版x4.7, 0星弱化版x2.4, 按动画自带x5.0归一化
+                                        event.getDamageSource()
+                                                .attachDamageModifier(
+                                                        ValueModifier.multiplier(
+                                                                (starCnt == 0 ? 2.4F : 4.7F)
+                                                                        / 5.0F));
+                                    } else if (starCnt == 0) {
+                                        // 江海翻/连段重击: 正常版为动画自带倍率, 0星弱化版伤害减半
+                                        event.getDamageSource()
+                                                .attachDamageModifier(
+                                                        ValueModifier.multiplier(0.5F));
+                                    }
+                                    break;
+                                }
+                            }
                         });
 
         super.onInitiate(container);
@@ -322,6 +370,7 @@ public class GreatSageHeavyAttack extends WeaponInnateSkill implements HeavyAtta
         PlayerEventListener listener = container.getExecutor().getEventListener();
         listener.removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
+        listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID);
         listener.removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_DAMAGE, EVENT_UUID);
         super.onRemoved(container);
     }

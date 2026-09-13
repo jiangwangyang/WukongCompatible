@@ -4,7 +4,8 @@ import com.p1nero.wukong.epicfight.animation.WukongAnimations;
 import com.p1nero.wukong.epicfight.skill.WukongSkillDataKeys;
 
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.animation.types.DynamicAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataManager;
@@ -68,40 +69,40 @@ public record AnimationJudge() {
     }
 
     // 判断动画是否为棍花循环动画
-    public static boolean isGh(StaticAnimation staticAnimation) {
-        return contains(GH, staticAnimation);
+    public static boolean isGh(AssetAccessor<? extends DynamicAnimation> animation) {
+        return contains(GH, animation);
     }
 
     // 判断动画是否为带发光特效的蓄力动画
-    public static boolean isGlow(StaticAnimation staticAnimation) {
-        return contains(GLOW, staticAnimation);
+    public static boolean isGlow(AssetAccessor<? extends DynamicAnimation> animation) {
+        return contains(GLOW, animation);
     }
 
     // 判断动画是否为一层蓄力动画
-    public static boolean isQie(StaticAnimation staticAnimation) {
-        return contains(ONE_STOR, staticAnimation);
+    public static boolean isQie(AssetAccessor<? extends DynamicAnimation> animation) {
+        return contains(ONE_STOR, animation);
     }
 
     // 判断动画是否为二层蓄力动画
-    public static boolean isTwo(StaticAnimation staticAnimation) {
-        return contains(TWO_STOR, staticAnimation);
+    public static boolean isTwo(AssetAccessor<? extends DynamicAnimation> animation) {
+        return contains(TWO_STOR, animation);
     }
 
     // 判断动画是否为三层蓄力动画
-    public static boolean isThree(StaticAnimation staticAnimation) {
-        return contains(THREE_STOR, staticAnimation);
+    public static boolean isThree(AssetAccessor<? extends DynamicAnimation> animation) {
+        return contains(THREE_STOR, animation);
     }
 
     // 判断动画是否为四层(满层)蓄力动画
-    public static boolean isFour(StaticAnimation staticAnimation) {
-        return contains(FOUR_STOR, staticAnimation);
+    public static boolean isFour(AssetAccessor<? extends DynamicAnimation> animation) {
+        return contains(FOUR_STOR, animation);
     }
 
-    // 判定指定动画是否存在于给定列表中(按实例引用比较)
+    // 判定指定动画是否存在于给定列表中(访问器按注册名比较, 动画播放器保存的是访问器而非动画实例)
     private static boolean contains(
-            List<AnimationManager.AnimationAccessor> animations, StaticAnimation staticAnimation) {
-        return staticAnimation != null
-                && animations.stream().anyMatch(accessor -> accessor.get() == staticAnimation);
+            List<AnimationManager.AnimationAccessor> animations,
+            AssetAccessor<? extends DynamicAnimation> animation) {
+        return animation != null && animations.contains(animation);
     }
 
     // 判断玩家当前是否处于蓄力状态(劈棍/戳棍)
