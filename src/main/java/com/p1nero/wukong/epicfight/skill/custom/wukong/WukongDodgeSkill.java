@@ -29,7 +29,6 @@ import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.network.client.CPSkillRequest;
-import yesman.epicfight.skill.BasicAttack;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillCategories;
@@ -39,7 +38,6 @@ import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.List;
@@ -180,8 +178,8 @@ public class WukongDodgeSkill extends Skill {
         return list;
     }
 
-    // 服务端执行闪避: 轮播闪避动画(1~3段循环), 记录完美闪避方向,
-    // 重置普攻连段计数并同步模型朝向
+    // 服务端执行闪避: 轮播闪避动画(1~3段循环), 记录完美闪避方向并同步模型朝向,
+    // 闪避不打断普攻连段, 连段仅受普攻间隔超时重置约束
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         super.executeOnServer(container, args);
@@ -194,15 +192,8 @@ public class WukongDodgeSkill extends Skill {
         executer.playAnimationSynchronized(this.animations[count][i].get(), 0.0F); // 轮播
         executer.playSound(EpicFightSounds.ROLL.get(), 1.0F, 1.0F);
         dataManager.setDataSync(WukongSkillDataKeys.DIRECTION.get(), i); // 完美闪避方向
-        if (count != 0) {
-            dataManager.setDataSync(WukongSkillDataKeys.RESET_TIMER.get(), RESET_TICKS);
-            BasicAttack.setComboCounterWithEvent(
-                    ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION,
-                    executer,
-                    executer.getSkill(SkillSlots.BASIC_ATTACK),
-                    this.animations[count][i].get(),
-                    0);
-        }
+        // 每次闪避都刷新归段计时, 避免单次闪避后段数计数残留
+        dataManager.setDataSync(WukongSkillDataKeys.RESET_TIMER.get(), RESET_TICKS);
         dataManager.setDataSync(WukongSkillDataKeys.COUNT.get(), ++count % 3);
 
         executer.setModelYRot(yaw, true);
