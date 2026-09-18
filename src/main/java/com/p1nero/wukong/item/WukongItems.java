@@ -19,18 +19,16 @@ public class WukongItems {
     // 物品注册器
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, WukongMoveset.MOD_ID);
-    // 棍(测试用武器, 高耐久)
+    // 柳木棍(基础棍武器)
     public static final RegistryObject<Item> STAFF =
             ITEMS.register(
                     "staff",
                     () ->
                             new TestStaff(
                                     Tiers.NETHERITE,
+                                    -1,
                                     -3,
-                                    -3,
-                                    (new Item.Properties())
-                                            .defaultDurability(114514)
-                                            .rarity(Rarity.COMMON)));
+                                    (new Item.Properties()).rarity(Rarity.COMMON)));
     // 亢金(备用棍武器, uncommon品质)
     public static final RegistryObject<Item> KANG_JIN =
             ITEMS.register(
@@ -40,9 +38,7 @@ public class WukongItems {
                                     Tiers.NETHERITE,
                                     1,
                                     -3,
-                                    (new Item.Properties())
-                                            .defaultDurability(2777)
-                                            .rarity(Rarity.UNCOMMON)));
+                                    (new Item.Properties()).rarity(Rarity.UNCOMMON)));
     // 金箍棒(史诗品质武器, 不可堆叠不可修复)
     public static final RegistryObject<Item> JIN_GU_BANG =
             ITEMS.register(
