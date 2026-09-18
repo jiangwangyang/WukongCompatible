@@ -411,14 +411,8 @@ public class SmashHeavyAttack extends WeaponInnateSkill implements HeavyAttack {
                             } else if (event.getDamageSource()
                                     .getAnimation()
                                     .equals(deriveAnimation2.get())) {
-                                // 斩棍式伤害随释放时棍势增多而提高, 0星为弱化版(约1星的一半, 与破棍式1.0/1.96同口径)
-                                float mul =
-                                        switch (starCnt) {
-                                            case 1 -> 4.7F;
-                                            case 2 -> 4.9F;
-                                            case 3, 4 -> 5.1F;
-                                            default -> 2.4F;
-                                        };
+                                // 斩棍式伤害两档: 有星为正常版x4.7, 0星为弱化版x2.4, 不再随更多星数提高
+                                float mul = starCnt == 0 ? 2.4F : 4.7F;
                                 event.getDamageSource()
                                         .attachDamageModifier(ValueModifier.multiplier(mul));
                             }

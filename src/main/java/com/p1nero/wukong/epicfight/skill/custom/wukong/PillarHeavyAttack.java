@@ -143,12 +143,12 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
             dataManager.setData(WukongSkillDataKeys.DERIVE_TIMER.get(), 0);
         } else if (dataManager.getDataValue(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get())
                 > 0) {
-            // 江海翻消耗所有棍势并按释放时星数增伤(伤害端按STARS_CONSUMED加倍率), 无棍势也可放弱化版
+            // 江海翻与斩棍式统一: 不足1星时不消耗并放弱化版(伤害减半), 至少1星时消耗1星并播放对应星级音效
             dataManager.setDataSync(WukongSkillDataKeys.PILLAR_JIANGHAIFAN_TIMER.get(), 0);
             if (container.getStack() > 0) {
                 executer.playSound(
                         WuKongSounds.stackSounds.get(container.getStack() - 1).get(), 1, 1);
-                resetConsumption(container, executer);
+                this.setStackSynchronize(container, container.getStack() - 1);
             }
             executer.playAnimationSynchronized(deriveAnimation2.get(), 0F);
         } else {
@@ -220,17 +220,10 @@ public class PillarHeavyAttack extends WeaponInnateSkill implements HeavyAttack 
                                             .attachDamageModifier(ValueModifier.multiplier(0.5F));
                                 }
                             }
-                            // 江海翻按释放时星数增伤1~4倍(动画自带首段x0.9/砸落x4.48), 0星为弱化版减半
+                            // 江海翻伤害两档(动画自带首段x0.9/砸落x4.48): 有星为正常版, 0星为弱化版减半, 不再随更多星数增伤
                             if (WukongAnimations.PILLAR_HEAVY_RIVERSEAFLIP.equals(
                                     event.getDamageSource().getAnimation())) {
-                                float mul =
-                                        switch (starCnt) {
-                                            case 1 -> 1.0F;
-                                            case 2 -> 2.0F;
-                                            case 3 -> 3.0F;
-                                            case 4 -> 4.0F;
-                                            default -> 0.5F;
-                                        };
+                                float mul = starCnt == 0 ? 0.5F : 1.0F;
                                 event.getDamageSource()
                                         .attachDamageModifier(ValueModifier.multiplier(mul));
                             }
